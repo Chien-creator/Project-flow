@@ -6,7 +6,7 @@
 <title>Project Flow Pro — 智能專案時程與資源規劃系統</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<!-- PWA 宣告 -->
+  <!-- PWA 宣告 -->
 <link rel="manifest" href="./manifest.json">
 <meta name="theme-color" content="#6366f1">
 <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/1087/1087815.png">
@@ -18,14 +18,19 @@
     });
   }
 </script>
-  <script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>
+  if (typeof pdfjsLib !== 'undefined') {
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  }
+</script>
+<script>
 tailwind.config = {
   darkMode: 'class',
   theme: {
     extend: {
-      fontFamily: { sans: ['var(--font-sans)', 'Inter','Noto Sans TC','system-ui','sans-serif'] },
       boxShadow: {
-        glow: '0 0 50px -10px var(--accent-glow)',
+        glow: '0 0 60px var(--accent-glow)',
         glow2: '0 0 80px -15px var(--accent-glow)'
       }
     }
@@ -207,19 +212,20 @@ tailwind.config = {
           <button onclick="loadPreset('custom_esg')" class="w-full text-left px-3 py-2 hover:bg-slate-100 dark:hover:bg-zinc-800 flex items-center gap-2">
             <i class="fa-solid fa-leaf text-teal-500"></i> 【自訂】ESG永續報告書輔導
           </button>
+          <div class="border-t border-slate-100 dark:border-zinc-800 my-1"></div>
+          <button onclick="triggerImportCustomPreset()" class="w-full text-left px-3 py-2 hover:bg-slate-100 dark:hover:bg-zinc-800 flex items-center gap-2 text-rose-600 dark:text-rose-400 font-bold">
+            <i class="fa-solid fa-file-pdf text-rose-500"></i> 上傳自訂 PDF 範例 (.pdf)
+          </button>
         </div>
       </div>
+
+      <!-- Hidden File Input for Custom PDF Upload -->
+      <input type="file" id="importPresetInput" accept=".pdf" onchange="handlePresetPdfUpload(event)" class="hidden">
 
       <!-- Storage Manager Trigger -->
       <button onclick="openStorageModal()" class="rounded-xl border border-slate-200 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900 px-3 py-2 text-xs font-medium hover:border-indigo-400 transition-all flex items-center gap-1.5">
         <i class="fa-solid fa-folder-open text-slate-500 dark:text-zinc-400"></i>
         <span class="hidden sm:inline">專案庫</span>
-      </button>
-
-      <!-- Dark Mode Toggle -->
-      <button id="themeBtn" onclick="toggleDarkMode()" class="rounded-xl border border-slate-200 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900 p-2 text-slate-600 dark:text-zinc-300 hover:text-indigo-600 transition-all">
-        <i class="fa-solid fa-moon dark:hidden"></i>
-        <i class="fa-solid fa-sun hidden dark:inline"></i>
       </button>
 
       <!-- Print Button -->
@@ -261,11 +267,8 @@ tailwind.config = {
   <div id="page1" class="space-y-8 no-print">
     <!-- Hero Section -->
     <section class="max-w-4xl">
-      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200 dark:border-indigo-900 custom-accent-text text-xs font-medium mb-3">
-        <i class="fa-solid fa-cubes"></i> 第一步：請先選擇 8 種專案類型之一
-      </div>
       <h1 class="text-3xl sm:text-5xl font-extrabold tracking-tight leading-[1.15] mb-3">
-        選擇專案類型，<br><span class="gradient-text">自動建構最適時程與預算藍圖。</span>
+        從想法到落地，<br><span class="gradient-text">打造清晰可執行的專案時程</span>
       </h1>
       <p class="text-sm sm:text-base opacity-80 leading-relaxed max-w-2xl">
         系統整合公開市場數據與專案管理知識庫（PMBOK），選擇下方卡片後即可帶入專屬生命週期與推薦 RACI 配置。
@@ -277,7 +280,7 @@ tailwind.config = {
       <div class="flex items-start justify-between gap-4 mb-6">
         <div>
           <span class="text-xs font-bold uppercase tracking-widest custom-accent-text bg-indigo-100 dark:bg-indigo-950/80 px-2.5 py-1 rounded-md">
-            <i class="fa-solid fa-hand-pointer mr-1"></i> STEP 01 / 最先確認項目
+            <i class="fa-solid fa-hand-pointer mr-1"></i> STEP 01
           </span>
           <h2 class="text-2xl font-extrabold tracking-tight mt-2">請選擇專案類型 (共 8 種選項)</h2>
           <p class="text-xs sm:text-sm opacity-70 mt-1">選定卡片後點擊「下一步」繼續填寫基本資訊與團隊配置。</p>
@@ -510,7 +513,10 @@ tailwind.config = {
               <button onclick="exportMarkdown()" class="w-full text-left px-4 py-2 hover:bg-slate-100 dark:hover:bg-zinc-800 flex items-center gap-2">
                 <i class="fa-brands fa-markdown text-sky-500"></i> 複製 Markdown 報告
               </button>
-              <button onclick="saveCurrentProject()" class="w-full text-left px-4 py-2 hover:bg-slate-100 dark:hover:bg-zinc-800 flex items-center gap-2">
+              <button onclick="exportProjectJSON()" class="w-full text-left px-4 py-2 hover:bg-slate-100 dark:hover:bg-zinc-800 flex items-center gap-2">
+                <i class="fa-solid fa-file-code text-purple-500"></i> 匯出範例檔 (.json)
+              </button>
+              <button onclick="saveCurrentProject()" class="w-full text-left px-4 py-2 hover:bg-slate-100 dark:hover:bg-zinc-800 flex items-center gap-2 border-t border-slate-100 dark:border-zinc-800 mt-1 pt-2">
                 <i class="fa-solid fa-floppy-disk text-amber-500"></i> 儲存至專案庫
               </button>
             </div>
@@ -984,7 +990,6 @@ window.addEventListener('DOMContentLoaded', () => {
   addPersonRow('李執行', '專案組員');
 });
 
-function toggleDarkMode() { document.documentElement.classList.toggle('dark'); }
 function toggleDropdown(id) { document.getElementById(id).classList.toggle('hidden'); }
 
 function showToast(msg, type = 'info') {
@@ -1791,6 +1796,72 @@ function exportMarkdown() {
   document.body.removeChild(textarea);
 
   showToast('Markdown 格式報告已複製至剪貼簿！', 'success');
+}
+
+function exportProjectJSON() {
+  if (!currentPlanData) return;
+  const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(currentPlanData, null, 2));
+  const downloadAnchor = document.createElement('a');
+  downloadAnchor.setAttribute("href", dataStr);
+  downloadAnchor.setAttribute("download", `${currentPlanData.name}_範例檔.json`);
+  document.body.appendChild(downloadAnchor);
+  downloadAnchor.click();
+  downloadAnchor.remove();
+  showToast('已成功匯出可重複上傳的範例 JSON 檔案！', 'success');
+}
+
+function triggerImportCustomPreset() {
+  toggleDropdown('presetDropdown');
+  document.getElementById('importPresetInput').click();
+}
+
+async function handlePresetPdfUpload(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  if (!file.name.toLowerCase().endsWith('.pdf')) {
+    showToast('請選擇副檔名為 .pdf 的專案企劃書！', 'error');
+    event.target.value = '';
+    return;
+  }
+
+  showToast(`正在讀取並解析 PDF 文件「${file.name}」...`, 'info');
+
+  try {
+    const arrayBuffer = await file.arrayBuffer();
+    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+    let fullText = '';
+    
+    for (let i = 1; i <= pdf.numPages; i++) {
+      const page = await pdf.getPage(i);
+      const textContent = await page.getTextContent();
+      const pageText = textContent.items.map(item => item.str).join(' ');
+      fullText += pageText + '\n';
+    }
+
+    const pdfFileName = file.name.replace(/\.pdf$/i, '');
+    
+    let detectedBudget = 1000000;
+    const budgetMatch = fullText.match(/(?:預算|金額|總價|費用|經費)[：:\s]*(?:NT\$?|TWD)?\s*([0-9,]+)/i);
+    if (budgetMatch) {
+      const bNum = parseInt(budgetMatch[1].replace(/,/g, ''), 10);
+      if (!isNaN(bNum) && bNum > 0) detectedBudget = bNum;
+    }
+
+    selectProjectTypeCard('custom');
+    document.getElementById('projectName').value = pdfFileName;
+    document.getElementById('budget').value = detectedBudget;
+    document.getElementById('customKeywordInput').value = pdfFileName;
+
+    synthesizeCustomBlueprint(pdfFileName);
+
+    goToPage(2);
+    showToast(`已成功讀取 PDF「${file.name}」並提取專案時程架構！`, 'success');
+  } catch (err) {
+    console.error(err);
+    showToast('解析 PDF 檔案失敗，請確認檔案是否密碼保護或損壞！', 'error');
+  }
+  event.target.value = '';
 }
 
 function saveCurrentProject() {
