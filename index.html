@@ -4,9 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Project Flow Pro — 智能專案時程與資源規劃系統</title>
-<script src="https://cdn.tailwindcss.com"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <!-- PWA 宣告 -->
+
+<!-- PWA Manifest & Service Worker Registration -->
 <link rel="manifest" href="./manifest.json">
 <meta name="theme-color" content="#6366f1">
 <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/1087/1087815.png">
@@ -14,1949 +13,2009 @@
 <script>
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./sw.js');
+      navigator.serviceWorker.register('./sw.js').catch(err => console.log('SW reg error:', err));
     });
   }
 </script>
+
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<!-- PDF.js for PDF reading -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<!-- SheetJS for multi-sheet Excel generation -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<!-- html2canvas for chart image export -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
 <script>
   if (typeof pdfjsLib !== 'undefined') {
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
   }
 </script>
-<script>
-tailwind.config = {
-  darkMode: 'class',
-  theme: {
-    extend: {
-      boxShadow: {
-        glow: '0 0 60px var(--accent-glow)',
-        glow2: '0 0 80px -15px var(--accent-glow)'
-      }
-    }
-  }
-}
-</script>
+
 <style>
-  /* Dynamic CSS Theme Variables */
   :root {
-    --bg-main: #f8fafc;
-    --bg-card: rgba(255, 255, 255, 0.85);
-    --text-main: #0f172a;
-    --text-sub: #64748b;
     --accent-primary: #6366f1;
-    --accent-secondary: #8b5cf6;
-    --accent-glow: rgba(99, 102, 241, 0.25);
-    --border-color: rgba(226, 232, 240, 0.8);
+    --bg-main: #f8fafc;
+    --text-main: #0f172a;
     --radius-main: 1.5rem;
-    --radius-card: 1rem;
-    --font-sans: 'Inter';
-    --card-border-width: 1px;
   }
-
-  /* Preset Themes Injection */
-  body.theme-cyberpunk {
-    --bg-main: #0d0221;
-    --bg-card: rgba(25, 10, 56, 0.90);
-    --text-main: #00f0ff;
-    --text-sub: #ff70a6;
-    --accent-primary: #ff0055;
-    --accent-secondary: #00f0ff;
-    --accent-glow: rgba(255, 0, 85, 0.4);
-    --border-color: #ff0055;
-    --radius-main: 0.35rem;
-    --radius-card: 0.25rem;
-    --font-sans: 'Courier New', monospace;
-  }
-
-  body.theme-popart {
-    --bg-main: #fff9e6;
-    --bg-card: #ffffff;
-    --text-main: #111111;
-    --text-sub: #444444;
-    --accent-primary: #ff3366;
-    --accent-secondary: #ffcc00;
-    --accent-glow: rgba(255, 51, 102, 0.3);
-    --border-color: #111111;
-    --radius-main: 0.75rem;
-    --radius-card: 0.5rem;
-    --card-border-width: 2px;
-  }
-
-  body.theme-muji {
-    --bg-main: #f4f1ea;
-    --bg-card: #faf8f5;
-    --text-main: #3d3935;
-    --text-sub: #78726a;
-    --accent-primary: #8c7b6b;
-    --accent-secondary: #a89a8b;
-    --accent-glow: rgba(140, 123, 107, 0.2);
-    --border-color: #dcd6cd;
-    --radius-main: 1rem;
-    --radius-card: 0.75rem;
-  }
-
-  body.theme-tech {
-    --bg-main: #050b14;
-    --bg-card: rgba(14, 24, 42, 0.85);
-    --text-main: #e0f2fe;
-    --text-sub: #38bdf8;
-    --accent-primary: #00f2fe;
-    --accent-secondary: #4facfe;
-    --accent-glow: rgba(0, 242, 254, 0.35);
-    --border-color: rgba(30, 58, 138, 0.8);
-    --radius-main: 1.25rem;
-    --radius-card: 0.85rem;
-  }
-
-  html { scroll-behavior: smooth; }
-  body { 
-    font-family: var(--font-sans), "Noto Sans TC", system-ui, sans-serif;
+  body {
     background-color: var(--bg-main);
     color: var(--text-main);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   }
-
-  .gradient-text { 
-    background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%); 
-    -webkit-background-clip: text; 
-    background-clip: text; 
-    color: transparent; 
-  }
-
-  .glass { 
-    background: var(--bg-card); 
-    backdrop-filter: blur(16px); 
-    -webkit-backdrop-filter: blur(16px); 
-    border-color: var(--border-color);
-    border-width: var(--card-border-width);
-    border-radius: var(--radius-main);
-  }
-
-  .timeline-line:before { 
-    content: ""; position: absolute; left: 19px; top: 32px; bottom: -8px; width: 2px; 
-    background: linear-gradient(to bottom, var(--accent-primary), var(--border-color)); 
-  }
-  .timeline-line:last-child:before { display: none; }
-  
-  input, select, textarea { outline: none; transition: all 0.2s ease; }
-  input:focus, select:focus, textarea:focus { box-shadow: 0 0 0 3px var(--accent-glow); }
-  
-  ::-webkit-scrollbar { width: 6px; height: 6px; }
-  ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: var(--accent-primary); border-radius: 99px; }
-
-  .type-card { transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; border-radius: var(--radius-card); }
-  .type-card:hover { transform: translateY(-3px); }
-  .type-card.active {
-    border-color: var(--accent-primary) !important;
-    background: var(--accent-glow) !important;
-    box-shadow: 0 10px 30px -10px var(--accent-glow);
-  }
-
-  /* Custom Color Override Targets */
-  .custom-accent-bg { background-color: var(--accent-primary) !important; color: white !important; }
+  .custom-accent-bg { background-color: var(--accent-primary) !important; }
   .custom-accent-text { color: var(--accent-primary) !important; }
   .custom-accent-border { border-color: var(--accent-primary) !important; }
+  
+  .type-card {
+    border-radius: var(--radius-main);
+    transition: all 0.25s ease;
+    cursor: pointer;
+  }
+  .type-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 24px -10px rgba(99, 102, 241, 0.15);
+  }
+  .type-card.active {
+    border-color: var(--accent-primary);
+    background-color: rgba(99, 102, 241, 0.04);
+    box-shadow: 0 0 0 2px var(--accent-primary);
+  }
+  
+  /* Timeline line helper */
+  .timeline-line::before {
+    content: '';
+    position: absolute;
+    left: 19px;
+    top: 36px;
+    bottom: -10px;
+    width: 2px;
+    background-color: #e2e8f0;
+  }
+  .timeline-line:last-child::before {
+    display: none;
+  }
 
+  /* PRINT STYLES - Ensures ALL tabs and sections are visible when printing/exporting PDF */
   @media print {
-    .no-print { display: none !important; }
-    .print-full { max-width: 100% !important; width: 100% !important; margin: 0 !important; padding: 0 !important; }
-    body { background: white !important; color: #18181b !important; }
-    .glass { background: white !important; box-shadow: none !important; border: 1px solid #e4e4e7 !important; }
+    header, #presetDropdown, #headerExportMenu, #storageModal, #toastContainer, button, .no-print {
+      display: none !important;
+    }
+    body {
+      background-color: #ffffff !important;
+      color: #000000 !important;
+    }
+    #page1, #page2 {
+      display: none !important;
+    }
+    #results {
+      display: block !important;
+    }
+    /* Expand ALL views during PDF generation */
+    #viewGantt, #viewTimeline, #viewRaci {
+      display: block !important;
+      visibility: visible !important;
+      opacity: 1 !important;
+      page-break-inside: avoid;
+      margin-bottom: 2.5rem;
+    }
   }
 </style>
 </head>
-<body class="min-h-screen transition-colors duration-300">
+<body class="min-h-screen flex flex-col antialiased selection:bg-indigo-500 selection:text-white">
 
-<!-- Toast Notification Container -->
-<div id="toastContainer" class="fixed top-5 right-5 z-50 flex flex-col gap-3 pointer-events-none no-print"></div>
-
-<!-- Top Navigation Bar -->
-<header class="sticky top-0 z-40 glass border-b border-slate-200/80 dark:border-zinc-800/80 transition-all duration-300">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-    <div class="flex items-center gap-3">
-      <div class="w-10 h-10 rounded-xl custom-accent-bg flex items-center justify-center text-white shadow-md shadow-indigo-500/20">
-        <i class="fa-solid fa-layer-group text-lg"></i>
-      </div>
-      <div>
-        <span class="font-bold tracking-tight text-lg">PROJECT <span class="custom-accent-text">FLOW</span></span>
-        <span class="hidden sm:inline-block text-xs custom-accent-bg px-2 py-0.5 rounded-full font-medium ml-2 opacity-90">PRO v3.5</span>
-      </div>
-    </div>
-    
-    <div class="flex items-center gap-2 no-print">
-      <!-- Theme Switcher Modal Trigger -->
-      <button onclick="openThemeModal()" class="rounded-xl border border-slate-200 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900 px-3 py-2 text-xs font-semibold hover:border-indigo-400 transition-all flex items-center gap-1.5 shadow-sm">
-        <i class="fa-solid fa-palette text-indigo-500"></i>
-        <span>🎨 <span class="hidden sm:inline">主題</span>配色</span>
-      </button>
-
-      <!-- Quick Demo Preset Dropdown -->
-      <div class="relative inline-block text-left">
-        <button onclick="toggleDropdown('presetDropdown')" class="rounded-xl border border-slate-200 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900 px-3 py-2 text-xs font-medium hover:border-indigo-400 transition-all flex items-center gap-1.5">
-          <i class="fa-solid fa-wand-magic-sparkles text-indigo-500"></i>
-          <span class="hidden md:inline">載入</span>預設範例
-          <i class="fa-solid fa-chevron-down text-[10px] opacity-60"></i>
-        </button>
-        <div id="presetDropdown" class="hidden absolute right-0 mt-2 w-60 rounded-2xl bg-white dark:bg-zinc-900 shadow-xl border border-slate-200 dark:border-zinc-800 py-2 z-50 text-xs">
-          <div class="px-3 py-1.5 font-semibold text-slate-400 dark:text-zinc-500 border-b border-slate-100 dark:border-zinc-800">快速載入專案範本</div>
-          <button onclick="loadPreset('exhibition')" class="w-full text-left px-3 py-2 hover:bg-slate-100 dark:hover:bg-zinc-800 flex items-center gap-2">
-            <i class="fa-solid fa-store text-indigo-500"></i> 半導體展覽專案 (80萬)
-          </button>
-          <button onclick="loadPreset('hardware')" class="w-full text-left px-3 py-2 hover:bg-slate-100 dark:hover:bg-zinc-800 flex items-center gap-2">
-            <i class="fa-solid fa-microchip text-emerald-500"></i> AI邊緣運算硬體研發 (500萬)
-          </button>
-          <button onclick="loadPreset('event')" class="w-full text-left px-3 py-2 hover:bg-slate-100 dark:hover:bg-zinc-800 flex items-center gap-2">
-            <i class="fa-solid fa-bullhorn text-amber-500"></i> 全球產品發表會 (120萬)
-          </button>
-          <button onclick="loadPreset('custom_esg')" class="w-full text-left px-3 py-2 hover:bg-slate-100 dark:hover:bg-zinc-800 flex items-center gap-2">
-            <i class="fa-solid fa-leaf text-teal-500"></i> 【自訂】ESG永續報告書輔導
-          </button>
-          <div class="border-t border-slate-100 dark:border-zinc-800 my-1"></div>
-          <button onclick="triggerImportCustomPreset()" class="w-full text-left px-3 py-2 hover:bg-slate-100 dark:hover:bg-zinc-800 flex items-center gap-2 text-rose-600 dark:text-rose-400 font-bold">
-            <i class="fa-solid fa-file-pdf text-rose-500"></i> 上傳自訂 PDF 範例 (.pdf)
-          </button>
+  <!-- Top Navigation Header -->
+  <header class="sticky top-0 z-40 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-md border-b border-slate-200/80 dark:border-zinc-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-2xl custom-accent-bg text-white flex items-center justify-center font-black text-xl shadow-md">
+          P
         </div>
-      </div>
-
-      <!-- Hidden File Input for Custom PDF Upload -->
-      <input type="file" id="importPresetInput" accept=".pdf" onchange="handlePresetPdfUpload(event)" class="hidden">
-
-      <!-- Storage Manager Trigger -->
-      <button onclick="openStorageModal()" class="rounded-xl border border-slate-200 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900 px-3 py-2 text-xs font-medium hover:border-indigo-400 transition-all flex items-center gap-1.5">
-        <i class="fa-solid fa-folder-open text-slate-500 dark:text-zinc-400"></i>
-        <span class="hidden sm:inline">專案庫</span>
-      </button>
-
-      <!-- Print Button -->
-      <button onclick="window.print()" class="rounded-xl bg-slate-900 dark:bg-zinc-100 text-white dark:text-zinc-900 px-3 py-2 text-xs font-semibold hover:bg-slate-800 dark:hover:bg-white transition-all shadow-sm flex items-center gap-1.5">
-        <i class="fa-solid fa-print"></i>
-        <span class="hidden sm:inline">列印 / PDF</span>
-      </button>
-    </div>
-  </div>
-</header>
-
-<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-10">
-  
-  <!-- Step Progress Indicator -->
-  <div class="mb-8 no-print">
-    <div class="flex items-center justify-between max-w-xl mx-auto">
-      <div id="stepIndicator1" class="flex items-center gap-2 font-bold text-xs sm:text-sm custom-accent-text">
-        <span class="w-7 h-7 rounded-full custom-accent-bg text-white flex items-center justify-center text-xs shadow-md">1</span>
-        <span>01 選擇專案類型</span>
-      </div>
-      <div class="h-0.5 flex-1 mx-3 bg-slate-200 dark:bg-zinc-800">
-        <div id="stepLine1" class="h-full custom-accent-bg transition-all duration-300 w-0"></div>
-      </div>
-      <div id="stepIndicator2" class="flex items-center gap-2 font-semibold text-xs sm:text-sm text-slate-400">
-        <span id="stepBadge2" class="w-7 h-7 rounded-full bg-slate-200 dark:bg-zinc-800 text-slate-500 flex items-center justify-center text-xs">2</span>
-        <span>02-04 細節與團隊</span>
-      </div>
-      <div class="h-0.5 flex-1 mx-3 bg-slate-200 dark:bg-zinc-800">
-        <div id="stepLine2" class="h-full custom-accent-bg transition-all duration-300 w-0"></div>
-      </div>
-      <div id="stepIndicator3" class="flex items-center gap-2 font-semibold text-xs sm:text-sm text-slate-400">
-        <span id="stepBadge3" class="w-7 h-7 rounded-full bg-slate-200 dark:bg-zinc-800 text-slate-500 flex items-center justify-center text-xs">3</span>
-        <span>完成報告</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- PAGE 1: STEP 01 ONLY -->
-  <div id="page1" class="space-y-8 no-print">
-    <!-- Hero Section -->
-    <section class="max-w-4xl">
-      <h1 class="text-3xl sm:text-5xl font-extrabold tracking-tight leading-[1.15] mb-3">
-        從想法到落地，<br><span class="gradient-text">打造清晰可執行的專案時程</span>
-      </h1>
-      <p class="text-sm sm:text-base opacity-80 leading-relaxed max-w-2xl">
-        系統整合公開市場數據與專案管理知識庫（PMBOK），選擇下方卡片後即可帶入專屬生命週期與推薦 RACI 配置。
-      </p>
-    </section>
-
-    <!-- STEP 01: 8 OPTION CARDS GRID -->
-    <section class="glass p-6 sm:p-8 relative overflow-hidden transition-all shadow-glow">
-      <div class="flex items-start justify-between gap-4 mb-6">
         <div>
-          <span class="text-xs font-bold uppercase tracking-widest custom-accent-text bg-indigo-100 dark:bg-indigo-950/80 px-2.5 py-1 rounded-md">
-            <i class="fa-solid fa-hand-pointer mr-1"></i> STEP 01
-          </span>
-          <h2 class="text-2xl font-extrabold tracking-tight mt-2">請選擇專案類型 (共 8 種選項)</h2>
-          <p class="text-xs sm:text-sm opacity-70 mt-1">選定卡片後點擊「下一步」繼續填寫基本資訊與團隊配置。</p>
+          <h1 class="font-extrabold text-base sm:text-lg tracking-tight">Project Flow Pro</h1>
+          <p class="text-[11px] opacity-60 hidden sm:block">智能專案時程與資源規劃系統</p>
         </div>
       </div>
 
-      <!-- 8 Option Cards Grid -->
-      <div id="typeCardsContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <!-- Rendered dynamically by JS -->
+      <!-- Step Indicators -->
+      <div class="hidden md:flex items-center gap-2">
+        <div id="stepIndicator1" class="flex items-center gap-2 font-bold text-xs sm:text-sm custom-accent-text">
+          <span class="w-7 h-7 rounded-full custom-accent-bg text-white flex items-center justify-center text-xs shadow-md">1</span>
+          <span>選取專案範本</span>
+        </div>
+        <div class="w-8 h-0.5 bg-slate-200 dark:bg-zinc-800 relative overflow-hidden">
+          <div id="stepLine1" class="absolute top-0 left-0 bottom-0 custom-accent-bg w-0 transition-all duration-300"></div>
+        </div>
+        <div id="stepIndicator2" class="flex items-center gap-2 font-semibold text-xs sm:text-sm text-slate-400">
+          <span id="stepBadge2" class="w-7 h-7 rounded-full bg-slate-200 dark:bg-zinc-800 text-slate-500 flex items-center justify-center text-xs">2</span>
+          <span>設定參數與團隊</span>
+        </div>
+        <div class="w-8 h-0.5 bg-slate-200 dark:bg-zinc-800 relative overflow-hidden">
+          <div id="stepLine2" class="absolute top-0 left-0 bottom-0 custom-accent-bg w-0 transition-all duration-300"></div>
+        </div>
+        <div id="stepIndicator3" class="flex items-center gap-2 font-semibold text-xs sm:text-sm text-slate-400">
+          <span id="stepBadge3" class="w-7 h-7 rounded-full bg-slate-200 dark:bg-zinc-800 text-slate-500 flex items-center justify-center text-xs">3</span>
+          <span>檢視報告與圖表</span>
+        </div>
       </div>
 
-      <!-- Custom Keyword & Google Search Input -->
-      <div id="customKeywordWrapper" class="hidden mt-5 p-5 rounded-2xl bg-slate-100/80 dark:bg-zinc-900/80 border border-indigo-200 dark:border-indigo-800 space-y-3">
-        <div class="flex items-center justify-between">
-          <label class="block text-xs font-bold uppercase tracking-wider custom-accent-text">
-            <i class="fa-solid fa-magnifying-glass-chart mr-1"></i> 請輸入自訂專案名稱 / 關鍵字 *
-          </label>
-          <span class="text-[11px] opacity-60">支援 AI 關鍵字解析與 Google 搜尋連動</span>
-        </div>
-        
-        <div class="flex flex-col sm:flex-row gap-3">
-          <input id="customKeywordInput" type="text" class="flex-1 rounded-xl border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 px-4 py-3 text-sm font-medium focus:border-indigo-500" placeholder="例如：ESG永續報告書、App開發、無人機燈光秀..." value="ESG 永續報告書輔導專案">
-          <button onclick="triggerSearchAnalysis()" class="rounded-xl custom-accent-bg text-white px-5 py-3 text-xs font-bold transition-all shadow-md flex items-center justify-center gap-2 shrink-0">
-            <i class="fa-solid fa-arrows-rotate" id="searchIcon"></i>
-            <span>啟動 GOOGLE 檢索與藍圖套用</span>
+      <!-- Action Tools -->
+      <div class="flex items-center gap-2">
+        <!-- Storage Modal Trigger -->
+        <button onclick="openStorageModal()" class="px-3 py-2 rounded-xl text-xs font-semibold bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 transition-colors flex items-center gap-1.5">
+          <i class="fa-solid fa-box-archive custom-accent-text"></i>
+          <span>專案庫</span>
+        </button>
+
+        <!-- Preset Menu Dropdown -->
+        <div class="relative">
+          <button onclick="toggleDropdown('presetDropdown')" class="px-3 py-2 rounded-xl text-xs font-semibold border border-slate-200 dark:border-zinc-800 hover:bg-slate-50 dark:hover:bg-zinc-900 transition-colors flex items-center gap-1.5">
+            <i class="fa-solid fa-wand-magic-sparkles custom-accent-text"></i>
+            <span>快速載入</span>
+            <i class="fa-solid fa-chevron-down text-[10px] opacity-60"></i>
           </button>
+          
+          <div id="presetDropdown" class="hidden absolute right-0 mt-2 w-64 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shadow-xl p-2 z-50 text-xs space-y-1">
+            <div class="px-3 py-2 font-bold text-slate-400 text-[10px] tracking-wider uppercase">預設範例專案</div>
+            <button onclick="loadPreset('exhibition')" class="w-full text-left px-3 py-2 rounded-xl hover:bg-slate-100 dark:hover:bg-zinc-800 flex items-center gap-2">
+              <i class="fa-solid fa-archway text-indigo-500"></i>
+              <span>2026 國際半導體展特裝建置</span>
+            </button>
+            <button onclick="loadPreset('hardware')" class="w-full text-left px-3 py-2 rounded-xl hover:bg-slate-100 dark:hover:bg-zinc-800 flex items-center gap-2">
+              <i class="fa-solid fa-microchip text-emerald-500"></i>
+              <span>AI 邊緣運算硬體開發</span>
+            </button>
+            <button onclick="loadPreset('event')" class="w-full text-left px-3 py-2 rounded-xl hover:bg-slate-100 dark:hover:bg-zinc-800 flex items-center gap-2">
+              <i class="fa-solid fa-bullhorn text-amber-500"></i>
+              <span>全球科技新品發表會</span>
+            </button>
+            <button onclick="loadPreset('custom_esg')" class="w-full text-left px-3 py-2 rounded-xl hover:bg-slate-100 dark:hover:bg-zinc-800 flex items-center gap-2">
+              <i class="fa-solid fa-leaf text-teal-500"></i>
+              <span>ESG 永續報告書與盤查專案</span>
+            </button>
+            <div class="pt-2 border-t border-slate-100 dark:border-zinc-800">
+              <button onclick="triggerImportCustomPreset()" class="w-full text-left px-3 py-2 rounded-xl custom-accent-text hover:bg-indigo-50 dark:hover:bg-indigo-950/50 font-bold flex items-center gap-2">
+                <i class="fa-solid fa-file-pdf"></i>
+                <span>📄 上傳自訂 PDF 範例 (.pdf)</span>
+              </button>
+            </div>
+          </div>
         </div>
 
-        <div id="googleSearchResultLink" class="text-xs flex items-center justify-between pt-1">
-          <span id="customSearchStatusText" class="custom-accent-text font-medium">✨ 已自動套用自訂專案解析數據</span>
-          <a id="externalGoogleUrl" href="https://www.google.com/search?q=ESG+永續報告書+專案時程+流程+預算" target="_blank" rel="noopener" class="custom-accent-text hover:underline flex items-center gap-1 text-[11px]">
-            <i class="fa-brands fa-google mr-1"></i> 在 Google 開啟搜尋結果頁 <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+        <!-- Export Dropdown in Header (Hidden on Steps 1 & 2, visible on Step 3) -->
+        <div id="headerExportContainer" class="relative hidden">
+          <button onclick="toggleDropdown('headerExportMenu')" class="px-3.5 py-2 rounded-xl custom-accent-bg text-white font-bold text-xs shadow-md hover:opacity-95 transition-all flex items-center gap-1.5">
+            <i class="fa-solid fa-file-export"></i>
+            <span>匯出報告</span>
+            <i class="fa-solid fa-chevron-down text-[10px] opacity-80"></i>
+          </button>
+          
+          <div id="headerExportMenu" class="hidden absolute right-0 mt-2 w-52 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shadow-xl p-2 z-50 text-xs space-y-1">
+            <button onclick="exportExcelMultiSheet()" class="w-full text-left px-3 py-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-zinc-800 flex items-center gap-2 font-semibold">
+              <i class="fa-solid fa-file-excel text-emerald-600 text-sm"></i>
+              <span>Excel 試算表 (.xlsx 多工作表)</span>
+            </button>
+            <button onclick="window.print()" class="w-full text-left px-3 py-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-zinc-800 flex items-center gap-2 font-semibold">
+              <i class="fa-solid fa-file-pdf text-rose-500 text-sm"></i>
+              <span>PDF 報告檔 / 全觀列印</span>
+            </button>
+            <button onclick="exportICS()" class="w-full text-left px-3 py-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-zinc-800 flex items-center gap-2 font-semibold">
+              <i class="fa-solid fa-calendar-days text-sky-500 text-sm"></i>
+              <span>行事曆檔案 (.ics)</span>
+            </button>
+            <button onclick="exportMarkdown()" class="w-full text-left px-3 py-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-zinc-800 flex items-center gap-2 font-semibold">
+              <i class="fa-solid fa-code text-indigo-500 text-sm"></i>
+              <span>Markdown 全內容檔</span>
+            </button>
+          </div>
+        </div>
+
+        <input type="file" id="importPresetInput" accept=".pdf" class="hidden" onchange="handlePresetPdfUpload(event)">
+      </div>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+
+    <!-- PAGE 1: Select Project Type -->
+    <section id="page1" class="space-y-6">
+      <div class="text-center max-w-2xl mx-auto space-y-2">
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold custom-accent-bg text-white shadow-sm">
+          <i class="fa-solid fa-layer-group"></i> STEP 01
+        </span>
+        <h2 class="text-2xl sm:text-3xl font-black tracking-tight">從想法到落地，打造清晰可執行的專案時程</h2>
+        <p class="text-xs sm:text-sm opacity-70">選取最符合您業務場景的專案類型，系統將自動套用經驗參數、維度權重與人力角色矩陣。</p>
+      </div>
+
+      <!-- Type Cards Grid -->
+      <div id="typeCardsContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <!-- Rendered dynamically via JavaScript -->
+      </div>
+
+      <!-- Custom Keyword Search Wrapper (Shows when 'custom' is selected) -->
+      <div id="customKeywordWrapper" class="hidden rounded-3xl border-2 border-indigo-500/30 bg-indigo-50/50 dark:bg-indigo-950/20 p-6 space-y-4">
+        <div class="flex items-center justify-between gap-4">
+          <div class="flex items-center gap-2 font-extrabold text-sm custom-accent-text">
+            <i class="fa-solid fa-wand-magic-sparkles"></i>
+            <span>自訂專案關鍵字與市場數據檢索</span>
+          </div>
+          <a id="externalGoogleUrl" href="#" target="_blank" class="text-xs custom-accent-text hover:underline flex items-center gap-1 font-semibold">
+            <span>前往 Google 驗證市場行情</span>
+            <i class="fa-solid fa-up-right-from-square text-[10px]"></i>
           </a>
         </div>
+
+        <div class="flex flex-col sm:flex-row gap-3">
+          <input type="text" id="customKeywordInput" class="flex-1 rounded-2xl border border-slate-300 dark:border-zinc-700 px-4 py-3 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-zinc-900" placeholder="例如：ESG 永續報告書輔導、新品牌形象設計、雲端架構遷移..." value="ESG 永續報告書輔導">
+          <button onclick="triggerSearchAnalysis()" class="px-6 py-3 rounded-2xl custom-accent-bg text-white font-bold text-xs shadow-lg hover:opacity-95 transition-all flex items-center justify-center gap-2 shrink-0">
+            <i id="searchIcon" class="fa-solid fa-magnifying-glass"></i>
+            <span>智慧解析專案架構</span>
+          </button>
+        </div>
+
+        <div id="customSearchStatusText" class="text-xs font-medium opacity-70 flex items-center gap-2">
+          <span>✨ 準備完成，點擊上方按鈕開始檢索專案生命週期...</span>
+        </div>
+      </div>
+
+      <div class="flex justify-end pt-4">
+        <button onclick="goToPage(2)" class="px-8 py-3.5 rounded-2xl custom-accent-bg text-white font-extrabold text-sm shadow-xl hover:opacity-95 transition-all flex items-center gap-2">
+          <span>下一步：設定專案參數</span>
+          <i class="fa-solid fa-arrow-right"></i>
+        </button>
       </div>
     </section>
 
-    <!-- NEXT BUTTON FOR PAGE 1 -->
-    <div class="flex justify-end pt-4">
-      <button onclick="goToPage(2)" class="w-full sm:w-auto rounded-2xl custom-accent-bg text-white px-8 py-4 font-bold text-base shadow-lg hover:shadow-indigo-500/40 hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2">
-        <span>下一步：填寫專案細節與限制條件 (02 - 04)</span>
-        <i class="fa-solid fa-arrow-right"></i>
-      </button>
-    </div>
-  </div>
-
-  <!-- PAGE 2: STEPS 02, 03, 04 -->
-  <div id="page2" class="hidden space-y-8 no-print">
-    
-    <!-- Top Selected Summary Banner -->
-    <div class="glass rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-      <div class="flex items-center gap-3">
-        <div id="selectedTypeIcon" class="w-10 h-10 rounded-xl custom-accent-bg text-white flex items-center justify-center text-lg font-bold shadow-md">
-          <i class="fa-solid fa-store"></i>
-        </div>
-        <div>
-          <div class="text-[11px] font-bold uppercase tracking-wider custom-accent-text">已選定專案類型</div>
-          <div id="selectedTypeName" class="text-base font-extrabold">展會／展覽專案</div>
-        </div>
-      </div>
-
-      <button onclick="goToPage(1)" class="rounded-xl border border-slate-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 px-4 py-2 text-xs font-semibold hover:border-indigo-500 transition-all flex items-center gap-1.5 shrink-0">
-        <i class="fa-solid fa-arrow-left"></i> 重選專案類型
-      </button>
-    </div>
-
-    <!-- STEP 02: BASIC DETAILS -->
-    <section class="glass p-6 sm:p-8 transition-all">
-      <div class="mb-6">
-        <span class="text-xs font-bold uppercase tracking-widest custom-accent-text">02 / Project Details</span>
-        <h2 class="text-2xl font-bold tracking-tight mt-1">專案基本資訊與時間</h2>
-        <p class="text-xs sm:text-sm opacity-70 mt-1">設定專案名稱、規模與起訖日，作為逆向倒推時程之基準。</p>
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-        <div class="md:col-span-2">
-          <label class="block text-xs font-semibold uppercase tracking-wider opacity-80 mb-1.5">專案名稱 *</label>
-          <input id="projectName" type="text" class="w-full rounded-2xl border border-slate-200 dark:border-zinc-800 bg-white/90 dark:bg-zinc-900/90 px-4 py-3 text-sm font-medium focus:border-indigo-500" placeholder="例如：2026 半導體成果展館建置專案">
-        </div>
-
-        <div>
-          <label class="block text-xs font-semibold uppercase tracking-wider opacity-80 mb-1.5">專案規模</label>
-          <select id="scale" class="w-full rounded-2xl border border-slate-200 dark:border-zinc-800 bg-white/90 dark:bg-zinc-900/90 px-4 py-3 text-sm font-medium focus:border-indigo-500">
-            <option value="small">小型（微型專案 / 簡化範疇）</option>
-            <option value="medium" selected>中型（標準規模 / 典型專案）</option>
-            <option value="large">大型（旗艦專案 / 高度複雜）</option>
-          </select>
-        </div>
-
-        <div>
-          <label class="block text-xs font-semibold uppercase tracking-wider opacity-80 mb-1.5">預計啟動日期 *</label>
-          <input id="startDate" type="date" class="w-full rounded-2xl border border-slate-200 dark:border-zinc-800 bg-white/90 dark:bg-zinc-900/90 px-4 py-3 text-sm font-medium focus:border-indigo-500">
-        </div>
-
-        <div>
-          <label class="block text-xs font-semibold uppercase tracking-wider opacity-80 mb-1.5">預計完成 / 交付日期 *</label>
-          <input id="endDate" type="date" class="w-full rounded-2xl border border-slate-200 dark:border-zinc-800 bg-white/90 dark:bg-zinc-900/90 px-4 py-3 text-sm font-medium focus:border-indigo-500">
-        </div>
-
-        <div>
-          <label class="block text-xs font-semibold uppercase tracking-wider opacity-80 mb-1.5">專案總預算 (NT$)</label>
-          <div class="relative">
-            <span class="absolute left-4 top-3 text-sm opacity-50">$</span>
-            <input id="budget" type="number" min="0" step="10000" class="w-full rounded-2xl border border-slate-200 dark:border-zinc-800 bg-white/90 dark:bg-zinc-900/90 pl-8 pr-4 py-3 text-sm font-medium focus:border-indigo-500" placeholder="800000">
+    <!-- PAGE 2: Configure Project & Team -->
+    <section id="page2" class="hidden space-y-8">
+      <!-- Selected Type Banner -->
+      <div class="rounded-3xl custom-accent-bg text-white p-6 shadow-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div class="flex items-center gap-4">
+          <div id="selectedTypeIcon" class="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center text-xl font-bold">
+            <i class="fa-solid fa-archway"></i>
+          </div>
+          <div>
+            <span class="text-xs font-semibold opacity-80 uppercase tracking-wider">已選取專案範本</span>
+            <h3 id="selectedTypeName" class="text-xl font-extrabold">特展與會展建置</h3>
           </div>
         </div>
-      </div>
-    </section>
-
-    <!-- STEP 03: CONSTRAINTS & CALENDAR -->
-    <section class="glass p-6 sm:p-8 transition-all">
-      <div class="mb-6">
-        <span class="text-xs font-bold uppercase tracking-widest custom-accent-text">03 / Constraints</span>
-        <h2 class="text-2xl font-bold tracking-tight mt-1">限制條件與簽核緩衝</h2>
-        <p class="text-xs sm:text-sm opacity-70 mt-1">設定內部採購簽核 SLA 與工作日計算模式。</p>
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-        <div>
-          <label class="block text-xs font-semibold uppercase tracking-wider opacity-80 mb-1.5">時程計算模式</label>
-          <select id="workDayMode" class="w-full rounded-2xl border border-slate-200 dark:border-zinc-800 bg-white/90 dark:bg-zinc-900/90 px-4 py-3 text-sm font-medium focus:border-indigo-500">
-            <option value="calendar">日曆日 (含週六、週日與假日)</option>
-            <option value="workday" selected>工作日 (自動扣除週六、週日)</option>
-          </select>
-        </div>
-
-        <div>
-          <label class="block text-xs font-semibold uppercase tracking-wider opacity-80 mb-1.5">內部採購 / 簽核流程緩衝</label>
-          <select id="internalProcess" class="w-full rounded-2xl border border-slate-200 dark:border-zinc-800 bg-white/90 dark:bg-zinc-900/90 px-4 py-3 text-sm font-medium focus:border-indigo-500">
-            <option value="none">無 (簡化流程 / 快速採購)</option>
-            <option value="short" selected>標準 (約 1–2 週簽核期)</option>
-            <option value="medium">中等 (約 3–4 週 / 需會簽會計)</option>
-            <option value="long">嚴謹 (約 5–8 週 / 跨事業群委員會)</option>
-          </select>
-        </div>
-
-        <div>
-          <label class="block text-xs font-semibold uppercase tracking-wider opacity-80 mb-1.5">硬性截止日 (Hard Deadline)</label>
-          <select id="hardDeadline" class="w-full rounded-2xl border border-slate-200 dark:border-zinc-800 bg-white/90 dark:bg-zinc-900/90 px-4 py-3.5 text-sm font-medium focus:border-indigo-500">
-            <option value="yes">有 (不可移轉，例如開幕/主管機關申報)</option>
-            <option value="no" selected>無 (可彈性調整工期)</option>
-          </select>
-        </div>
-
-        <div>
-          <label class="block text-xs font-semibold uppercase tracking-wider opacity-80 mb-1.5">風險預備金比例 (Contingency %)</label>
-          <select id="contingencyRate" class="w-full rounded-2xl border border-slate-200 dark:border-zinc-800 bg-white/90 dark:bg-zinc-900/90 px-4 py-3.5 text-sm font-medium focus:border-indigo-500">
-            <option value="0.05">5% (低風險專案)</option>
-            <option value="0.10" selected>10% (標準建議備用金)</option>
-            <option value="0.15">15% (高客製 / 初次試辦專案)</option>
-          </select>
-        </div>
-
-        <div class="md:col-span-2">
-          <label class="block text-xs font-semibold uppercase tracking-wider opacity-80 mb-1.5">備註與特殊條款</label>
-          <textarea id="notes" rows="2" class="w-full rounded-2xl border border-slate-200 dark:border-zinc-800 bg-white/90 dark:bg-zinc-900/90 px-4 py-3 text-sm focus:border-indigo-500" placeholder="例如：12/10 前須完成核銷；設計稿需先經主管確認..."></textarea>
-        </div>
-      </div>
-    </section>
-
-    <!-- STEP 04: TEAM & ROLES -->
-    <section class="glass p-6 sm:p-8 transition-all">
-      <div class="flex items-center justify-between gap-4 mb-6">
-        <div>
-          <span class="text-xs font-bold uppercase tracking-widest custom-accent-text">04 / Team</span>
-          <h2 class="text-2xl font-bold tracking-tight mt-1">團隊成員與分工配置</h2>
-          <p class="text-xs sm:text-sm opacity-70 mt-1">角色選單已依據選取之專案類型動態帶入建議職責。</p>
-        </div>
-        <button onclick="addPersonRow()" class="rounded-xl border border-indigo-200 dark:border-indigo-800 bg-indigo-50/50 dark:bg-indigo-950/40 custom-accent-text px-4 py-2 text-xs font-semibold hover:bg-indigo-600 hover:text-white transition-all flex items-center gap-1.5 shrink-0">
-          <i class="fa-solid fa-plus"></i> 新增成員
+        <button onclick="goToPage(1)" class="px-4 py-2 rounded-xl bg-white/20 hover:bg-white/30 text-xs font-bold transition-all border border-white/30 shrink-0 self-start sm:self-auto">
+          <i class="fa-solid fa-rotate-left mr-1"></i>重新選取類型
         </button>
       </div>
 
-      <div id="peopleContainer" class="space-y-3">
-        <!-- Dynamic Rows -->
-      </div>
-    </section>
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        <!-- Basic Parameters (Left Column) -->
+        <div class="lg:col-span-7 space-y-6 bg-white/80 dark:bg-zinc-900/80 rounded-3xl p-6 border border-slate-200/80 dark:border-zinc-800 shadow-sm">
+          <h3 class="font-extrabold text-base flex items-center gap-2 border-b border-slate-100 dark:border-zinc-800 pb-3">
+            <i class="fa-solid fa-sliders custom-accent-text"></i>
+            <span>專案基本參數與時程設定</span>
+          </h3>
 
-    <!-- PAGE 2 NAVIGATION BUTTONS -->
-    <div class="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4">
-      <button onclick="goToPage(1)" class="w-full sm:w-auto rounded-2xl border border-slate-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-slate-700 dark:text-zinc-200 px-6 py-3.5 font-bold text-sm hover:border-indigo-500 transition-all flex items-center justify-center gap-2">
-        <i class="fa-solid fa-arrow-left"></i> 上一步：重選專案類型
-      </button>
+          <div class="space-y-4 text-xs">
+            <div>
+              <label class="block font-bold mb-1.5 opacity-80">專案名稱 / 計畫代號</label>
+              <input type="text" id="projectName" class="w-full rounded-2xl border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 px-4 py-3 font-semibold focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="請輸入專案完整名稱" value="2026 國際半導體展成果館特裝建置">
+            </div>
 
-      <button onclick="generatePlan()" class="w-full sm:w-auto rounded-2xl custom-accent-bg text-white px-8 py-4 font-bold text-base shadow-lg hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2">
-        <i class="fa-solid fa-wand-magic-sparkles"></i> 生成專案時程與規劃報告 →
-      </button>
-    </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block font-bold mb-1.5 opacity-80">專案規模 (Scale)</label>
+                <select id="scale" class="w-full rounded-2xl border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 px-4 py-3 font-semibold focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                  <option value="small">小型專案 (精實製作)</option>
+                  <option value="medium" selected>中型專案 (標準規格)</option>
+                  <option value="large">大型專案 (旗艦規格)</option>
+                </select>
+              </div>
 
-  </div>
+              <div>
+                <label class="block font-bold mb-1.5 opacity-80">工期計算模式</label>
+                <select id="workDayMode" class="w-full rounded-2xl border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 px-4 py-3 font-semibold focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                  <option value="calendar">日曆日 (Calendar Days)</option>
+                  <option value="workday" selected>工作天 (扣除雙休假日)</option>
+                </select>
+              </div>
+            </div>
 
-  <!-- OUTPUT REPORT SECTION (PAGE 3) -->
-  <section id="results" class="hidden space-y-8">
-    
-    <!-- Report Top Nav Banner -->
-    <div class="flex items-center justify-between no-print">
-      <button onclick="goToPage(2)" class="rounded-xl border border-slate-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 px-4 py-2 text-xs font-semibold hover:border-indigo-500 transition-all flex items-center gap-1.5">
-        <i class="fa-solid fa-arrow-left"></i> 返回修改資料與團隊
-      </button>
-      <div id="searchSourceBadge" class="text-xs custom-accent-text font-medium hidden">
-        <i class="fa-brands fa-google mr-1"></i> 已整合 Google 最新專案藍圖數據
-      </div>
-    </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block font-bold mb-1.5 opacity-80">預計啟動日期 (Start Date)</label>
+                <input type="date" id="startDate" class="w-full rounded-2xl border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 px-4 py-3 font-semibold focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+              </div>
 
-    <!-- Report Header -->
-    <div class="glass p-6 sm:p-10 relative overflow-hidden">
-      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6 pb-6 border-b border-slate-200/80 dark:border-zinc-800/80">
-        <div>
-          <div class="inline-flex items-center gap-2 text-xs font-bold tracking-widest uppercase custom-accent-text mb-1">
-            <i class="fa-solid fa-clipboard-check"></i> Project Flow Master Plan
+              <div>
+                <label class="block font-bold mb-1.5 opacity-80">預計完成日期 (End Date)</label>
+                <input type="date" id="endDate" class="w-full rounded-2xl border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 px-4 py-3 font-semibold focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block font-bold mb-1.5 opacity-80">專案規劃總預算 (TWD)</label>
+                <input type="number" id="budget" class="w-full rounded-2xl border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 px-4 py-3 font-semibold focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="例如：1200000" value="800000">
+              </div>
+
+              <div>
+                <label class="block font-bold mb-1.5 opacity-80">風險預備金比率 (Contingency)</label>
+                <select id="contingencyRate" class="w-full rounded-2xl border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 px-4 py-3 font-semibold focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                  <option value="0.05">5% (常規風險)</option>
+                  <option value="0.10" selected>10% (標準風險)</option>
+                  <option value="0.15">15% (高不確定性)</option>
+                  <option value="0.20">20% (創新試驗型)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block font-bold mb-1.5 opacity-80">內部簽核 / 採購程序預留</label>
+                <select id="internalProcess" class="w-full rounded-2xl border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 px-4 py-3 font-semibold focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                  <option value="none">無 (流程極簡直通)</option>
+                  <option value="short" selected>7 天 (快速簽核)</option>
+                  <option value="medium">14 天 (標準採購流程)</option>
+                  <option value="long">28 天 (跨國/公家採購)</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="block font-bold mb-1.5 opacity-80">是否有不可延後之硬性截止日？</label>
+                <select id="hardDeadline" class="w-full rounded-2xl border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 px-4 py-3 font-semibold focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                  <option value="no">否 (可彈性調整時程)</option>
+                  <option value="yes" selected>是 (設有實體展期/發表會死線)</option>
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label class="block font-bold mb-1.5 opacity-80">備註說明 / 特殊需求限制</label>
+              <textarea id="notes" rows="3" class="w-full rounded-2xl border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 px-4 py-3 font-medium focus:ring-2 focus:ring-indigo-500 focus:outline-none resize-none" placeholder="補充說明專案特定注意事項..."></textarea>
+            </div>
           </div>
-          <h2 id="resTitle" class="text-3xl sm:text-4xl font-extrabold tracking-tight"></h2>
-          <p id="resMeta" class="text-sm opacity-70 mt-2 flex flex-wrap items-center gap-x-4 gap-y-1"></p>
         </div>
-        
-        <div class="flex items-center gap-3 shrink-0">
-          <div id="healthBadge" class="px-4 py-2 rounded-2xl font-semibold text-xs sm:text-sm shadow-sm flex items-center gap-2"></div>
-          
-          <div class="relative no-print">
-            <button onclick="toggleDropdown('exportDropdown')" class="rounded-2xl border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-3 text-slate-700 dark:text-zinc-200 hover:border-indigo-400 transition-all shadow-sm">
-              <i class="fa-solid fa-download"></i>
+
+        <!-- Team Roles Allocation (Right Column) -->
+        <div class="lg:col-span-5 space-y-6 bg-white/80 dark:bg-zinc-900/80 rounded-3xl p-6 border border-slate-200/80 dark:border-zinc-800 shadow-sm flex flex-col justify-between">
+          <div class="space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-100 dark:border-zinc-800 pb-3">
+              <h3 class="font-extrabold text-base flex items-center gap-2">
+                <i class="fa-solid fa-users custom-accent-text"></i>
+                <span>專案團隊人力與職責配置</span>
+              </h3>
+              <button onclick="addPersonRow()" class="px-3 py-1.5 rounded-xl custom-accent-bg text-white text-xs font-bold hover:opacity-90 transition-all">
+                <i class="fa-solid fa-plus mr-1"></i>新增成員
+              </button>
+            </div>
+
+            <p class="text-xs opacity-70">設定團隊參與成員及其職責角色，系統將自動建構 RACI 職責轉移矩陣與交付物責任歸屬。</p>
+
+            <div id="peopleContainer" class="space-y-3 max-h-[380px] overflow-y-auto pr-1">
+              <!-- Dynamically populated via addPersonRow() -->
+            </div>
+          </div>
+
+          <div class="pt-6 border-t border-slate-100 dark:border-zinc-800 flex items-center justify-between gap-4">
+            <button onclick="goToPage(1)" class="px-6 py-3 rounded-2xl bg-slate-100 dark:bg-zinc-800 font-bold text-xs hover:bg-slate-200 transition-colors">
+              <i class="fa-solid fa-arrow-left mr-1"></i>上一步
             </button>
-            <div id="exportDropdown" class="hidden absolute right-0 mt-2 w-48 rounded-2xl bg-white dark:bg-zinc-900 shadow-xl border border-slate-200 dark:border-zinc-800 py-2 z-50 text-xs">
-              <button onclick="exportCSV()" class="w-full text-left px-4 py-2 hover:bg-slate-100 dark:hover:bg-zinc-800 flex items-center gap-2">
-                <i class="fa-solid fa-file-csv text-emerald-500"></i> 匯出 CSV (Excel)
-              </button>
-              <button onclick="exportICS()" class="w-full text-left px-4 py-2 hover:bg-slate-100 dark:hover:bg-zinc-800 flex items-center gap-2">
-                <i class="fa-solid fa-calendar-plus text-indigo-500"></i> 匯出 .ICS 行事曆
-              </button>
-              <button onclick="exportMarkdown()" class="w-full text-left px-4 py-2 hover:bg-slate-100 dark:hover:bg-zinc-800 flex items-center gap-2">
-                <i class="fa-brands fa-markdown text-sky-500"></i> 複製 Markdown 報告
-              </button>
-              <button onclick="exportProjectJSON()" class="w-full text-left px-4 py-2 hover:bg-slate-100 dark:hover:bg-zinc-800 flex items-center gap-2">
-                <i class="fa-solid fa-file-code text-purple-500"></i> 匯出範例檔 (.json)
-              </button>
-              <button onclick="saveCurrentProject()" class="w-full text-left px-4 py-2 hover:bg-slate-100 dark:hover:bg-zinc-800 flex items-center gap-2 border-t border-slate-100 dark:border-zinc-800 mt-1 pt-2">
-                <i class="fa-solid fa-floppy-disk text-amber-500"></i> 儲存至專案庫
-              </button>
+            <button onclick="generatePlan()" class="flex-1 py-3.5 rounded-2xl custom-accent-bg text-white font-extrabold text-sm shadow-xl hover:opacity-95 transition-all flex items-center justify-center gap-2">
+              <i class="fa-solid fa-bolt"></i>
+              <span>區域計算生成規劃報告</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PAGE 3: Results & Analytics Reports -->
+    <section id="results" class="hidden space-y-8">
+      <!-- Title & Summary Banner -->
+      <div class="rounded-3xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 p-6 shadow-sm space-y-4">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 dark:border-zinc-800 pb-4">
+          <div>
+            <div class="flex items-center gap-2 mb-1">
+              <span id="searchSourceBadge" class="hidden px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300">
+                <i class="fa-solid fa-magnifying-glass mr-1"></i>Google 行情解構
+              </span>
+              <span id="healthBadge" class="px-3 py-1 rounded-2xl font-semibold text-xs bg-indigo-100 text-indigo-800">
+                健康度評估載入中...
+              </span>
+            </div>
+            <h2 id="resTitle" class="text-2xl font-black tracking-tight">專案名稱</h2>
+            <div id="resMeta" class="flex flex-wrap items-center gap-4 text-xs opacity-70 mt-1 font-medium">
+              <!-- Dynamic metadata -->
             </div>
           </div>
+
+          <div class="flex items-center gap-2 shrink-0">
+            <button onclick="saveCurrentProject()" class="px-4 py-2.5 rounded-2xl bg-slate-100 dark:bg-zinc-800 font-bold text-xs hover:bg-slate-200 transition-colors flex items-center gap-1.5">
+              <i class="fa-solid fa-bookmark custom-accent-text"></i>
+              <span>儲存專案</span>
+            </button>
+            <button onclick="exportProjectJSON()" class="px-4 py-2.5 rounded-2xl bg-slate-100 dark:bg-zinc-800 font-bold text-xs hover:bg-slate-200 transition-colors flex items-center gap-1.5">
+              <i class="fa-solid fa-download"></i>
+              <span>匯出範例檔 (.json)</span>
+            </button>
+            <button onclick="goToPage(2)" class="px-4 py-2.5 rounded-2xl custom-accent-bg text-white font-bold text-xs shadow-md hover:opacity-95 transition-all flex items-center gap-1.5">
+              <i class="fa-solid fa-sliders"></i>
+              <span>調整參數</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Metric Cards -->
+        <div id="summaryCards" class="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <!-- Dynamically populated -->
         </div>
       </div>
 
-      <div id="summaryCards" class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6"></div>
-    </div>
-
-    <!-- View Switcher -->
-    <div class="flex items-center justify-between border-b border-slate-200 dark:border-zinc-800 pb-2 no-print">
-      <div class="flex gap-2">
-        <button id="tabGanttBtn" onclick="switchView('gantt')" class="px-4 py-2 rounded-xl text-xs font-bold transition-all custom-accent-bg text-white">
-          <i class="fa-solid fa-chart-gantt mr-1"></i> 甘特圖 View
+      <!-- View Navigation Tabs (Hidden during print) -->
+      <div class="flex items-center gap-2 border-b border-slate-200 dark:border-zinc-800 pb-2 no-print">
+        <button id="tabGanttBtn" onclick="switchView('gantt')" class="px-4 py-2 rounded-xl text-xs font-bold transition-all custom-accent-bg text-white shadow-sm">
+          <i class="fa-solid fa-chart-gantt mr-1.5"></i>甘特圖 (Gantt Chart)
         </button>
-        <button id="tabTimelineBtn" onclick="switchView('timeline')" class="px-4 py-2 rounded-xl text-xs font-bold transition-all text-slate-500 hover:bg-slate-200 dark:hover:bg-zinc-800">
-          <i class="fa-solid fa-list-check mr-1"></i> 階段明細 View
+        <button id="tabTimelineBtn" onclick="switchView('timeline')" class="px-4 py-2 rounded-xl text-xs font-bold transition-all opacity-60 hover:bg-slate-200 dark:hover:bg-zinc-800">
+          <i class="fa-solid fa-list-check mr-1.5"></i>時程清單與交付物
         </button>
-        <button id="tabRaciBtn" onclick="switchView('raci')" class="px-4 py-2 rounded-xl text-xs font-bold transition-all text-slate-500 hover:bg-slate-200 dark:hover:bg-zinc-800">
-          <i class="fa-solid fa-users-gear mr-1"></i> RACI 矩陣與分工表
+        <button id="tabRaciBtn" onclick="switchView('raci')" class="px-4 py-2 rounded-xl text-xs font-bold transition-all opacity-60 hover:bg-slate-200 dark:hover:bg-zinc-800">
+          <i class="fa-solid fa-people-arrows mr-1.5"></i>RACI 矩陣與分工
         </button>
       </div>
-    </div>
 
-    <!-- VIEW 1: GANTT CHART -->
-    <div id="viewGantt" class="glass p-6 sm:p-8 overflow-x-auto">
-      <h3 class="text-xl font-bold mb-4">甘特圖 (Gantt Chart)</h3>
-      <div id="ganttChartWrapper" class="min-w-[700px]"></div>
-    </div>
-
-    <!-- VIEW 2: TIMELINE LIST -->
-    <div id="viewTimeline" class="hidden glass p-6 sm:p-8">
-      <h3 class="text-xl font-bold mb-4">階段里程碑與最晚完成日 (Late Finish)</h3>
-      <div id="timelineList" class="relative"></div>
-    </div>
-
-    <!-- VIEW 3: RACI MATRIX -->
-    <div id="viewRaci" class="hidden glass p-6 sm:p-8 overflow-x-auto">
-      <h3 class="text-xl font-bold mb-1">RACI 職責分工矩陣與團隊交付表</h3>
-      <p class="text-xs opacity-70 mb-4">R: 執行 (Responsible) | A: 當責 (Accountable) | C: 諮詢 (Consulted) | I: 知會 (Informed)</p>
-      <div id="raciMatrixWrapper" class="min-w-[600px]"></div>
-    </div>
-
-    <!-- BUDGET & RISK -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-      <div class="glass p-6 sm:p-8">
-        <div class="text-xs font-bold uppercase tracking-widest custom-accent-text mb-1">Market Benchmark</div>
-        <h3 class="text-xl font-bold mb-2">預算拆解與行情比對</h3>
-        <p id="budgetRefNote" class="text-xs opacity-70 leading-relaxed mb-6"></p>
-        <div id="budgetBreakdown" class="space-y-3"></div>
-        <div id="budgetAdvice" class="mt-6 rounded-2xl border border-indigo-200/70 dark:border-indigo-900/50 bg-indigo-50/50 dark:bg-indigo-950/30 p-4 text-xs leading-relaxed space-y-2"></div>
-      </div>
-
-      <div class="glass p-6 sm:p-8">
-        <div class="text-xs font-bold uppercase tracking-widest custom-accent-text mb-1">PM Risk Control</div>
-        <h3 class="text-xl font-bold mb-4">專案風險矩陣與因應策略</h3>
-        <div id="riskGrid" class="space-y-3"></div>
-      </div>
-    </div>
-
-  </section>
-</main>
-
-<!-- THEME CUSTOMIZER MODAL -->
-<div id="themeModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-md p-4 no-print">
-  <div class="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl space-y-6">
-    <div class="flex items-center justify-between border-b border-slate-100 dark:border-zinc-800 pb-3">
-      <h3 class="text-xl font-bold flex items-center gap-2">
-        <i class="fa-solid fa-palette text-indigo-500"></i>
-        <span>自訂操作介面風格與主題</span>
-      </h3>
-      <button onclick="closeThemeModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
-    </div>
-
-    <!-- Presets Selector -->
-    <div>
-      <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">預設主題配色 (Theme Presets)</label>
-      <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
-        <button onclick="applyPresetTheme('default')" class="p-3 rounded-2xl border border-slate-200 dark:border-zinc-800 text-left hover:border-indigo-500 transition-all flex flex-col justify-between">
-          <span class="font-bold text-xs">✨ 經典藍紫</span>
-          <div class="flex gap-1 mt-2">
-            <span class="w-3 h-3 rounded-full bg-indigo-500"></span>
-            <span class="w-3 h-3 rounded-full bg-purple-500"></span>
-            <span class="w-3 h-3 rounded-full bg-slate-100"></span>
-          </div>
-        </button>
-
-        <button onclick="applyPresetTheme('cyberpunk')" class="p-3 rounded-2xl border border-pink-500/50 bg-slate-900 text-left text-cyan-400 hover:border-pink-500 transition-all flex flex-col justify-between">
-          <span class="font-bold text-xs">⚡ 賽博朋克</span>
-          <div class="flex gap-1 mt-2">
-            <span class="w-3 h-3 rounded-full bg-pink-500"></span>
-            <span class="w-3 h-3 rounded-full bg-cyan-400"></span>
-            <span class="w-3 h-3 rounded-full bg-purple-950"></span>
-          </div>
-        </button>
-
-        <button onclick="applyPresetTheme('popart')" class="p-3 rounded-2xl border-2 border-slate-900 bg-amber-50 text-left hover:scale-105 transition-all flex flex-col justify-between">
-          <span class="font-bold text-xs text-slate-900">🎨 普普藝術</span>
-          <div class="flex gap-1 mt-2">
-            <span class="w-3 h-3 rounded-full bg-rose-500"></span>
-            <span class="w-3 h-3 rounded-full bg-amber-400"></span>
-            <span class="w-3 h-3 rounded-full bg-slate-900"></span>
-          </div>
-        </button>
-
-        <button onclick="applyPresetTheme('muji')" class="p-3 rounded-2xl border border-stone-300 bg-stone-100 text-left text-stone-800 hover:border-stone-500 transition-all flex flex-col justify-between">
-          <span class="font-bold text-xs">🌾 無印極簡</span>
-          <div class="flex gap-1 mt-2">
-            <span class="w-3 h-3 rounded-full bg-amber-800/60"></span>
-            <span class="w-3 h-3 rounded-full bg-stone-400"></span>
-            <span class="w-3 h-3 rounded-full bg-stone-200"></span>
-          </div>
-        </button>
-
-        <button onclick="applyPresetTheme('tech')" class="p-3 rounded-2xl border border-sky-500/50 bg-slate-950 text-left text-sky-300 hover:border-sky-400 transition-all flex flex-col justify-between">
-          <span class="font-bold text-xs">🌌 深藍科技</span>
-          <div class="flex gap-1 mt-2">
-            <span class="w-3 h-3 rounded-full bg-cyan-400"></span>
-            <span class="w-3 h-3 rounded-full bg-blue-600"></span>
-            <span class="w-3 h-3 rounded-full bg-slate-900"></span>
-          </div>
-        </button>
-      </div>
-    </div>
-
-    <!-- Fine-tune Color Pickers -->
-    <div class="pt-4 border-t border-slate-100 dark:border-zinc-800 space-y-3">
-      <label class="block text-xs font-bold uppercase tracking-wider text-slate-500">自由調色 (Custom Pickers)</label>
-      
-      <div class="grid grid-cols-2 gap-3 text-xs">
-        <div>
-          <span class="block text-slate-600 dark:text-zinc-400 mb-1">主要強調色 (Accent)</span>
-          <input type="color" id="pickerAccent" onchange="updateCustomThemeColor()" class="w-full h-9 rounded-xl border cursor-pointer">
+      <!-- View Container 1: Gantt Chart -->
+      <div id="viewGantt" class="rounded-3xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 p-6 shadow-sm overflow-x-auto relative">
+        <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-100 dark:border-zinc-800 no-print" data-html2canvas-ignore="true">
+          <h3 class="font-extrabold text-base flex items-center gap-2">
+            <i class="fa-solid fa-chart-gantt custom-accent-text"></i>
+            <span>甘特圖 (Gantt Chart)</span>
+          </h3>
+          <button onclick="downloadSectionAsImage('viewGantt', '甘特圖')" class="px-3.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-xs font-bold transition-all flex items-center gap-1.5 custom-accent-text shadow-sm hover:scale-105">
+            <i class="fa-solid fa-download"></i>
+            <span>下載圖檔 (PNG)</span>
+          </button>
         </div>
-        <div>
-          <span class="block text-slate-600 dark:text-zinc-400 mb-1">背景主色 (Background)</span>
-          <input type="color" id="pickerBg" onchange="updateCustomThemeColor()" class="w-full h-9 rounded-xl border cursor-pointer">
-        </div>
-        <div>
-          <span class="block text-slate-600 dark:text-zinc-400 mb-1">文字顏色 (Text Main)</span>
-          <input type="color" id="pickerText" onchange="updateCustomThemeColor()" class="w-full h-9 rounded-xl border cursor-pointer">
-        </div>
-        <div>
-          <span class="block text-slate-600 dark:text-zinc-400 mb-1">邊角圓弧度 (Radius)</span>
-          <select id="pickerRadius" onchange="updateCustomThemeColor()" class="w-full h-9 rounded-xl border px-2 text-xs">
-            <option value="1.5rem">標準柔和 (1.5rem)</option>
-            <option value="0.35rem">俐落直角 (0.35rem)</option>
-            <option value="2rem">極圓膠囊 (2rem)</option>
-          </select>
+        <h3 class="hidden print:block text-lg font-bold mb-4 custom-accent-text border-b pb-2"><i class="fa-solid fa-chart-gantt mr-2"></i>甘特圖 (Gantt Chart)</h3>
+        <div id="ganttChartWrapper">
+          <!-- Dynamically populated Gantt -->
         </div>
       </div>
-    </div>
 
-    <div class="flex items-center justify-between pt-2">
-      <button onclick="resetThemeDefault()" class="text-xs text-slate-400 hover:text-slate-600 underline">恢復系統預設</button>
-      <button onclick="closeThemeModal()" class="px-5 py-2.5 rounded-xl bg-indigo-600 text-white font-bold text-xs shadow-md">完成並儲存</button>
-    </div>
-  </div>
-</div>
+      <!-- View Container 2: Timeline List -->
+      <div id="viewTimeline" class="hidden rounded-3xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 p-6 shadow-sm relative">
+        <div class="flex items-center justify-between mb-6 pb-3 border-b border-slate-100 dark:border-zinc-800 no-print" data-html2canvas-ignore="true">
+          <h3 class="font-extrabold text-base flex items-center gap-2">
+            <i class="fa-solid fa-list-check custom-accent-text"></i>
+            <span>時程清單與交付物 (Timeline & Deliverables)</span>
+          </h3>
+          <button onclick="downloadSectionAsImage('viewTimeline', '時程清單與交付物')" class="px-3.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-xs font-bold transition-all flex items-center gap-1.5 custom-accent-text shadow-sm hover:scale-105">
+            <i class="fa-solid fa-download"></i>
+            <span>下載圖檔 (PNG)</span>
+          </button>
+        </div>
+        <h3 class="hidden print:block text-lg font-bold mb-4 custom-accent-text border-b pb-2"><i class="fa-solid fa-list-check mr-2"></i>時程清單與交付物 (Timeline & Deliverables)</h3>
+        <div id="timelineList">
+          <!-- Dynamically populated Timeline -->
+        </div>
+      </div>
 
-<!-- STORAGE MODAL -->
-<div id="storageModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 no-print">
-  <div class="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl space-y-6">
-    <div class="flex items-center justify-between">
-      <h3 class="text-xl font-bold"><i class="fa-solid fa-folder-open text-indigo-500 mr-2"></i>專案庫</h3>
-      <button onclick="closeStorageModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
-    </div>
-    <div id="savedProjectsList" class="space-y-2 max-h-60 overflow-y-auto pr-1"></div>
-    <div class="flex justify-end pt-2">
-      <button onclick="closeStorageModal()" class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-500 border border-slate-200 dark:border-zinc-800">關閉</button>
-    </div>
-  </div>
-</div>
+      <!-- View Container 3: RACI Matrix -->
+      <div id="viewRaci" class="hidden rounded-3xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 p-6 shadow-sm overflow-x-auto relative">
+        <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-100 dark:border-zinc-800 no-print" data-html2canvas-ignore="true">
+          <h3 class="font-extrabold text-base flex items-center gap-2">
+            <i class="fa-solid fa-people-arrows custom-accent-text"></i>
+            <span>RACI 矩陣與分工 (RACI Matrix & Task Breakdown)</span>
+          </h3>
+          <button onclick="downloadSectionAsImage('viewRaci', 'RACI矩陣與分工')" class="px-3.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-xs font-bold transition-all flex items-center gap-1.5 custom-accent-text shadow-sm hover:scale-105">
+            <i class="fa-solid fa-download"></i>
+            <span>下載圖檔 (PNG)</span>
+          </button>
+        </div>
+        <h3 class="hidden print:block text-lg font-bold mb-4 custom-accent-text border-b pb-2"><i class="fa-solid fa-people-arrows mr-2"></i>RACI 矩陣與分工 (RACI Matrix & Responsibilities)</h3>
+        <div id="raciMatrixWrapper">
+          <!-- Dynamically populated RACI -->
+        </div>
+      </div>
 
-<script>
-const TYPES = {
-  exhibition: {
-    name: '展會／展覽專案',
-    icon: 'fa-store',
-    overview: '適用於商業展覽攤位、品牌特裝館、成果展廳建置與多媒體互動空間展示。',
-    lifecycleSummary: '8 大階段 (約 90–180 天)',
-    budgetSummary: 'NT$ 20萬 – 1,000萬+',
-    duration: [60, 180],
-    phases: [
-      ['需求與目標確認', '確認展覽目的、參展對象、KPI 與總預算', 5, '專案需求書、總預算表與 KPI 指標對照表'],
-      ['展區策劃與動線', '主題故事線、視覺風格、參觀動線與區域規劃', 10, '展區平面動線圖、主題故事腳本'],
-      ['3D/平面設計提案', '攤位裝修、燈光、展櫃與多媒體設計稿確定', 20, '3D 效果渲染圖、施工圖面、視覺規範清單'],
-      ['採購發包與備料', '招標、詢價比價、合約簽訂與材質加工', 15, '比價議價單、發包合約、資材進場清單'],
-      ['展櫃製作與內容輸出', '展櫃工廠預作、影音內容剪輯與海報輸出', 25, '展櫃構件、影音多媒體檔、輸出宣傳物'],
-      ['進場搭建與設備測試', '展場進場施工、燈光多媒體調校與缺失改善', 5, '現場完工驗收單、設備測試報告'],
-      ['展期運營與現場維護', '現場導覽、人員排班與設備故障即時排除', 5, '現場運營日誌、參觀人流統計表'],
-      ['拆展與驗收結案', '設備撤場、廠商驗收、請款核銷與成果報告', 10, '撤場會勘單、結案成果報告書、核銷清單']
-    ],
-    budget: { small: [200000, 500000], medium: [500000, 2000000], large: [2000000, 10000000] },
-    roles: ['專案經理 PM', '策展企劃', '空間/展場設計', '視覺平面設計', '多媒體/硬體工程', '採購/發包管理', '現場執行/督導', '行政/財務核銷'],
-    budgetLabels: ['展場設計與規劃', '木作/結構工程', '多媒體設備/燈光', '視覺平面輸出', '現場運務與物流', '專案管理與行政']
-  },
-  event: {
-    name: '活動企劃專案',
-    icon: 'fa-bullhorn',
-    overview: '適用於產品發表會、產業高峰論壇、記者會、企業年會與混合式公開活動。',
-    lifecycleSummary: '7 大階段 (約 30–90 天)',
-    budgetSummary: 'NT$ 10萬 – 500萬+',
-    duration: [30, 90],
-    phases: [
-      ['活動定位與主題', '確認活動目標、預算、主要貴賓與宣傳管道', 5, '活動企劃主架構、預算分配表'],
-      ['企劃案與流程規劃', '細部議程、表演團體、主持腳本與現場控管表', 10, 'Run-down 流程表、主持文稿、現場 Rundown'],
-      ['貴賓與講者邀請', '講者邀約、簡報審查、接待規格與住宿安排', 15, '講者確認清單、講者簡報檔、貴賓接待手冊'],
-      ['硬體場地與廠商外包', '場地租借、舞台音響燈光、攝影團隊與餐飲', 12, '場地租賃合約、硬體配置圖、廠商發包單'],
-      ['宣傳發酵與報名管理', '社群宣傳、EDM、貴賓出席確認與報到系統', 20, '社群宣傳文案、EDM、報名出席清單'],
-      ['彩排與現場執行', '前一日總彩排、現場流程控管與貴賓接待', 2, '彩排缺失改善表、現場執行紀錄表'],
-      ['問卷彙整與結案核銷', '滿意度問卷、媒體露出統計、請款與結案', 10, '活動滿意度分析報告、媒體露出統計、結案報告']
-    ],
-    budget: { small: [100000, 300000], medium: [300000, 1000000], large: [1000000, 5000000] },
-    roles: ['活動 PM', '活動主企劃', '貴賓/講者窗口', '場務與硬體控台', '行銷宣傳', '視覺設計', '攝影/影音團隊', '行政/核銷'],
-    budgetLabels: ['企劃與PM費用', '場地租金與餐飲', '舞台/音響/視訊', '行銷宣傳與公關', '視覺與現場輸出', '人力與預備金']
-  },
-  hardware: {
-    name: '工程／硬體研發專案',
-    icon: 'fa-microchip',
-    overview: '適用於電子硬體產品、PCB 打樣、機構模具、EVT/DVT 驗證與安規認證。',
-    lifecycleSummary: '7 大階段 (約 120–365 天)',
-    budgetSummary: 'NT$ 50萬 – 5,000萬+',
-    duration: [120, 365],
-    phases: [
-      ['需求分析與規格書', '客戶需求收斂、系統架構定義與驗收條件', 20, '產品需求規格書 (PRD)、系統架構圖'],
-      ['詳細設計 (EVT)', 'PCB Layout、機構 CAD 設計與韌體架構', 35, 'PCB Gerber 檔、3D CAD 模組、韌體架構檔'],
-      ['打樣與原型製作', 'PCB 打樣、機構 3D 列印/CNC 樣品與零件採購', 25, 'EVT 功能工程樣機、BOM 表初稿'],
-      ['功能測試與 Debug (DVT)', '信號完整性、散熱測試、Bug 修正與版本迭代', 30, 'DVT 測試驗證報告、Bug 追蹤清單'],
-      ['安規與認證申請', 'FCC/CE/NCC 安規測試與環境可靠度驗證', 25, '安規認證證書、可靠度測試報告 (ALT)'],
-      ['試產與供應鏈整合 (PVT)', '治具準備、SMT 產線測試與良率提升', 20, 'PVT 試產良率報告、生產治具 SOP'],
-      ['量產準備與結案交付', 'BOM 表凍結、產線轉移與技術文件交付', 15, '正式量產 BOM 表、技術轉移文檔、結案報告']
-    ],
-    budget: { small: [500000, 2000000], medium: [2000000, 8000000], large: [8000000, 50000000] },
-    roles: ['Technical PM', '系統架構師', 'EE 硬體工程師', 'ME 機構工程師', 'FW 韌體工程師', 'QA/測試工程師', '採購/供應鏈管理', '安規/認證專家'],
-    budgetLabels: ['研發人力費用', '打樣與零件材料', '測試設備與治具', '安規與驗證規費', '軟體授權與工具', '風險預備金']
-  },
-  process: {
-    name: '企業內部流程優化',
-    icon: 'fa-diagram-project',
-    overview: '適用於跨部門 SOP 重組、數位轉型、ERP/CRM 導入與商業流程優化 (BPR)。',
-    lifecycleSummary: '6 大階段 (約 90–270 天)',
-    budgetSummary: 'NT$ 30萬 – 2,000萬+',
-    duration: [90, 270],
-    phases: [
-      ['現況訪談與瓶頸盤點', '跨部門訪談、As-Is 流程圖繪製與瓶頸分析', 15, 'As-Is 現況流程圖、瓶頸分析診斷書'],
-      ['未來流程設計 (To-Be)', '定義新 SOP、權責限額表與系統關鍵需求', 20, 'To-Be 未來流程圖、新版 SOP 草案'],
-      ['工具選型與系統開發', '系統採購、客製化功能開發與 API 串接', 40, '系統功能規格書 (FSD)、API 串接文檔'],
-      ['資料清洗與系統測試', '舊資料轉檔、單元測試與端到端 UAT 驗證', 25, 'UAT 測試案例檔、資料轉檔核對清單'],
-      ['試行與使用者教育訓練', 'SOP 宣導、種子人員培訓與 Pilot 小範圍試行', 15, '教育訓練教材、使用者測驗結果、Pilot 檢討報告'],
-      ['全面上線與營運監控', '系統 Go-Live、即時客服支援與成效追蹤', 20, 'Go-Live 切換計畫、KPI 改善效益評估報告']
-    ],
-    budget: { small: [300000, 1000000], medium: [1000000, 4000000], large: [4000000, 20000000] },
-    roles: ['數位轉型 PM', '商業分析師 BA', 'IT/系統架構師', 'Process Owner', 'CHANGE 變更管理', '測試人員 UAT', '資料分析師', '高階贊助者 Sponsor'],
-    budgetLabels: ['顧問與專案管理', '系統授權/軟體費', '客製化開發費用', '教育訓練與宣導', '資料轉檔與整合', '運籌預備金']
-  },
-  training: {
-    name: '培訓課程辦理',
-    icon: 'fa-graduation-cap',
-    overview: '適用於企業內訓、系統化培訓營、產學學程設計、招生與學習成效評估。',
-    lifecycleSummary: '7 大階段 (約 30–120 天)',
-    budgetSummary: 'NT$ 5萬 – 300萬',
-    duration: [30, 120],
-    phases: [
-      ['需求調查與企劃', '產業/企業需求調查、課程範疇與目標學員定義', 10, '培訓需求分析報告、課程總體規劃案'],
-      ['課程架構與大綱', '課綱設計、教學模組與教材撰寫規範', 15, '標準課程大綱 (Syllabus)、教學模組表'],
-      ['講師邀約與講義確認', '專業講師邀請、授課鐘點費議定與講義審查', 15, '講師合作合約、簡報講義初稿'],
-      ['招生宣傳與報名管理', '宣傳管道上架、學員資格審查與名單彙整', 20, '招生文案宣傳物、學員報名審查名冊'],
-      ['課前場地與設備準備', '教室租借、線上平台測試、教具與講義印製', 10, '場地設備測試清單、印製完成講義'],
-      ['課程執行與場務支援', '報到管理、現場助教支援、錄影與滿意度問卷', 5, '簽到表、課程全程影音檔、即時回饋紀錄'],
-      ['成效分析與核銷結案', '學習成效分析、結業證書核發與經費請款核銷', 10, '學習成效評估報告 (Kirkpatrick)、核銷清單']
-    ],
-    budget: { small: [50000, 200000], medium: [200000, 800000], large: [800000, 3000000] },
-    roles: ['課程 PM', '課程企劃', '講師 / 顧問', '產學/企業窗口', '招生/學員管理', '課務/技術支援', '問卷/成效分析', '行政/財務核銷'],
-    budgetLabels: ['講師鐘點與顧問費', '教材開發與印製', '場地租借與餐飲', '招生行銷與宣傳', '教具設備與平台', '行政與管理費']
-  },
-  matching: {
-    name: '產學合作媒合',
-    icon: 'fa-handshake',
-    overview: '適用於企業技術需求探勘、大學教授 Lab 配對、合約與智財轉移專案。',
-    lifecycleSummary: '8 大階段 (約 90–365 天)',
-    budgetSummary: 'NT$ 10萬 – 1,000萬+',
-    duration: [90, 365],
-    phases: [
-      ['產業需求與資源盤點', '企業技術需求訪談、教授與實驗室能量盤點', 20, '企業需求訪談表、產學能量盤點清冊'],
-      ['候選對象初步配對', '技術領域比對、意願徵詢與需求對接', 15, '技術媒合推薦配對表'],
-      ['深度技術交流與 Lab Visit', '技術交流會議、實驗室參訪與合作可行性評估', 25, '技術交流會議紀錄、Lab Visit 參訪報告'],
-      ['合作方案與計畫書撰寫', '工作範疇、里程碑、研發經費與智財歸屬規劃', 20, '產學合作計畫書 (SOW)、經費預算表'],
-      ['MOU 與合約審查簽訂', '法務合約條款審查、雙方簽核與研發經費撥付', 25, 'MOU 合作備忘錄、正式產學合約'],
-      ['合作專案執行與驗證', '階段性技術研發、測試驗證與里程碑審查', 60, '期中進度報告、技術樣品測試紀錄'],
-      ['成果發表與技術擴散', '成果發表會、專利佈局與後續技術轉移效益追蹤', 20, '產學成果展示報告、專利申請與效益追蹤表']
-    ],
-    budget: { small: [100000, 500000], medium: [500000, 2000000], large: [2000000, 10000000] },
-    roles: ['產學合作 PM', '產業分析師', '企業開發 / 招商', '學研端合作窗口', '技術顧問 / 專家', '法務 / 合約專家', '媒合活動企劃', '行政 / 財務核銷'],
-    budgetLabels: ['研發與技術顧問費', '媒合活動與會議費', '專利與法務審查', '樣品驗證與測試', '行政與管銷費用', '風險預備金']
-  },
-  international: {
-    name: '國際交流活動',
-    icon: 'fa-globe',
-    overview: '適用於海外代表團接待、國際論壇、雙邊 B2B 商務對接與跨境參訪。',
-    lifecycleSummary: '7 大階段 (約 90–270 天)',
-    budgetSummary: 'NT$ 30萬 – 2,000萬+',
-    duration: [90, 270],
-    phases: [
-      ['目標與交流主題設定', '交流國家/代表團選定、合作範疇與預期效益', 15, '國際交流架構案、合作效益目標表'],
-      ['海外夥伴接洽與確認', '海外機構/貴賓洽邀、合作意向書確認', 30, '貴賓邀請函 (LOI)、海外出席名單'],
-      ['議程、參訪與 B2B 規劃', '論壇議程設計、企業參訪動線與商務對接排程', 20, '國際論壇議程表、B2B 對接手冊'],
-      ['國際行政與後勤籌備', '機票住宿訂房、簽證辦理、口譯團隊與禮品準備', 25, '後勤行程總表 (Master Itinerary)、口譯合約'],
-      ['宣傳與報名管理', '國際宣傳、貴賓報名確認與接待手冊印製', 20, '雙語宣傳文案、貴賓接待手冊 (Guidebook)'],
-      ['活動執行與貴賓接待', '論壇主持、現場口譯、B2B 媒合與貴賓接送', 7, '現場對接紀錄、MOU 簽署文件'],
-      ['合作追蹤與成果結案', 'MOU 效益追蹤、滿意度問卷與成果請款核銷', 25, '國際交流成果報告書、核銷清冊']
-    ],
-    budget: { small: [300000, 1000000], medium: [1000000, 5000000], large: [5000000, 20000000] },
-    roles: ['國際專案 PM', '國際合作窗口', '商務 / 招商窗口', '活動企劃', '隨行 / 同步口譯', '外賓接待 / 後勤', '公關行銷', '行政 / 財務核銷'],
-    budgetLabels: ['國際交通與住宿', '場地租借與餐飲', '口譯與翻譯服務', '宣傳與接待禮品', '專案管理與行政', '備援預備金']
-  },
-  custom: {
-    name: '自訂專案類型',
-    icon: 'fa-wand-magic-sparkles',
-    overview: '鍵入任意領域關鍵字，系統將透過 Google 搜尋演算法動態檢索階段與行情。',
-    lifecycleSummary: '彈性階段 (依關鍵字生成)',
-    budgetSummary: 'Google 數據動態估算',
-    duration: [30, 180],
-    phases: [
-      ['現況調研與需求定義', '進行資料檢索、需求釐清、KPI定義與預算範疇設定', 15, '專案需求與範疇界定書 (SOW)'],
-      ['方案設計與架構規劃', '細部執行方案設計、規格確認與技術/流程架構擬定', 20, '詳細方案設計圖文檔、技術規格書'],
-      ['外包採購與資源發包', '廠商比價、合約條款擬定、資源採購與發包', 20, '採購合約、發包與委託單'],
-      ['核心執行與開發製作', '專案實質推進、產品製作/服務導入與階段性監控', 45, '核心階段成果報告、交付物件初稿'],
-      ['測試驗證與品質審查', '端到端測試、品質稽核、缺失改善與 User 驗收', 15, '品質測試與 UAT 驗收報告'],
-      ['成果交付與核銷結案', '成果正式上線/交付、結案報告撰寫與請款核銷', 10, '正式交付證明文件、結案報告書']
-    ],
-    budget: { small: [100000, 500000], medium: [500000, 2000000], large: [2000000, 10000000] },
-    roles: ['主導 PM', '業務/需求分析師', '核心執行專家', '技術/設計顧問', '品質/測試人員', '採購/發包窗口', '行政/財務核銷'],
-    budgetLabels: ['顧問與專家費用', '執行與製作外包', '軟硬體與工具', '品質驗證與測試', '管理與行政管銷', '風險預備金']
-  }
-};
-
-const PUBLIC_REFS = {
-  exhibition: '根據 2026 年台灣展覽市場參考資料，標準 9–18㎡ 攤位設計＋木作施工行情約為 NT$15–45 萬；獨立特裝館或科技展示中心每坪常見行情約 NT$8–20 萬。',
-  event: '公開市場資料顯示，100 人發表會硬體與運籌約 NT$20–45 萬；300 人以上旗艦發表會，含電視牆與影音團隊常見約 NT$80–250 萬。',
-  hardware: '硬體研發專案主要成本在於研發工時與試產打樣費用。EVT/DVT 階段打樣費用依 Layer 數與模具開模難度，常見佔總研發預算 25–40%。',
-  process: '企業系統導入費用中，顧問服務與客製化開發約佔總預算 50–65%，軟體訂閱或 License 約佔 20–30%。',
-  training: '公開市場數據顯示，企業內訓或公開培訓課程單日講師費約 NT$1.5–5 萬；系統化課程 (30–60 小時) 總預算常見約 NT$20–80 萬。',
-  matching: '產學合作媒合專案費用主要包含技術評估、專利法務檢視與媒合會議辦理。政府補助或企業委託案常落於 NT$50–200 萬區間。',
-  international: '國際交流專案受機票、高規格住宿與同步口譯費用影響較大。10–20 人代表團來台或出訪，總預算約 NT$100–500 萬。',
-  custom: '本專案透過智慧檢索與 Google 產業行情庫進行匹配。客製化專案建議保留 10–15% 預備金，並向 2–3 家合格廠商取得拆解式報價。'
-};
-
-let selectedTypeKey = 'exhibition';
-let currentPlanData = null;
-let currentPageNum = 1;
-
-/* THEME MANAGEMENT FUNCTIONS */
-function openThemeModal() { document.getElementById('themeModal').classList.remove('hidden'); }
-function closeThemeModal() { document.getElementById('themeModal').classList.add('hidden'); }
-
-function applyPresetTheme(themeName) {
-  document.body.className = document.body.className.replace(/theme-\w+/g, '').trim();
-  if (themeName !== 'default') {
-    document.body.classList.add(`theme-${themeName}`);
-  }
-  localStorage.setItem('pf_theme_preset', themeName);
-  showToast(`已成功套用「${themeName}」風格主題`, 'success');
-}
-
-function updateCustomThemeColor() {
-  const accent = document.getElementById('pickerAccent').value;
-  const bg = document.getElementById('pickerBg').value;
-  const text = document.getElementById('pickerText').value;
-  const radius = document.getElementById('pickerRadius').value;
-
-  document.documentElement.style.setProperty('--accent-primary', accent);
-  document.documentElement.style.setProperty('--bg-main', bg);
-  document.documentElement.style.setProperty('--text-main', text);
-  document.documentElement.style.setProperty('--radius-main', radius);
-
-  const customConfig = { accent, bg, text, radius };
-  localStorage.setItem('pf_custom_theme', JSON.stringify(customConfig));
-}
-
-function resetThemeDefault() {
-  localStorage.removeItem('pf_theme_preset');
-  localStorage.removeItem('pf_custom_theme');
-  document.body.className = '';
-  document.documentElement.removeAttribute('style');
-  showToast('已復原為系統預設主題', 'info');
-}
-
-function loadSavedTheme() {
-  const preset = localStorage.getItem('pf_theme_preset');
-  if (preset) applyPresetTheme(preset);
-
-  const custom = localStorage.getItem('pf_custom_theme');
-  if (custom) {
-    try {
-      const cfg = JSON.parse(custom);
-      if (cfg.accent) document.documentElement.style.setProperty('--accent-primary', cfg.accent);
-      if (cfg.bg) document.documentElement.style.setProperty('--bg-main', cfg.bg);
-      if (cfg.text) document.documentElement.style.setProperty('--text-main', cfg.text);
-      if (cfg.radius) document.documentElement.style.setProperty('--radius-main', cfg.radius);
-    } catch(e) {}
-  }
-}
-
-function goToPage(pageNum) {
-  currentPageNum = pageNum;
-  const p1 = document.getElementById('page1');
-  const p2 = document.getElementById('page2');
-  const results = document.getElementById('results');
-
-  p1.classList.add('hidden');
-  p2.classList.add('hidden');
-  results.classList.add('hidden');
-
-  const stepBadge2 = document.getElementById('stepBadge2');
-  const stepBadge3 = document.getElementById('stepBadge3');
-  const stepLine1 = document.getElementById('stepLine1');
-  const stepLine2 = document.getElementById('stepLine2');
-  const stepInd1 = document.getElementById('stepIndicator1');
-  const stepInd2 = document.getElementById('stepIndicator2');
-  const stepInd3 = document.getElementById('stepIndicator3');
-
-  if (pageNum === 1) {
-    p1.classList.remove('hidden');
-    stepLine1.style.width = '0%';
-    stepLine2.style.width = '0%';
-    stepBadge2.className = 'w-7 h-7 rounded-full bg-slate-200 dark:bg-zinc-800 text-slate-500 flex items-center justify-center text-xs';
-    stepBadge3.className = 'w-7 h-7 rounded-full bg-slate-200 dark:bg-zinc-800 text-slate-500 flex items-center justify-center text-xs';
-    stepInd1.className = 'flex items-center gap-2 font-bold text-xs sm:text-sm custom-accent-text';
-    stepInd2.className = 'flex items-center gap-2 font-semibold text-xs sm:text-sm text-slate-400';
-    stepInd3.className = 'flex items-center gap-2 font-semibold text-xs sm:text-sm text-slate-400';
-  } else if (pageNum === 2) {
-    p2.classList.remove('hidden');
-    updatePage2Banner();
-    stepLine1.style.width = '100%';
-    stepLine2.style.width = '0%';
-    stepBadge2.className = 'w-7 h-7 rounded-full custom-accent-bg text-white flex items-center justify-center text-xs shadow-md';
-    stepBadge3.className = 'w-7 h-7 rounded-full bg-slate-200 dark:bg-zinc-800 text-slate-500 flex items-center justify-center text-xs';
-    stepInd1.className = 'flex items-center gap-2 font-semibold text-xs sm:text-sm opacity-60';
-    stepInd2.className = 'flex items-center gap-2 font-bold text-xs sm:text-sm custom-accent-text';
-    stepInd3.className = 'flex items-center gap-2 font-semibold text-xs sm:text-sm text-slate-400';
-  } else if (pageNum === 3) {
-    results.classList.remove('hidden');
-    stepLine1.style.width = '100%';
-    stepLine2.style.width = '100%';
-    stepBadge2.className = 'w-7 h-7 rounded-full custom-accent-bg text-white flex items-center justify-center text-xs';
-    stepBadge3.className = 'w-7 h-7 rounded-full bg-emerald-600 text-white flex items-center justify-center text-xs shadow-md';
-    stepInd1.className = 'flex items-center gap-2 font-semibold text-xs sm:text-sm opacity-60';
-    stepInd2.className = 'flex items-center gap-2 font-semibold text-xs sm:text-sm opacity-60';
-    stepInd3.className = 'flex items-center gap-2 font-bold text-xs sm:text-sm text-emerald-600 dark:text-emerald-400';
-  }
-
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-
-function updatePage2Banner() {
-  const cfg = TYPES[selectedTypeKey];
-  const isCustom = selectedTypeKey === 'custom';
-  const customKw = document.getElementById('customKeywordInput').value.trim();
-
-  document.getElementById('selectedTypeIcon').innerHTML = `<i class="fa-solid ${cfg.icon}"></i>`;
-  document.getElementById('selectedTypeName').textContent = isCustom ? `自訂專案：${customKw}` : cfg.name;
-}
-
-window.addEventListener('DOMContentLoaded', () => {
-  loadSavedTheme();
-  renderOptionCards();
-  setDefaultDates();
-  addPersonRow('張專案', '專案經理 PM');
-  addPersonRow('李執行', '專案組員');
-});
-
-function toggleDropdown(id) { document.getElementById(id).classList.toggle('hidden'); }
-
-function showToast(msg, type = 'info') {
-  const container = document.getElementById('toastContainer');
-  const toast = document.createElement('div');
-  const colors = type === 'error' ? 'bg-rose-500 text-white' : (type === 'success' ? 'bg-emerald-600 text-white' : 'bg-slate-800 text-white');
-  toast.className = `pointer-events-auto flex items-center gap-2 px-4 py-3 rounded-2xl shadow-xl text-xs font-semibold ${colors} transition-all duration-300 transform translate-y-2 opacity-0`;
-  toast.innerHTML = `<i class="fa-solid fa-circle-info"></i> ${msg}`;
-  container.appendChild(toast);
-  
-  setTimeout(() => { toast.classList.remove('translate-y-2', 'opacity-0'); }, 10);
-  setTimeout(() => {
-    toast.classList.add('opacity-0', 'translate-y-2');
-    setTimeout(() => toast.remove(), 300);
-  }, 3500);
-}
-
-function renderOptionCards() {
-  const container = document.getElementById('typeCardsContainer');
-  let html = '';
-
-  Object.entries(TYPES).forEach(([key, item]) => {
-    const isActive = key === selectedTypeKey;
-    html += `
-      <div onclick="selectProjectTypeCard('${key}')" id="card_${key}" class="type-card border-2 ${isActive ? 'active border-indigo-600' : 'border-slate-200 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80'} p-4 flex flex-col justify-between relative overflow-hidden">
-        <div>
-          <div class="flex items-center justify-between mb-2">
-            <div class="w-8 h-8 rounded-xl custom-accent-bg text-white flex items-center justify-center text-sm font-bold">
-              <i class="fa-solid ${item.icon}"></i>
-            </div>
-            <span class="card-radio-icon custom-accent-text text-sm ${isActive ? 'inline-block' : 'hidden'}">
-              <i class="fa-solid fa-circle-check"></i>
+      <!-- Budget & Risk Analysis Section -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        <!-- Budget Breakdown -->
+        <div class="lg:col-span-6 rounded-3xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 p-6 shadow-sm space-y-4">
+          <h3 class="font-extrabold text-base flex items-center justify-between border-b border-slate-100 dark:border-zinc-800 pb-3">
+            <span class="flex items-center gap-2">
+              <i class="fa-solid fa-calculator custom-accent-text"></i>
+              <span>預算結構拆解與市場行情說明</span>
             </span>
+            <span id="budgetRefNote" class="text-[11px] font-normal opacity-60">參考市場標準行情</span>
+          </h3>
+          <div id="budgetBreakdown" class="space-y-2">
+            <!-- Dynamically populated budget items -->
           </div>
-
-          <h3 class="font-extrabold text-sm mb-1.5">${item.name}</h3>
-          <p class="text-[11px] opacity-70 leading-relaxed mb-3 line-clamp-2">
-            <strong>概述：</strong>${item.overview}
-          </p>
-        </div>
-
-        <div class="space-y-1.5 pt-2 border-t border-slate-100 dark:border-zinc-800 text-[11px]">
-          <div class="flex items-center justify-between opacity-80">
-            <span class="opacity-60"><i class="fa-solid fa-clock-rotate-left mr-1"></i>生命週期:</span>
-            <span class="font-semibold">${item.lifecycleSummary}</span>
-          </div>
-          <div class="flex items-center justify-between opacity-80">
-            <span class="opacity-60"><i class="fa-solid fa-sack-dollar mr-1"></i>市場預算:</span>
-            <span class="font-bold custom-accent-text">${item.budgetSummary}</span>
+          <div id="budgetAdvice" class="pt-3 border-t border-slate-100 dark:border-zinc-800 text-xs opacity-80 leading-relaxed space-y-1">
+            <!-- Budget recommendations -->
           </div>
         </div>
+
+        <!-- Risk Assessment -->
+        <div class="lg:col-span-6 rounded-3xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 p-6 shadow-sm space-y-4">
+          <h3 class="font-extrabold text-base flex items-center gap-2 border-b border-slate-100 dark:border-zinc-800 pb-3">
+            <i class="fa-solid fa-shield-halved text-amber-500"></i>
+            <span>專案風險評估與因應策略</span>
+          </h3>
+          <div id="riskGrid" class="space-y-3">
+            <!-- Dynamically populated risks -->
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Storage Modal -->
+  <div id="storageModal" class="hidden fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="max-w-md w-full rounded-3xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 p-6 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-100 dark:border-zinc-800 pb-3">
+        <h3 class="font-extrabold text-base flex items-center gap-2">
+          <i class="fa-solid fa-box-archive custom-accent-text"></i>
+          <span>已儲存專案紀錄</span>
+        </h3>
+        <button onclick="closeStorageModal()" class="p-1 opacity-60 hover:opacity-100"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+      <div id="savedProjectsList" class="space-y-2 max-h-80 overflow-y-auto">
+        <!-- Dynamically populated saved projects -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div id="toastContainer" class="fixed bottom-6 right-6 z-50 pointer-events-none space-y-2 max-w-sm w-full"></div>
+
+  <script>
+  // Market references dictionary
+  const PUBLIC_REFS = {
+    exhibition: '參考台北世貿/南港展覽館特裝攤位行情及經濟部公佈之會展產業標準預算結構。',
+    hardware: '參考科技部研發補助計畫與電子零組件/PCB打樣、模具開模、NCC/CE認證費用行情。',
+    software: '參考數位發展部資訊服務採購計價指南、SI廠商工時人月 (Man-Month) 標準行情。',
+    event: '參考大型公關公司活動企劃執行費、場地租賃、軟硬體硬體工程與藝人/講師車馬費標準。',
+    branding: '參考國內知名設計公司 CI/VI 視覺識別手冊開發與商標註冊指導行情。',
+    construction: '參考內政部營建署工程預算單價與室內裝修公會標準工料估算行情。',
+    research: '參考國科會/經濟部產學合作計畫與政府委託研究計畫經費編列基準表。',
+    custom: '參考 Google 搜尋行情數據、相關產業採購招標規範與政府公開採購決標紀錄。'
+  };
+
+  // Main TYPES dictionary
+  const TYPES = {
+    exhibition: {
+      name: '特展與會展建置',
+      icon: 'fa-archway',
+      overview: '包含主題策展、攤位特裝結構設計、影音多媒體工程與現場進撤場營運管理。',
+      lifecycleSummary: '籌備 2-3 個月 / 展期 3-5 天',
+      budgetSummary: 'NT$ 50萬 — 300萬+',
+      roles: ['專案經理 PM', '策展人/企劃', '空間/視覺設計師', '硬體/AV工程師', '現場執行督導', '行政/採購窗口'],
+      budgetLabels: ['主體結構與裝修工料', '多媒體設備與硬體租賃', '視覺設計與宣傳印製', '現場營運與人力工資', '管銷與運輸費用', '預備金'],
+      budget: { small: [300000, 800000], medium: [800000, 2000000], large: [2000000, 6000000] },
+      phases: [
+        ['展覽概念與主題定案', '確立展出目標、主題視覺風格、展區分區規劃與預算控管', 15, '策展企劃書與初步空間配置圖'],
+        ['攤位特裝與視覺設計', '進行 3D 效果圖設計、施工圖繪製、材質挑選與報價核定', 25, '3D 渲染效果圖、施工工程圖與材質選樣單'],
+        ['採購發包與施工準備', '廠商比價、發包簽約、結構技師簽證申請與進場證辦理', 20, '發包合約、展館施工申請單與安衛計畫'],
+        ['展館現場進場搭建與進駐', '現場結構組裝、水電配線、AV影音設備進場與軟硬體調校', 10, '現場驗收檢查表與系統測試報告'],
+        ['展期營運與現場導覽', '開展營運、貴賓導覽、現場維運與突發狀況應變處理', 15, '每日展況日報與參觀人次統計'],
+        ['撤場還原與結案核銷', '展後迅速撤場、場地還原驗收與廠商結算核銷', 15, '結案成果報告書與經費核銷單']
+      ]
+    },
+    hardware: {
+      name: '硬體與嵌入式產品開發',
+      icon: 'fa-microchip',
+      overview: '涵蓋規格定義、PCB 電路設計、機構開模、韌體開發與法規安規認證。',
+      lifecycleSummary: '週期 6-12 個月',
+      budgetSummary: 'NT$ 150萬 — 800萬+',
+      roles: ['硬體 PM', 'EE 電子工程師', 'ME 機構工程師', 'FW 韌體工程師', 'QA 安規認證專員', '採購/供應鏈經理'],
+      budgetLabels: ['PCB 與硬體打樣費', '機構模具開模費', '韌體與測試研發工時', '安規檢驗與認證規費', '專案管理與行政管銷', '風險預備金'],
+      budget: { small: [1000000, 2500000], medium: [2500000, 5000000], large: [5000000, 15000000] },
+      phases: [
+        ['產品規格與架構研析', '需求收集、系統架構評估、主要 IC 選型與可行性分析', 15, '產品需求規格書 (PRD) 與硬體架構圖'],
+        ['電路設計與 PCB Layout', '原理圖繪製 (Schematic)、PCB 佈線與首版樣品打樣 (EVT)', 25, '電路圖 Gerber 檔與 EVT 原型樣機'],
+        ['機構設計與 3D 打樣', '外觀機構設計、散熱模擬、3D 列印機構打樣與組裝驗證', 20, '機構 3D CAD 檔與機構樣機'],
+        ['韌體開發與系統整合', '底層驅動編寫、系統邏輯開發、功能測試與 DVT 驗證', 20, '韌體 Codebase 與 DVT 測試報告'],
+        ['安規認證與試產準備', 'FCC/CE/BSMI 檢測送驗、小批量試產 (PVT) 與治具準備', 15, '安規認證證書與試產評估報告'],
+        ['量產移交與結案評估', '生產線標準作業書 (SOP) 轉移與生產良率檢討結案', 5, '量產 SOP 手冊與結案報告']
+      ]
+    },
+    software: {
+      name: '軟體與系統 App 開發',
+      icon: 'fa-code',
+      overview: '從 UI/UX 設計、前端與後端開發、API 對接至雲端部署與端點測試。',
+      lifecycleSummary: '週期 3-6 個月',
+      budgetSummary: 'NT$ 60萬 — 400萬+',
+      roles: ['軟體 PM', 'UI/UX 設計師', '前端工程師', '後端工程師', 'QA 測試工程師', 'DevOps 雲端工程師'],
+      budgetLabels: ['前端與 UI/UX 開發工時', '後端與 API 開發工時', '雲端主機與第三方服務', 'QA 測試與資訊安全稽核', '專案管理與維運費', '預備金'],
+      budget: { small: [400000, 1000000], medium: [1000000, 3000000], large: [3000000, 8000000] },
+      phases: [
+        ['需求釐清與 Wireframe', '使用者故事 (User Story) 梳理、功能清單與 Wireframe 線框圖', 15, '需求規格書與 Wireframe 設計草圖'],
+        ['UI/UX 高保真視覺設計', '設計系統 (Design System) 建立、UI 介面與互動 Prototype', 20, 'Figma 視覺稿與原型 Prototype'],
+        ['前後端架構搭建與 API', '資料庫設計、後端 RESTful API 與前端介面開發', 30, '資料庫架構圖與核心功能代碼'],
+        ['系統整合測試與弱掃', '功能測試、端到端 (E2E) 測試、壓測與資安弱點掃描', 15, 'QA 測試報告與資安修復報告'],
+        ['UAT 驗收與上線部署', '客戶端 UAT 驗收測試、雲端部署與 App Store/Google Play 上架', 10, 'UAT 簽核單與上線啟用證明'],
+        ['保固維運與專案結案', '保固期運作監控、操作手冊交付與專案結案核銷', 10, '系統操作手冊與專案結案報告']
+      ]
+    },
+    event: {
+      name: '大型活動與行銷企劃',
+      icon: 'fa-bullhorn',
+      overview: '涵蓋公關發表會、年會、音樂節、實體行銷推廣與媒體宣傳。',
+      lifecycleSummary: '籌備 1-3 個月 / 活動 1-2 天',
+      budgetSummary: 'NT$ 40萬 — 250萬+',
+      roles: ['活動總召 PM', '行銷公關企劃', '視覺設計專員', '舞台硬體工程師', '主持/演出人員', '現場控場團隊'],
+      budgetLabels: ['場地租金與餐飲費', '舞台硬體與燈光音響', '主視覺設計與現場物料', '公關媒體與宣傳投放', '現場工作人員工資', '風險預備金'],
+      budget: { small: [300000, 800000], medium: [800000, 2000000], large: [2000000, 5000000] },
+      phases: [
+        ['活動企劃與主題提案', '確立活動目標、主題視覺風格、 Rundown 流程與整體預算編列', 20, '完整活動企劃書與預算表'],
+        ['場地勘查與廠商發包', '現場場勘、舞台/音響/燈光廠商比價發包與演藝人員簽約', 20, '場地租賃合約與發包廠商名冊'],
+        ['宣傳推廣與報名管理', '媒體新聞稿發布、社群廣告投放、宣傳物料印製與報名系統上線', 25, '主視覺設計檔與報名數據統計'],
+        ['彩排演練與現場搭設', '舞台燈光音響搭設、工作人員彩排、走位演練與突發狀況模擬', 15, '現場 Run-down 流程表與彩排紀錄'],
+        ['正式活動執行', '開幕儀式、活動流程掌控、現場安控與直播媒體接待', 10, '活動當天全程影音紀錄與活動日誌'],
+        ['活動結案與效益評估', '現場拆場復原、問卷調查分析、公關媒體曝光效益統計與結案', 10, '結案效益評估報告與核銷憑證']
+      ]
+    },
+    branding: {
+      name: '品牌形象與視覺設計',
+      icon: 'fa-palette',
+      overview: '從品牌定位、標誌設計、VI 視覺識別系統至包裝與品牌規範手冊。',
+      lifecycleSummary: '週期 1.5-3 個月',
+      budgetSummary: 'NT$ 20萬 — 120萬+',
+      roles: ['品牌顧問 PM', '品牌企劃文案', '資深視覺設計師', '包裝/應用設計師', '印刷與材質專家'],
+      budgetLabels: ['品牌定位與市場研析', 'Logo 與 VI 核心設計工時', '應用延展與包裝設計', 'VI 規範手冊編製', '樣品打樣與印刷規費', '預備金'],
+      budget: { small: [150000, 400000], medium: [400000, 1000000], large: [1000000, 2500000] },
+      phases: [
+        ['品牌研究與市場定位', '競品分析、品牌核心價值 (Brand Identity) 梳理與定位訪談', 20, '品牌研究報告與定位企劃'],
+        ['Logo 設計概念提案', '發想 Logo 概念草圖、設計 3 款不同風格方向之 Concept 提案', 25, 'Logo 概念提案簡報檔'],
+        ['VI 視覺識別系統擴展', '標準字、標準色、輔助圖形與多種延伸應用物料設計', 25, 'VI 延伸應用設計精稿'],
+        ['品牌規範手冊編製', '制定品牌使用規範、禁忌說明、圖檔格式規範與手冊排版', 15, '品牌識別規範手冊 (Brand Guidelines)'],
+        ['印刷打樣與製作物驗收', '材質挑選、印刷廠樣品打樣、色彩校正與品質驗收', 15, '印刷實體打樣品與最終原始檔']
+      ]
+    },
+    construction: {
+      name: '室內裝修與空間工程',
+      icon: 'fa-hammer',
+      overview: '涵蓋需求丈量、平面與立面圖繪製、工程報價、現場施工與驗收交屋。',
+      lifecycleSummary: '週期 2-5 個月',
+      budgetSummary: 'NT$ 80萬 — 500萬+',
+      roles: ['專案監造 PM', '室內設計師', '繪圖員', '泥作/木作工班主任', '水電工程師', '軟裝師'],
+      budgetLabels: ['工程設計與繪圖費', '泥作/木作/水電工工與料', '建材與軟裝採購', '現場監造與專案管理', '廢棄物清運與清理', '預備金'],
+      budget: { small: [500000, 1500000], medium: [1500000, 3500000], large: [3500000, 10000000] },
+      phases: [
+        ['現場丈量與需求溝通', '實地空間丈量、現況拍照、業主需求訪談與風格意向確定', 10, '丈量尺寸圖與平面配置草圖'],
+        ['設計圖繪製與材料確認', '繪製施工圖、剖面圖、選定建材材質與擬定工程預算單', 25, '完整施工圖冊與工程報價單'],
+        ['發包備料與申請許可', '室內裝修許可申請、廠商比價發包與材料進場調度', 15, '裝修許可證與廠商發包合約'],
+        ['現場施工與中期監造', '拆除、泥作、水電、木作與油漆工序執行及工程監造', 35, '施工日誌與中期驗收檢查表'],
+        ['軟裝進場與竣工驗收', '清潔清運、軟裝家具進場、工程細項缺失修補與驗收交屋', 15, '竣工驗收單與保固服務書']
+      ]
+    },
+    research: {
+      name: '產學/政府委託研究計畫',
+      icon: 'fa-graduation-cap',
+      overview: '專為國科會、經濟部或政府機關研究案設計，注重管考、中期報告與核銷。',
+      lifecycleSummary: '週期 6-12 個月',
+      budgetSummary: 'NT$ 50萬 — 300萬+',
+      roles: ['計畫主持人 PI', '協同主持人', '專任研究助理', '兼任助理/研究生', '財務行政窗口'],
+      budgetLabels: ['研究人員人事費', '研究設備與耗材採購', '專家諮詢與出席費', '問卷調查與實證調研', '管理費與行政管銷', '預備金'],
+      budget: { small: [400000, 1000000], medium: [1000000, 2500000], large: [2500000, 6000000] },
+      phases: [
+        ['計畫啟動與文獻研究', '文獻回顧、研究架構確立、IRB 審查申請與研究工具設計', 20, '研究架構說明書與 IRB 審查通過函'],
+        ['實證調查與資料蒐集', '問卷發放、專家訪談、資料庫檢視與實證數據採集', 30, '實證數據庫與訪談逐字稿'],
+        ['期中報告與品質管考', '撰寫期中研究報告、參與主管機關期中審查會與專家審查', 15, '期中研究報告書與審查意見答覆表'],
+        ['數據分析與模式建立', '統計分析、模型建構、政策建議或技術解決方案提煉', 20, '數據分析報告與核心研究成果'],
+        ['期末結案與總核銷', '期末報告撰寫、總成果發表會與經費憑證核銷結案', 15, '期末研究總報告書與財務核銷清冊']
+      ]
+    },
+    custom: {
+      name: '自訂智慧分析專案',
+      icon: 'fa-wand-magic-sparkles',
+      overview: '輸入任意專案關鍵字，由系統自動檢索市場行情並解構時程與角色。',
+      lifecycleSummary: '彈性靈活週期',
+      budgetSummary: '依檢索關鍵字動態計算',
+      roles: ['專案經理 PM', '核心顧問/專家', '執行主責人員', '品質/測試專員', '採購/行政窗口'],
+      budgetLabels: ['專案執行工時', '外包與採購費', '工具與軟硬體', '品質驗收規費', '行政管銷', '預備金'],
+      budget: { small: [300000, 1000000], medium: [1000000, 3000000], large: [3000000, 10000000] },
+      phases: [
+        ['需求研析與範疇界定', '確定計畫目標、範疇定義、KPI 與評估機制', 15, '範疇界定與需求規格書'],
+        ['方案設計與工作拆解', '擬定細部執行方案、工作分解結構 (WBS) 與架構規劃', 20, '執行架構圖與 WBS 工作分解表'],
+        ['發包與資源籌備', '供應商比價、採購發包、資源對接與合約簽訂', 20, '比價單、發包合約與資源對接清單'],
+        ['核心執行與產出交付', '實質推進專案工作、產品開發/服務落地與進度管控', 30, '核心產出交付物與進度紀錄'],
+        ['驗收測試與成果結案', '成果測試驗收、缺修補正與結案核銷', 15, '品質稽核報告與結案報告書']
+      ]
+    }
+  };
+
+  // Global State Variables
+  let selectedTypeKey = 'exhibition';
+  let currentPageNum = 1;
+  let currentPlanData = null;
+
+  window.addEventListener('DOMContentLoaded', () => {
+    loadSavedTheme();
+    renderOptionCards();
+    setDefaultDates();
+    addPersonRow('張專案', '專案經理 PM');
+    addPersonRow('李執行', '專案組員');
+  });
+
+  function loadSavedTheme() {
+    try {
+      const savedTheme = localStorage.getItem('pf_custom_theme');
+      if (savedTheme) {
+        const config = JSON.parse(savedTheme);
+        applyThemeConfig(config);
+      }
+    } catch (e) {
+      console.error('Failed to load saved theme', e);
+    }
+  }
+
+  function applyThemeConfig(config) {
+    const root = document.documentElement;
+    document.body.className = config.class || '';
+    if (config.accent) root.style.setProperty('--accent-primary', config.accent);
+    if (config.bg) root.style.setProperty('--bg-main', config.bg);
+    if (config.text) root.style.setProperty('--text-main', config.text);
+    if (config.radius) root.style.setProperty('--radius-main', config.radius);
+
+    localStorage.setItem('pf_custom_theme', JSON.stringify(config));
+  }
+
+  function toggleDropdown(id) {
+    const el = document.getElementById(id);
+    if (el) el.classList.toggle('hidden');
+  }
+
+  function showToast(msg, type = 'info') {
+    const container = document.getElementById('toastContainer');
+    const toast = document.createElement('div');
+    const colors = type === 'error' ? 'bg-rose-500 text-white' : (type === 'success' ? 'bg-emerald-600 text-white' : 'bg-slate-800 text-white');
+    toast.className = `pointer-events-auto flex items-center gap-2 px-4 py-3 rounded-2xl shadow-xl text-xs font-semibold ${colors} transition-all duration-300 transform translate-y-2 opacity-0`;
+    toast.innerHTML = `<i class="fa-solid fa-circle-info"></i> ${msg}`;
+    container.appendChild(toast);
+    
+    setTimeout(() => { toast.classList.remove('translate-y-2', 'opacity-0'); }, 10);
+    setTimeout(() => {
+      toast.classList.add('opacity-0', 'translate-y-2');
+      setTimeout(() => toast.remove(), 300);
+    }, 3500);
+  }
+
+  function goToPage(pageNum) {
+    currentPageNum = pageNum;
+    const p1 = document.getElementById('page1');
+    const p2 = document.getElementById('page2');
+    const results = document.getElementById('results');
+    const exportBtn = document.getElementById('headerExportContainer');
+
+    p1.classList.add('hidden');
+    p2.classList.add('hidden');
+    results.classList.add('hidden');
+
+    const stepBadge2 = document.getElementById('stepBadge2');
+    const stepBadge3 = document.getElementById('stepBadge3');
+    const stepLine1 = document.getElementById('stepLine1');
+    const stepLine2 = document.getElementById('stepLine2');
+    const stepInd1 = document.getElementById('stepIndicator1');
+    const stepInd2 = document.getElementById('stepIndicator2');
+    const stepInd3 = document.getElementById('stepIndicator3');
+
+    if (pageNum === 1) {
+      p1.classList.remove('hidden');
+      if (exportBtn) exportBtn.classList.add('hidden');
+      stepLine1.style.width = '0%';
+      stepLine2.style.width = '0%';
+      stepBadge2.className = 'w-7 h-7 rounded-full bg-slate-200 dark:bg-zinc-800 text-slate-500 flex items-center justify-center text-xs';
+      stepBadge3.className = 'w-7 h-7 rounded-full bg-slate-200 dark:bg-zinc-800 text-slate-500 flex items-center justify-center text-xs';
+      stepInd1.className = 'flex items-center gap-2 font-bold text-xs sm:text-sm custom-accent-text';
+      stepInd2.className = 'flex items-center gap-2 font-semibold text-xs sm:text-sm text-slate-400';
+      stepInd3.className = 'flex items-center gap-2 font-semibold text-xs sm:text-sm text-slate-400';
+    } else if (pageNum === 2) {
+      p2.classList.remove('hidden');
+      if (exportBtn) exportBtn.classList.add('hidden');
+      updatePage2Banner();
+      stepLine1.style.width = '100%';
+      stepLine2.style.width = '0%';
+      stepBadge2.className = 'w-7 h-7 rounded-full custom-accent-bg text-white flex items-center justify-center text-xs shadow-md';
+      stepBadge3.className = 'w-7 h-7 rounded-full bg-slate-200 dark:bg-zinc-800 text-slate-500 flex items-center justify-center text-xs';
+      stepInd1.className = 'flex items-center gap-2 font-semibold text-xs sm:text-sm opacity-60';
+      stepInd2.className = 'flex items-center gap-2 font-bold text-xs sm:text-sm custom-accent-text';
+      stepInd3.className = 'flex items-center gap-2 font-semibold text-xs sm:text-sm text-slate-400';
+    } else if (pageNum === 3) {
+      results.classList.remove('hidden');
+      if (exportBtn) exportBtn.classList.remove('hidden');
+      stepLine1.style.width = '100%';
+      stepLine2.style.width = '100%';
+      stepBadge2.className = 'w-7 h-7 rounded-full custom-accent-bg text-white flex items-center justify-center text-xs';
+      stepBadge3.className = 'w-7 h-7 rounded-full bg-emerald-600 text-white flex items-center justify-center text-xs shadow-md';
+      stepInd1.className = 'flex items-center gap-2 font-semibold text-xs sm:text-sm opacity-60';
+      stepInd2.className = 'flex items-center gap-2 font-semibold text-xs sm:text-sm opacity-60';
+      stepInd3.className = 'flex items-center gap-2 font-bold text-xs sm:text-sm text-emerald-600 dark:text-emerald-400';
+    }
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function updatePage2Banner() {
+    const cfg = TYPES[selectedTypeKey];
+    const isCustom = selectedTypeKey === 'custom';
+    const customKw = document.getElementById('customKeywordInput').value.trim();
+
+    document.getElementById('selectedTypeIcon').innerHTML = `<i class="fa-solid ${cfg.icon}"></i>`;
+    document.getElementById('selectedTypeName').textContent = isCustom ? `自訂專案：${customKw}` : cfg.name;
+  }
+
+  function renderOptionCards() {
+    const container = document.getElementById('typeCardsContainer');
+    let html = '';
+
+    Object.entries(TYPES).forEach(([key, item]) => {
+      const isActive = key === selectedTypeKey;
+      html += `
+        <div onclick="selectProjectTypeCard('${key}')" id="card_${key}" class="type-card border-2 ${isActive ? 'active border-indigo-600' : 'border-slate-200 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80'} p-4 flex flex-col justify-between relative overflow-hidden">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <div class="w-8 h-8 rounded-xl custom-accent-bg text-white flex items-center justify-center text-sm font-bold">
+                <i class="fa-solid ${item.icon}"></i>
+              </div>
+              <span class="card-radio-icon custom-accent-text text-sm ${isActive ? 'inline-block' : 'hidden'}">
+                <i class="fa-solid fa-circle-check"></i>
+              </span>
+            </div>
+
+            <h3 class="font-extrabold text-sm mb-1.5">${item.name}</h3>
+            <p class="text-[11px] opacity-70 leading-relaxed mb-3 line-clamp-2">
+              <strong>概述：</strong>${item.overview}
+            </p>
+          </div>
+
+          <div class="space-y-1.5 pt-2 border-t border-slate-100 dark:border-zinc-800 text-[11px]">
+            <div class="flex items-center justify-between opacity-80">
+              <span class="opacity-60"><i class="fa-solid fa-clock-rotate-left mr-1"></i>生命週期:</span>
+              <span class="font-semibold">${item.lifecycleSummary}</span>
+            </div>
+            <div class="flex items-center justify-between opacity-80">
+              <span class="opacity-60"><i class="fa-solid fa-sack-dollar mr-1"></i>市場預算:</span>
+              <span class="font-bold custom-accent-text">${item.budgetSummary}</span>
+            </div>
+          </div>
+        </div>
+      `;
+    });
+
+    container.innerHTML = html;
+  }
+
+  function selectProjectTypeCard(key) {
+    selectedTypeKey = key;
+
+    Object.keys(TYPES).forEach(k => {
+      const card = document.getElementById(`card_${k}`);
+      const checkIcon = card?.querySelector('.card-radio-icon');
+      if (k === key) {
+        card?.classList.add('active', 'border-indigo-600');
+        card?.classList.remove('border-slate-200', 'dark:border-zinc-800');
+        if (checkIcon) checkIcon.classList.remove('hidden');
+      } else {
+        card?.classList.remove('active', 'border-indigo-600');
+        card?.classList.add('border-slate-200', 'dark:border-zinc-800');
+        if (checkIcon) checkIcon.classList.add('hidden');
+      }
+    });
+
+    const customWrapper = document.getElementById('customKeywordWrapper');
+    if (key === 'custom') {
+      customWrapper.classList.remove('hidden');
+      triggerSearchAnalysis();
+    } else {
+      customWrapper.classList.add('hidden');
+      updateRolesDropdown(TYPES[key].roles);
+    }
+
+    showToast(`已切換為「${TYPES[key].name}」`, 'info');
+  }
+
+  function updateRolesDropdown(roles) {
+    const selects = document.querySelectorAll('.person-role-select');
+    selects.forEach(s => {
+      const currentVal = s.value;
+      s.innerHTML = roles.map(r => `<option value="${r}">${r}</option>`).join('') + '<option value="custom">自訂角色...</option>';
+      if (roles.includes(currentVal)) s.value = currentVal;
+    });
+  }
+
+  function triggerSearchAnalysis() {
+    const keyword = document.getElementById('customKeywordInput').value.trim() || '通用專案';
+    const icon = document.getElementById('searchIcon');
+    const statusText = document.getElementById('customSearchStatusText');
+    const externalLink = document.getElementById('externalGoogleUrl');
+
+    icon.classList.add('fa-spin');
+    statusText.textContent = `🔍 正在 GOOGLE 檢索 「${keyword}」 生命週期數據...`;
+
+    const queryStr = encodeURIComponent(`${keyword} 專案時程 流程 里程碑 預算 行情`);
+    externalLink.href = `https://www.google.com/search?q=${queryStr}`;
+
+    setTimeout(() => {
+      icon.classList.remove('fa-spin');
+      statusText.textContent = `✨ 已完成「${keyword}」Google 行情檢索，並解構階段與角色！`;
+      synthesizeCustomBlueprint(keyword);
+    }, 750);
+  }
+
+  function synthesizeCustomBlueprint(kw) {
+    let customPhases = [];
+    let customRoles = [];
+    let customBudgetLabels = [];
+
+    if (kw.includes('ESG') || kw.includes('永續') || kw.includes('碳盤查')) {
+      customPhases = [
+        ['現況盤點與範疇界定', '確立邊界、排放源盤點與基準年資料蒐集', 20, 'ESG 範疇邊界定義書、排放源盤點清冊'],
+        ['溫室氣體盤查與數據計算', '進行範疇一/二/三溫室氣體數據盤點與計算', 30, '溫室氣體盤查清冊與數據計算清冊 (ISO 14064-1)'],
+        ['永續報告書撰寫與編製', 'GRI / TCFD / SASB 框架內容撰寫與視覺設計', 40, '永續報告書草案、GRI/TCFD 對照表'],
+        ['第三方外部查證 (Verification)', '邀請第三方查證機構實地稽核與查證', 25, '第三方獨立查證聲明書 (Verification Statement)'],
+        ['報告書發布與主管機關申報', '董事會核備、永續報告書正式公開發布與平台申報', 15, '董事會核備紀錄、主管機關申報完成證明']
+      ];
+      customRoles = ['永續 PM', 'ESG 輔導顧問', '溫室氣體盤查員', '視覺設計師', '第三方查證員', '財務/行政核銷'];
+      customBudgetLabels = ['顧問輔導費', '第三方查證規費', '視覺排版與印製', '資料庫與軟體費', '專案管理費', '風險預備金'];
+    } else {
+      customPhases = [
+        [`${kw} - 需求研析與範疇`, '確定計畫目標、範疇定義、KPI 與評估機制', 15, `${kw} 範疇界定與需求規格書`],
+        [`${kw} - 方案設計與架構`, '擬定細部執行方案、工作分解結構 (WBS) 與技術架構', 20, `${kw} 執行架構圖與 WBS 工作分解表`],
+        [`${kw} - 發包與資源籌備`, '供應商比價、採購發包、資源對接與合約簽訂', 20, '比價單、發包合約與資源對接清單'],
+        [`${kw} - 核心執行與產出`, '實質推進專案工作、產品開發/服務落地與進度管控', 40, `${kw} 核心產出交付物與進度紀錄`],
+        [`${kw} - 成果驗收與品質審查`, '端到端成果測試、品質驗收與缺失修訂', 15, '品質稽核報告與驗收合格單'],
+        [`${kw} - 結案報告與推廣`, '成果報告撰寫、效益評估與核銷結案', 10, '結案成果報告書與經費核銷單']
+      ];
+      customRoles = [`${kw} PM`, '核心顧問/專家', '執行主責人員', '品質/測試專員', '採購/行政窗口'];
+      customBudgetLabels = ['專案執行工時', '外包與採購費', '工具與軟硬體', '品質驗收規費', '行政管銷', '預備金'];
+    }
+
+    TYPES.custom.phases = customPhases;
+    TYPES.custom.roles = customRoles;
+    TYPES.custom.budgetLabels = customBudgetLabels;
+
+    updateRolesDropdown(customRoles);
+  }
+
+  function setDefaultDates() {
+    const today = new Date();
+    const future = addDays(today, 90);
+    document.getElementById('startDate').value = formatDateISO(today);
+    document.getElementById('endDate').value = formatDateISO(future);
+  }
+
+  function addPersonRow(name = '', role = '') {
+    const cfg = TYPES[selectedTypeKey] || TYPES.custom;
+    const container = document.getElementById('peopleContainer');
+    
+    const div = document.createElement('div');
+    div.className = 'person-row grid grid-cols-1 sm:grid-cols-12 gap-3 p-3.5 rounded-2xl bg-slate-100/70 dark:bg-zinc-900/60 border border-slate-200/60 dark:border-zinc-800/80 items-center';
+    
+    const roleOptionsHtml = cfg.roles.map(r => `<option value="${r}" ${r === role ? 'selected' : ''}>${r}</option>`).join('') + '<option value="custom">自訂角色...</option>';
+
+    div.innerHTML = `
+      <div class="sm:col-span-5">
+        <input type="text" class="person-name w-full rounded-xl border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 px-3 py-2 text-xs font-medium" placeholder="姓名 / 代號 (例如：陳小明)" value="${name}">
+      </div>
+      <div class="sm:col-span-6 role-wrapper">
+        <select class="person-role-select w-full rounded-xl border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 px-3 py-2 text-xs font-medium" onchange="checkCustomRole(this)">
+          ${roleOptionsHtml}
+        </select>
+      </div>
+      <div class="sm:col-span-1 text-right">
+        <button onclick="this.closest('.person-row').remove()" class="p-2 text-slate-400 hover:text-rose-500 transition-colors"><i class="fa-solid fa-trash-can text-sm"></i></button>
       </div>
     `;
-  });
+    
+    container.appendChild(div);
+  }
 
-  container.innerHTML = html;
-}
-
-function selectProjectTypeCard(key) {
-  selectedTypeKey = key;
-
-  Object.keys(TYPES).forEach(k => {
-    const card = document.getElementById(`card_${k}`);
-    const checkIcon = card?.querySelector('.card-radio-icon');
-    if (k === key) {
-      card?.classList.add('active', 'border-indigo-600');
-      card?.classList.remove('border-slate-200', 'dark:border-zinc-800');
-      if (checkIcon) checkIcon.classList.remove('hidden');
-    } else {
-      card?.classList.remove('active', 'border-indigo-600');
-      card?.classList.add('border-slate-200', 'dark:border-zinc-800');
-      if (checkIcon) checkIcon.classList.add('hidden');
+  function checkCustomRole(selectEl) {
+    if (selectEl.value === 'custom') {
+      const wrapper = selectEl.closest('.role-wrapper');
+      wrapper.innerHTML = `
+        <div class="flex items-center gap-1.5">
+          <input type="text" class="person-role-custom w-full rounded-xl border border-indigo-300 dark:border-indigo-800 bg-white dark:bg-zinc-950 px-3 py-2 text-xs font-medium focus:border-indigo-500" placeholder="請輸入自訂職責名稱" autofocus>
+          <button type="button" onclick="resetRoleSelect(this)" class="px-2.5 py-2 text-[11px] font-semibold custom-accent-text hover:bg-indigo-50 dark:hover:bg-indigo-950/50 rounded-xl border border-indigo-200 dark:border-indigo-900 shrink-0 transition-colors" title="回到角色清單">
+            <i class="fa-solid fa-rotate-left mr-1"></i>清單
+          </button>
+        </div>
+      `;
     }
-  });
-
-  const customWrapper = document.getElementById('customKeywordWrapper');
-  if (key === 'custom') {
-    customWrapper.classList.remove('hidden');
-    triggerSearchAnalysis();
-  } else {
-    customWrapper.classList.add('hidden');
-    updateRolesDropdown(TYPES[key].roles);
   }
 
-  showToast(`已切換為「${TYPES[key].name}」`, 'info');
-}
-
-function updateRolesDropdown(roles) {
-  const selects = document.querySelectorAll('.person-role-select');
-  selects.forEach(s => {
-    const currentVal = s.value;
-    s.innerHTML = roles.map(r => `<option value="${r}">${r}</option>`).join('') + '<option value="custom">自訂角色...</option>';
-    if (roles.includes(currentVal)) s.value = currentVal;
-  });
-}
-
-function triggerSearchAnalysis() {
-  const keyword = document.getElementById('customKeywordInput').value.trim() || '通用專案';
-  const icon = document.getElementById('searchIcon');
-  const statusText = document.getElementById('customSearchStatusText');
-  const externalLink = document.getElementById('externalGoogleUrl');
-
-  icon.classList.add('fa-spin');
-  statusText.textContent = `🔍 正在 GOOGLE 檢索 「${keyword}」 生命週期數據...`;
-
-  const queryStr = encodeURIComponent(`${keyword} 專案時程 流程 里程碑 預算 行情`);
-  externalLink.href = `https://www.google.com/search?q=${queryStr}`;
-
-  setTimeout(() => {
-    icon.classList.remove('fa-spin');
-    statusText.textContent = `✨ 已完成「${keyword}」Google 行情檢索，並解構階段與角色！`;
-    synthesizeCustomBlueprint(keyword);
-  }, 750);
-}
-
-function synthesizeCustomBlueprint(kw) {
-  let customPhases = [];
-  let customRoles = [];
-  let customBudgetLabels = [];
-
-  if (kw.includes('ESG') || kw.includes('永續') || kw.includes('碳盤查')) {
-    customPhases = [
-      ['現況盤點與範疇界定', '確立邊界、排放源盤點與基準年資料蒐集', 20, 'ESG 範疇邊界定義書、排放源盤點清冊'],
-      ['溫室氣體盤查與數據計算', '進行範疇一/二/三溫室氣體數據盤點與計算', 30, '溫室氣體盤查清冊與數據計算清冊 (ISO 14064-1)'],
-      ['永續報告書撰寫與編製', 'GRI / TCFD / SASB 框架內容撰寫與視覺設計', 40, '永續報告書草案、GRI/TCFD 對照表'],
-      ['第三方外部查證 (Verification)', '邀請第三方查證機構實地稽核與查證', 25, '第三方獨立查證聲明書 (Verification Statement)'],
-      ['報告書發布與主管機關申報', '董事會核備、永續報告書正式公開發布與平台申報', 15, '董事會核備紀錄、主管機關申報完成證明']
-    ];
-    customRoles = ['永續 PM', 'ESG 輔導顧問', '溫室氣體盤查員', '視覺設計師', '第三方查證員', '財務/行政核銷'];
-    customBudgetLabels = ['顧問輔導費', '第三方查證規費', '視覺排版與印製', '資料庫與軟體費', '專案管理費', '風險預備金'];
-  } else {
-    customPhases = [
-      [`${kw} - 需求研析與範疇`, '確定計畫目標、範疇定義、KPI 與評估機制', 15, `${kw} 範疇界定與需求規格書`],
-      [`${kw} - 方案設計與架構`, '擬定細部執行方案、工作分解結構 (WBS) 與技術架構', 20, `${kw} 執行架構圖與 WBS 工作分解表`],
-      [`${kw} - 發包與資源籌備`, '供應商比價、採購發包、資源對接與合約簽訂', 20, '比價單、發包合約與資源對接清單'],
-      [`${kw} - 核心執行與產出`, '實質推進專案工作、產品開發/服務落地與進度管控', 40, `${kw} 核心產出交付物與進度紀錄`],
-      [`${kw} - 成果驗收與品質審查`, '端到端成果測試、品質驗收與缺失修訂', 15, '品質稽核報告與驗收合格單'],
-      [`${kw} - 結案報告與推廣`, '成果報告撰寫、效益評估與核銷結案', 10, '結案成果報告書與經費核銷單']
-    ];
-    customRoles = [`${kw} PM`, '核心顧問/專家', '執行主責人員', '品質/測試專員', '採購/行政窗口'];
-    customBudgetLabels = ['專案執行工時', '外包與採購費', '工具與軟硬體', '品質驗收規費', '行政管銷', '預備金'];
-  }
-
-  TYPES.custom.phases = customPhases;
-  TYPES.custom.roles = customRoles;
-  TYPES.custom.budgetLabels = customBudgetLabels;
-
-  updateRolesDropdown(customRoles);
-}
-
-function setDefaultDates() {
-  const today = new Date();
-  const future = addDays(today, 90);
-  document.getElementById('startDate').value = formatDateISO(today);
-  document.getElementById('endDate').value = formatDateISO(future);
-}
-
-function addPersonRow(name = '', role = '') {
-  const cfg = TYPES[selectedTypeKey] || TYPES.custom;
-  const container = document.getElementById('peopleContainer');
-  
-  const div = document.createElement('div');
-  div.className = 'person-row grid grid-cols-1 sm:grid-cols-12 gap-3 p-3.5 rounded-2xl bg-slate-100/70 dark:bg-zinc-900/60 border border-slate-200/60 dark:border-zinc-800/80 items-center';
-  
-  const roleOptionsHtml = cfg.roles.map(r => `<option value="${r}" ${r === role ? 'selected' : ''}>${r}</option>`).join('') + '<option value="custom">自訂角色...</option>';
-
-  div.innerHTML = `
-    <div class="sm:col-span-5">
-      <input type="text" class="person-name w-full rounded-xl border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 px-3 py-2 text-xs font-medium" placeholder="姓名 / 代號 (例如：陳小明)" value="${name}">
-    </div>
-    <div class="sm:col-span-6 role-wrapper">
+  function resetRoleSelect(btnEl) {
+    const wrapper = btnEl.closest('.role-wrapper');
+    const cfg = TYPES[selectedTypeKey] || TYPES.custom;
+    const roleOptionsHtml = cfg.roles.map(r => `<option value="${r}">${r}</option>`).join('') + '<option value="custom">自訂角色...</option>';
+    
+    wrapper.innerHTML = `
       <select class="person-role-select w-full rounded-xl border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 px-3 py-2 text-xs font-medium" onchange="checkCustomRole(this)">
         ${roleOptionsHtml}
       </select>
-    </div>
-    <div class="sm:col-span-1 text-right">
-      <button onclick="this.closest('.person-row').remove()" class="p-2 text-slate-400 hover:text-rose-500 transition-colors"><i class="fa-solid fa-trash-can text-sm"></i></button>
-    </div>
-  `;
-  
-  container.appendChild(div);
-}
-
-function checkCustomRole(selectEl) {
-  if (selectEl.value === 'custom') {
-    const wrapper = selectEl.closest('.role-wrapper');
-    wrapper.innerHTML = `
-      <div class="flex items-center gap-1.5">
-        <input type="text" class="person-role-custom w-full rounded-xl border border-indigo-300 dark:border-indigo-800 bg-white dark:bg-zinc-950 px-3 py-2 text-xs font-medium focus:border-indigo-500" placeholder="請輸入自訂職責名稱" autofocus>
-        <button type="button" onclick="resetRoleSelect(this)" class="px-2.5 py-2 text-[11px] font-semibold custom-accent-text hover:bg-indigo-50 dark:hover:bg-indigo-950/50 rounded-xl border border-indigo-200 dark:border-indigo-900 shrink-0 transition-colors" title="回到角色清單">
-          <i class="fa-solid fa-rotate-left mr-1"></i>清單
-        </button>
-      </div>
     `;
   }
-}
 
-function resetRoleSelect(btnEl) {
-  const wrapper = btnEl.closest('.role-wrapper');
-  const cfg = TYPES[selectedTypeKey] || TYPES.custom;
-  const roleOptionsHtml = cfg.roles.map(r => `<option value="${r}">${r}</option>`).join('') + '<option value="custom">自訂角色...</option>';
-  
-  wrapper.innerHTML = `
-    <select class="person-role-select w-full rounded-xl border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 px-3 py-2 text-xs font-medium" onchange="checkCustomRole(this)">
-      ${roleOptionsHtml}
-    </select>
-  `;
-}
+  function getTeamList() {
+    const rows = document.querySelectorAll('.person-row');
+    const team = [];
+    rows.forEach(r => {
+      const nameInput = r.querySelector('.person-name');
+      const roleSelect = r.querySelector('.person-role-select');
+      const roleCustom = r.querySelector('.person-role-custom');
+      
+      const name = nameInput ? nameInput.value.trim() : '';
+      const role = roleCustom ? roleCustom.value.trim() : (roleSelect ? roleSelect.value : '');
 
-function getTeamList() {
-  const rows = document.querySelectorAll('.person-row');
-  const team = [];
-  rows.forEach(r => {
-    const nameInput = r.querySelector('.person-name');
-    const roleSelect = r.querySelector('.person-role-select');
-    const roleCustom = r.querySelector('.person-role-custom');
-    
-    const name = nameInput ? nameInput.value.trim() : '';
-    const role = roleCustom ? roleCustom.value.trim() : (roleSelect ? roleSelect.value : '');
-
-    if (name || role) {
-      team.push({ name: name || '未具名成員', role: role || '專案組員' });
-    }
-  });
-  return team;
-}
-
-function parseDate(str) { const [y, m, d] = str.split('-').map(Number); return new Date(y, m - 1, d); }
-function formatDateISO(d) { return d.toISOString().slice(0, 10); }
-function formatDateDisplay(d) { return `${d.getFullYear()}/${String(d.getMonth() + 1).padStart(2, '0')}/${String(d.getDate()).padStart(2, '0')}`; }
-function addDays(d, n) { const res = new Date(d); res.setDate(res.getDate() + n); return res; }
-function formatCurrency(n) { return new Intl.NumberFormat('zh-TW', { style: 'currency', currency: 'TWD', maximumFractionDigits: 0 }).format(n || 0); }
-
-function getDaysDiff(d1, d2, isWorkDayMode = false) {
-  if (!isWorkDayMode) {
-    return Math.round((d2 - d1) / (1000 * 60 * 60 * 24)) + 1;
-  }
-  let count = 0;
-  let cur = new Date(d1);
-  while (cur <= d2) {
-    const day = cur.getDay();
-    if (day !== 0 && day !== 6) count++;
-    cur.setDate(cur.getDate() + 1);
-  }
-  return Math.max(1, count);
-}
-
-function addWorkDays(startDate, days) {
-  let cur = new Date(startDate);
-  let added = 0;
-  while (added < days - 1) {
-    cur.setDate(cur.getDate() + 1);
-    const day = cur.getDay();
-    if (day !== 0 && day !== 6) {
-      added++;
-    }
-  }
-  return cur;
-}
-
-function generatePlan() {
-  const cfg = TYPES[selectedTypeKey];
-  const customKw = document.getElementById('customKeywordInput').value.trim();
-  const name = document.getElementById('projectName').value.trim() || (selectedTypeKey === 'custom' ? `${customKw}專案` : `未命名${cfg.name}`);
-  
-  const scale = document.getElementById('scale').value;
-  const startStr = document.getElementById('startDate').value;
-  const endStr = document.getElementById('endDate').value;
-  const budget = Number(document.getElementById('budget').value || 0);
-  const workDayMode = document.getElementById('workDayMode').value === 'workday';
-  const internalProc = document.getElementById('internalProcess').value;
-  const hardDeadline = document.getElementById('hardDeadline').value === 'yes';
-  const contingencyRate = Number(document.getElementById('contingencyRate').value);
-  const notes = document.getElementById('notes').value.trim();
-  const team = getTeamList();
-
-  if (!startStr || !endStr) {
-    showToast('請先選擇預計啟動與完成日期！', 'error');
-    return;
-  }
-
-  const startDate = parseDate(startStr);
-  const endDate = parseDate(endStr);
-
-  if (endDate <= startDate) {
-    showToast('完成日期必須晚於啟動日期！', 'error');
-    return;
-  }
-
-  const totalDays = getDaysDiff(startDate, endDate, workDayMode);
-  const internalDaysMap = { none: 0, short: 7, medium: 14, long: 28 };
-  const internalDays = internalDaysMap[internalProc];
-
-  const rawPhases = cfg.phases;
-  const baseWeightSum = rawPhases.reduce((acc, p) => acc + p[2], 0);
-
-  let curCursor = new Date(startDate);
-  const phases = [];
-
-  const bufferRate = Math.min(0.2, internalDays / Math.max(1, totalDays));
-
-  rawPhases.forEach((p, idx) => {
-    let phaseDays = Math.max(1, Math.round((p[2] / baseWeightSum) * (totalDays - internalDays)));
-    
-    if (idx === rawPhases.length - 1) {
-      phaseDays = Math.max(1, getDaysDiff(curCursor, endDate, workDayMode));
-    }
-
-    const pStart = new Date(curCursor);
-    const pEnd = workDayMode ? addWorkDays(pStart, phaseDays) : addDays(pStart, phaseDays - 1);
-
-    const bufferDays = Math.max(1, Math.round(phaseDays * bufferRate));
-    const lateFinish = workDayMode ? addWorkDays(pEnd, bufferDays) : addDays(pEnd, bufferDays);
-
-    phases.push({
-      name: p[0],
-      desc: p[1],
-      days: phaseDays,
-      deliverable: p[3] || '階段作業報告與交付物件',
-      start: pStart,
-      end: pEnd,
-      bufferDays: bufferDays,
-      lateFinish: lateFinish
+      if (name || role) {
+        team.push({ name: name || '未具名成員', role: role || '專案組員' });
+      }
     });
+    return team;
+  }
 
-    curCursor = workDayMode ? addWorkDays(pEnd, 2) : addDays(pEnd, 1);
-  });
+  // Helper date functions
+  function parseDate(str) { const [y, m, d] = str.split('-').map(Number); return new Date(y, m - 1, d); }
+  function formatDateISO(d) { return d.toISOString().slice(0, 10); }
+  function formatDateDisplay(d) { return `${d.getFullYear()}/${String(d.getMonth() + 1).padStart(2, '0')}/${String(d.getDate()).padStart(2, '0')}`; }
+  function addDays(d, n) { const res = new Date(d); res.setDate(res.getDate() + n); return res; }
+  function formatCurrency(n) { return new Intl.NumberFormat('zh-TW', { style: 'currency', currency: 'TWD', maximumFractionDigits: 0 }).format(n || 0); }
 
-  const budgetRange = cfg.budget[scale];
-  let budgetStatus = '未設定預算';
-
-  if (budget > 0) {
-    if (budget < budgetRange[0]) {
-      budgetStatus = '預算偏緊 (低於市場建議線)';
-    } else if (budget > budgetRange[1]) {
-      budgetStatus = '預算充裕 (高規格製作)';
-    } else {
-      budgetStatus = '預算合理 (符合行情)';
+  function getDaysDiff(d1, d2, isWorkDayMode = false) {
+    if (!isWorkDayMode) {
+      return Math.round((d2 - d1) / (1000 * 60 * 60 * 24)) + 1;
     }
-  }
-
-  currentPlanData = {
-    name, typeKey: selectedTypeKey, cfg, scale, startDate, endDate, totalDays, workDayMode,
-    budget, budgetRange, budgetStatus, internalDays, hardDeadline,
-    contingencyRate, notes, team, phases, customKw
-  };
-
-  renderResults();
-  goToPage(3);
-
-  if (selectedTypeKey === 'custom') {
-    document.getElementById('searchSourceBadge').classList.remove('hidden');
-  } else {
-    document.getElementById('searchSourceBadge').classList.add('hidden');
-  }
-
-  showToast('專案時程與規劃報告已成功生成！', 'success');
-}
-
-function renderResults() {
-  const d = currentPlanData;
-
-  document.getElementById('resTitle').textContent = d.name;
-  document.getElementById('resMeta').innerHTML = `
-    <span><i class="fa-solid fa-folder custom-accent-text mr-1"></i> ${d.typeKey === 'custom' ? `自訂分析: ${d.customKw}` : d.cfg.name}</span>
-    <span><i class="fa-solid fa-calendar custom-accent-text mr-1"></i> ${formatDateDisplay(d.startDate)} → ${formatDateDisplay(d.endDate)}</span>
-    <span><i class="fa-solid fa-clock custom-accent-text mr-1"></i> 總工期 ${d.totalDays} ${d.workDayMode ? '工作天' : '日曆日'}</span>
-  `;
-
-  const badge = document.getElementById('healthBadge');
-  badge.className = `px-4 py-2 rounded-2xl font-semibold text-xs sm:text-sm shadow-sm flex items-center gap-2 ${d.budgetStatus.includes('偏緊') ? 'bg-amber-100 text-amber-800' : 'bg-indigo-100 text-indigo-800'}`;
-  badge.innerHTML = `<i class="fa-solid fa-heart-pulse"></i> ${d.budgetStatus}`;
-
-  document.getElementById('summaryCards').innerHTML = `
-    <div class="rounded-2xl border border-slate-200/80 dark:border-zinc-800 bg-white/60 dark:bg-zinc-900/60 p-4">
-      <div class="text-xs text-slate-400">總計畫工期</div>
-      <div class="text-xl sm:text-2xl font-bold mt-1 custom-accent-text">${d.totalDays} <span class="text-xs font-normal">${d.workDayMode ? '工作天' : '天'}</span></div>
-      <div class="text-[11px] opacity-70 mt-0.5">約 ${(d.totalDays / 5).toFixed(1)} 週工時</div>
-    </div>
-    <div class="rounded-2xl border border-slate-200/80 dark:border-zinc-800 bg-white/60 dark:bg-zinc-900/60 p-4">
-      <div class="text-xs text-slate-400">簽核/採購緩衝</div>
-      <div class="text-xl sm:text-2xl font-bold mt-1">${d.internalDays} <span class="text-xs font-normal">天</span></div>
-      <div class="text-[11px] opacity-70 mt-0.5">${d.internalDays > 0 ? '已納入倒推鎖定' : '未預留簽核期'}</div>
-    </div>
-    <div class="rounded-2xl border border-slate-200/80 dark:border-zinc-800 bg-white/60 dark:bg-zinc-900/60 p-4">
-      <div class="text-xs text-slate-400">風險預備金 (${d.contingencyRate * 100}%)</div>
-      <div class="text-xl sm:text-2xl font-bold mt-1 text-emerald-600 dark:text-emerald-400">${d.budget ? formatCurrency(d.budget * d.contingencyRate) : '—'}</div>
-      <div class="text-[11px] opacity-70 mt-0.5">建議獨立撥入預備專戶</div>
-    </div>
-    <div class="rounded-2xl border border-slate-200/80 dark:border-zinc-800 bg-white/60 dark:bg-zinc-900/60 p-4">
-      <div class="text-xs text-slate-400">市場建議行情區間</div>
-      <div class="text-base sm:text-lg font-bold mt-1">${formatCurrency(d.budgetRange[0])}</div>
-      <div class="text-[11px] opacity-70 mt-0.5">至 ${formatCurrency(d.budgetRange[1])}</div>
-    </div>
-  `;
-
-  renderGanttChart();
-  renderTimelineList();
-  renderRaciMatrix();
-  renderBudgetBreakdown();
-  renderRiskMatrix();
-}
-
-function switchView(viewName) {
-  ['Gantt', 'Timeline', 'Raci'].forEach(v => {
-    const el = document.getElementById(`view${v}`);
-    const btn = document.getElementById(`tab${v}Btn`);
-    if (v.toLowerCase() === viewName.toLowerCase()) {
-      if (el) el.classList.remove('hidden');
-      if (btn) btn.className = 'px-4 py-2 rounded-xl text-xs font-bold transition-all custom-accent-bg text-white shadow-sm';
-    } else {
-      if (el) el.classList.add('hidden');
-      if (btn) btn.className = 'px-4 py-2 rounded-xl text-xs font-bold transition-all opacity-60 hover:bg-slate-200 dark:hover:bg-zinc-800';
+    let count = 0;
+    let cur = new Date(d1);
+    while (cur <= d2) {
+      const day = cur.getDay();
+      if (day !== 0 && day !== 6) count++;
+      cur.setDate(cur.getDate() + 1);
     }
-  });
-}
-
-function renderGanttChart() {
-  const d = currentPlanData;
-  const container = document.getElementById('ganttChartWrapper');
-  
-  const maxLateDate = d.phases[d.phases.length - 1].lateFinish;
-  const totalMs = maxLateDate - d.startDate;
-
-  let html = `
-    <div class="flex flex-wrap items-center justify-between gap-4 mb-4 pb-3 border-b border-slate-200 dark:border-zinc-800 text-xs">
-      <div class="flex items-center gap-4">
-        <div class="flex items-center gap-1.5 font-medium">
-          <span class="w-3 h-3 rounded-md custom-accent-bg shadow-sm"></span>
-          <span>預定時程 (Scheduled)</span>
-        </div>
-        <div class="flex items-center gap-1.5 font-medium">
-          <span class="w-3 h-3 rounded-md bg-amber-400/80 dark:bg-amber-500/70 border border-dashed border-amber-600"></span>
-          <span>最晚緩衝期 (Late Finish Buffer)</span>
-        </div>
-      </div>
-      <div class="opacity-60 font-mono text-[11px]">
-        起始/截止欄位格式：起始日期 — 截止日期 (工期)
-      </div>
-    </div>
-
-    <div class="space-y-4">
-  `;
-
-  d.phases.forEach((p, idx) => {
-    const startOffset = Math.max(0, (p.start - d.startDate) / totalMs) * 100;
-    const planWidthPct = Math.max(2, ((p.end - p.start) / totalMs) * 100);
-    const bufferWidthPct = Math.max(1, ((p.lateFinish - p.end) / totalMs) * 100);
-
-    const unitText = d.workDayMode ? '工作天' : '天';
-    const dateRangeLabel = `${formatDateDisplay(p.start)} — ${formatDateDisplay(p.end)} (${p.days}${unitText})`;
-
-    html += `
-      <div class="grid grid-cols-12 gap-3 items-center text-xs py-2 border-b border-slate-100 dark:border-zinc-800/60 hover:bg-slate-50/50 dark:hover:bg-zinc-900/30 transition-colors rounded-xl px-1">
-        <div class="col-span-3 font-semibold truncate flex items-center gap-2">
-          <span class="w-5 h-5 rounded-full custom-accent-bg text-white flex items-center justify-center text-[10px] shrink-0 font-bold">${idx + 1}</span>
-          <span class="truncate" title="${p.name}">${p.name}</span>
-        </div>
-
-        <div class="col-span-5 relative h-8 bg-slate-100 dark:bg-zinc-900/80 rounded-xl overflow-hidden p-0.5 flex items-center">
-          <div class="absolute top-1 bottom-1 rounded-lg custom-accent-bg text-white text-[10px] font-bold flex items-center px-2 shadow-sm truncate transition-all z-10" style="left: ${startOffset}%; width: ${planWidthPct}%;">
-            ${p.days} ${unitText}
-          </div>
-
-          <div class="absolute top-1 bottom-1 rounded-r-lg bg-amber-300/60 dark:bg-amber-500/40 border-y border-r border-dashed border-amber-500/70 text-amber-800 dark:text-amber-200 text-[9px] font-bold flex items-center justify-end pr-1 transition-all z-0" style="left: ${startOffset + planWidthPct}%; width: ${bufferWidthPct}%;" title="最晚完成日 (Late Finish): ${formatDateDisplay(p.lateFinish)}">
-            +${p.bufferDays}天
-          </div>
-        </div>
-
-        <div class="col-span-4 text-right font-mono text-[11px] font-bold custom-accent-text bg-indigo-50/70 dark:bg-indigo-950/40 px-2.5 py-1.5 rounded-xl border border-indigo-100 dark:border-indigo-900/50 truncate">
-          ${dateRangeLabel}
-        </div>
-      </div>
-    `;
-  });
-
-  html += `</div>`;
-  container.innerHTML = html;
-}
-
-function renderTimelineList() {
-  const d = currentPlanData;
-  const container = document.getElementById('timelineList');
-
-  const unitText = d.workDayMode ? '工作天' : '天';
-
-  container.innerHTML = d.phases.map((p, i) => `
-    <div class="relative pl-12 pb-8 timeline-line last:pb-0">
-      <div class="absolute left-0 top-1 w-10 h-10 rounded-2xl bg-white dark:bg-zinc-900 border-2 border-indigo-500 flex items-center justify-center text-xs font-bold custom-accent-text shadow-sm">
-        ${i + 1}
-      </div>
-      <div class="rounded-2xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 p-5 hover:border-indigo-300 transition-all space-y-3">
-        <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-2">
-          <div>
-            <h4 class="font-extrabold text-base flex items-center gap-2">
-              <span>${p.name}</span>
-            </h4>
-            <p class="text-xs opacity-70 mt-1 leading-relaxed">${p.desc}</p>
-          </div>
-          
-          <div class="text-left sm:text-right shrink-0">
-            <div class="text-xs font-bold custom-accent-text bg-indigo-50 dark:bg-indigo-950/60 px-3 py-1 rounded-full inline-block border border-indigo-200/60 dark:border-indigo-900/60">
-              ${formatDateDisplay(p.start)} — ${formatDateDisplay(p.end)} (${p.days} ${unitText})
-            </div>
-            <div class="text-[11px] font-semibold text-amber-600 dark:text-amber-400 mt-1 flex items-center justify-start sm:justify-end gap-1">
-              <i class="fa-solid fa-clock-rotate-left text-[10px]"></i>
-              <span>最晚完成期限 (Late Finish): ${formatDateDisplay(p.lateFinish)}</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="pt-2 border-t border-slate-100 dark:border-zinc-800/80 flex flex-col sm:flex-row sm:items-center gap-2 text-xs">
-          <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-100 dark:bg-emerald-950/70 text-emerald-700 dark:text-emerald-300 font-bold shrink-0">
-            <i class="fa-solid fa-box-archive"></i> 主要交付產出 (Deliverable)
-          </span>
-          <span class="font-bold bg-slate-100/80 dark:bg-zinc-800/60 px-3 py-1 rounded-lg flex-1 border border-slate-200/50 dark:border-zinc-700/50">
-            ${p.deliverable}
-          </span>
-        </div>
-      </div>
-    </div>
-  `).join('');
-}
-
-function renderRaciMatrix() {
-  const d = currentPlanData;
-  const container = document.getElementById('raciMatrixWrapper');
-
-  if (!d.team.length) {
-    container.innerHTML = `<div class="text-xs opacity-60 py-6 text-center">未填寫團隊成員，無法產生 RACI 與工作分配表。</div>`;
-    return;
+    return Math.max(1, count);
   }
 
-  let tableHtml = `
-    <table class="w-full text-xs text-left border-collapse mb-8">
-      <thead>
-        <tr class="border-b border-slate-200 dark:border-zinc-800 bg-slate-50 dark:bg-zinc-900">
-          <th class="py-3 px-3 font-semibold opacity-70">專案階段 / Phase</th>
-          ${d.team.map(t => `<th class="py-3 px-3 font-semibold text-center">${t.name}<br><span class="text-[10px] opacity-60 font-normal">${t.role}</span></th>`).join('')}
-        </tr>
-      </thead>
-      <tbody>
-  `;
+  function addWorkDays(startDate, days) {
+    let cur = new Date(startDate);
+    let added = 0;
+    while (added < days - 1) {
+      cur.setDate(cur.getDate() + 1);
+      const day = cur.getDay();
+      if (day !== 0 && day !== 6) {
+        added++;
+      }
+    }
+    return cur;
+  }
 
-  d.phases.forEach((p, idx) => {
-    tableHtml += `<tr class="border-b border-slate-100 dark:border-zinc-800/50">`;
-    tableHtml += `<td class="py-3 px-3 font-medium">${p.name}</td>`;
+  function generatePlan() {
+    const cfg = TYPES[selectedTypeKey];
+    const customKw = document.getElementById('customKeywordInput').value.trim();
+    const name = document.getElementById('projectName').value.trim() || (selectedTypeKey === 'custom' ? `${customKw}專案` : `未命名${cfg.name}`);
+    
+    const scale = document.getElementById('scale').value;
+    const startStr = document.getElementById('startDate').value;
+    const endStr = document.getElementById('endDate').value;
+    const budget = Number(document.getElementById('budget').value || 0);
+    const workDayMode = document.getElementById('workDayMode').value === 'workday';
+    const internalProc = document.getElementById('internalProcess').value;
+    const hardDeadline = document.getElementById('hardDeadline').value === 'yes';
+    const contingencyRate = Number(document.getElementById('contingencyRate').value);
+    const notes = document.getElementById('notes').value.trim();
+    const team = getTeamList();
 
-    d.team.forEach((t, tidx) => {
-      let raciCode = 'I';
-      if (tidx === 0) raciCode = 'A';
-      else if (t.role.includes('執行') || t.role.includes('顧問') || t.role.includes('設計') || t.role.includes('工程') || t.role.includes('企劃')) {
-        if (idx === 2 || idx === 3 || idx === 4) raciCode = 'R';
-        else raciCode = 'C';
+    if (!startStr || !endStr) {
+      showToast('請先選擇預計啟動與完成日期！', 'error');
+      return;
+    }
+
+    const startDate = parseDate(startStr);
+    const endDate = parseDate(endStr);
+
+    if (endDate <= startDate) {
+      showToast('完成日期必須晚於啟動日期！', 'error');
+      return;
+    }
+
+    const totalDays = getDaysDiff(startDate, endDate, workDayMode);
+    const internalDaysMap = { none: 0, short: 7, medium: 14, long: 28 };
+    const internalDays = internalDaysMap[internalProc];
+
+    const rawPhases = cfg.phases;
+    const baseWeightSum = rawPhases.reduce((acc, p) => acc + p[2], 0);
+
+    let curCursor = new Date(startDate);
+    const phases = [];
+
+    const bufferRate = Math.min(0.2, internalDays / Math.max(1, totalDays));
+
+    rawPhases.forEach((p, idx) => {
+      let phaseDays = Math.max(1, Math.round((p[2] / baseWeightSum) * (totalDays - internalDays)));
+      
+      if (idx === rawPhases.length - 1) {
+        phaseDays = Math.max(1, getDaysDiff(curCursor, endDate, workDayMode));
       }
 
-      const badges = {
-        'R': '<span class="px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-700 font-bold" title="Responsible 負責執行">R</span>',
-        'A': '<span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-bold" title="Accountable 當責對象">A</span>',
-        'C': '<span class="px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 font-bold" title="Consulted 諮詢對象">C</span>',
-        'I': '<span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 font-bold" title="Informed 知會對象">I</span>'
-      };
+      const pStart = new Date(curCursor);
+      const pEnd = workDayMode ? addWorkDays(pStart, phaseDays) : addDays(pStart, phaseDays - 1);
 
-      tableHtml += `<td class="py-3 px-3 text-center">${badges[raciCode]}</td>`;
+      const bufferDays = Math.max(1, Math.round(phaseDays * bufferRate));
+      const lateFinish = workDayMode ? addWorkDays(pEnd, bufferDays) : addDays(pEnd, bufferDays);
+
+      phases.push({
+        name: p[0],
+        desc: p[1],
+        days: phaseDays,
+        deliverable: p[3] || '階段作業報告與交付物件',
+        start: pStart,
+        end: pEnd,
+        bufferDays: bufferDays,
+        lateFinish: lateFinish
+      });
+
+      curCursor = workDayMode ? addWorkDays(pEnd, 2) : addDays(pEnd, 1);
     });
 
-    tableHtml += `</tr>`;
-  });
+    const budgetRange = cfg.budget[scale];
+    let budgetStatus = '未設定預算';
 
-  tableHtml += `</tbody></table>`;
+    if (budget > 0) {
+      if (budget < budgetRange[0]) {
+        budgetStatus = '預算偏緊 (低於市場建議線)';
+      } else if (budget > budgetRange[1]) {
+        budgetStatus = '預算充裕 (高規格製作)';
+      } else {
+        budgetStatus = '預算合理 (符合行情)';
+      }
+    }
 
-  let allocationHtml = `
-    <div class="mt-8 pt-6 border-t border-slate-200 dark:border-zinc-800">
-      <div class="mb-4">
-        <h4 class="text-lg font-bold flex items-center gap-2">
-          <i class="fa-solid fa-users-gear custom-accent-text"></i>
-          <span>團隊人力與交付工作分配表</span>
-        </h4>
-        <p class="text-xs opacity-70">依據人力配置角色，自動彙整各成員負責階段、主要交付產出物與 RACI 當責職責。</p>
+    currentPlanData = {
+      name, typeKey: selectedTypeKey, cfg, scale, startDate, endDate, totalDays, workDayMode,
+      budget, budgetRange, budgetStatus, internalDays, hardDeadline,
+      contingencyRate, notes, team, phases, customKw
+    };
+
+    renderResults();
+    goToPage(3);
+
+    if (selectedTypeKey === 'custom') {
+      document.getElementById('searchSourceBadge').classList.remove('hidden');
+    } else {
+      document.getElementById('searchSourceBadge').classList.add('hidden');
+    }
+
+    showToast('專案時程與規劃報告已成功生成！', 'success');
+  }
+
+  function renderResults() {
+    const d = currentPlanData;
+
+    document.getElementById('resTitle').textContent = d.name;
+    document.getElementById('resMeta').innerHTML = `
+      <span><i class="fa-solid fa-folder custom-accent-text mr-1"></i> ${d.typeKey === 'custom' ? `自訂分析: ${d.customKw}` : d.cfg.name}</span>
+      <span><i class="fa-solid fa-calendar custom-accent-text mr-1"></i> ${formatDateDisplay(d.startDate)} → ${formatDateDisplay(d.endDate)}</span>
+      <span><i class="fa-solid fa-clock custom-accent-text mr-1"></i> 總工期 ${d.totalDays} ${d.workDayMode ? '工作天' : '日曆日'}</span>
+    `;
+
+    const badge = document.getElementById('healthBadge');
+    badge.className = `px-4 py-2 rounded-2xl font-semibold text-xs sm:text-sm shadow-sm flex items-center gap-2 ${d.budgetStatus.includes('偏緊') ? 'bg-amber-100 text-amber-800' : 'bg-indigo-100 text-indigo-800'}`;
+    badge.innerHTML = `<i class="fa-solid fa-heart-pulse"></i> ${d.budgetStatus}`;
+
+    document.getElementById('summaryCards').innerHTML = `
+      <div class="rounded-2xl border border-slate-200/80 dark:border-zinc-800 bg-white/60 dark:bg-zinc-900/60 p-4">
+        <div class="text-xs text-slate-400">總計畫工期</div>
+        <div class="text-xl sm:text-2xl font-bold mt-1 custom-accent-text">${d.totalDays} <span class="text-xs font-normal">${d.workDayMode ? '工作天' : '天'}</span></div>
+        <div class="text-[11px] opacity-70 mt-0.5">約 ${(d.totalDays / 5).toFixed(1)} 週工時</div>
+      </div>
+      <div class="rounded-2xl border border-slate-200/80 dark:border-zinc-800 bg-white/60 dark:bg-zinc-900/60 p-4">
+        <div class="text-xs text-slate-400">簽核/採購緩衝</div>
+        <div class="text-xl sm:text-2xl font-bold mt-1">${d.internalDays} <span class="text-xs font-normal">天</span></div>
+        <div class="text-[11px] opacity-70 mt-0.5">${d.internalDays > 0 ? '已納入倒推鎖定' : '未預留簽核期'}</div>
+      </div>
+      <div class="rounded-2xl border border-slate-200/80 dark:border-zinc-800 bg-white/60 dark:bg-zinc-900/60 p-4">
+        <div class="text-xs text-slate-400">風險預備金 (${d.contingencyRate * 100}%)</div>
+        <div class="text-xl sm:text-2xl font-bold mt-1 text-emerald-600 dark:text-emerald-400">${d.budget ? formatCurrency(d.budget * d.contingencyRate) : '—'}</div>
+        <div class="text-[11px] opacity-70 mt-0.5">建議獨立撥入預備專戶</div>
+      </div>
+      <div class="rounded-2xl border border-slate-200/80 dark:border-zinc-800 bg-white/60 dark:bg-zinc-900/60 p-4">
+        <div class="text-xs text-slate-400">市場建議行情區間</div>
+        <div class="text-base sm:text-lg font-bold mt-1">${formatCurrency(d.budgetRange[0])}</div>
+        <div class="text-[11px] opacity-70 mt-0.5">至 ${formatCurrency(d.budgetRange[1])}</div>
+      </div>
+    `;
+
+    renderGanttChart();
+    renderTimelineList();
+    renderRaciMatrix();
+    renderBudgetBreakdown();
+    renderRiskMatrix();
+  }
+
+  function switchView(viewName) {
+    ['Gantt', 'Timeline', 'Raci'].forEach(v => {
+      const el = document.getElementById(`view${v}`);
+      const btn = document.getElementById(`tab${v}Btn`);
+      if (v.toLowerCase() === viewName.toLowerCase()) {
+        if (el) el.classList.remove('hidden');
+        if (btn) btn.className = 'px-4 py-2 rounded-xl text-xs font-bold transition-all custom-accent-bg text-white shadow-sm';
+      } else {
+        if (el) el.classList.add('hidden');
+        if (btn) btn.className = 'px-4 py-2 rounded-xl text-xs font-bold transition-all opacity-60 hover:bg-slate-200 dark:hover:bg-zinc-800';
+      }
+    });
+  }
+
+  function renderGanttChart() {
+    const d = currentPlanData;
+    const container = document.getElementById('ganttChartWrapper');
+    
+    const maxLateDate = d.phases[d.phases.length - 1].lateFinish;
+    const totalMs = maxLateDate - d.startDate;
+
+    let html = `
+      <div class="flex flex-wrap items-center justify-between gap-4 mb-4 pb-3 border-b border-slate-200 dark:border-zinc-800 text-xs">
+        <div class="flex items-center gap-4">
+          <div class="flex items-center gap-1.5 font-medium">
+            <span class="w-3 h-3 rounded-md custom-accent-bg shadow-sm"></span>
+            <span>預定時程 (Scheduled)</span>
+          </div>
+          <div class="flex items-center gap-1.5 font-medium">
+            <span class="w-3 h-3 rounded-md bg-amber-400/80 dark:bg-amber-500/70 border border-dashed border-amber-600"></span>
+            <span>最晚緩衝期 (Late Finish Buffer)</span>
+          </div>
+        </div>
+        <div class="opacity-60 font-mono text-[11px]">
+          起始/截止欄位格式：起始日期 — 截止日期 (工期)
+        </div>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-  `;
-
-  d.team.forEach((t, tidx) => {
-    const assignedPhases = [];
-    const assignedDeliverables = [];
+      <div class="space-y-4">
+    `;
 
     d.phases.forEach((p, idx) => {
-      let isResponsible = false;
-      if (tidx === 0) isResponsible = true;
-      else if (t.role.includes('設計') && p.name.includes('設計')) isResponsible = true;
-      else if (t.role.includes('工程') && (p.name.includes('測試') || p.name.includes('施工') || p.name.includes('研發'))) isResponsible = true;
-      else if (t.role.includes('企劃') && (p.name.includes('企劃') || p.name.includes('策劃'))) isResponsible = true;
-      else if (t.role.includes('核銷') || t.role.includes('採購')) {
-        if (p.name.includes('採購') || p.name.includes('結案') || p.name.includes('核銷')) isResponsible = true;
-      } else if (idx % d.team.length === tidx % d.team.length) {
-        isResponsible = true;
-      }
+      const startOffset = Math.max(0, (p.start - d.startDate) / totalMs) * 100;
+      const planWidthPct = Math.max(2, ((p.end - p.start) / totalMs) * 100);
+      const bufferWidthPct = Math.max(1, ((p.lateFinish - p.end) / totalMs) * 100);
 
-      if (isResponsible) {
-        assignedPhases.push(p.name);
-        assignedDeliverables.push(p.deliverable);
-      }
+      const unitText = d.workDayMode ? '工作天' : '天';
+      const dateRangeLabel = `${formatDateDisplay(p.start)} — ${formatDateDisplay(p.end)} (${p.days}${unitText})`;
+
+      html += `
+        <div class="grid grid-cols-12 gap-3 items-center text-xs py-2 border-b border-slate-100 dark:border-zinc-800/60 hover:bg-slate-50/50 dark:hover:bg-zinc-900/30 transition-colors rounded-xl px-1">
+          <div class="col-span-3 font-semibold truncate flex items-center gap-2">
+            <span class="w-5 h-5 rounded-full custom-accent-bg text-white flex items-center justify-center text-[10px] shrink-0 font-bold">${idx + 1}</span>
+            <span class="truncate" title="${p.name}">${p.name}</span>
+          </div>
+
+          <div class="col-span-5 relative h-8 bg-slate-100 dark:bg-zinc-900/80 rounded-xl overflow-hidden p-0.5 flex items-center">
+            <div class="absolute top-1 bottom-1 rounded-lg custom-accent-bg text-white text-[10px] font-bold flex items-center px-2 shadow-sm truncate transition-all z-10" style="left: ${startOffset}%; width: ${planWidthPct}%;">
+              ${p.days} ${unitText}
+            </div>
+
+            <div class="absolute top-1 bottom-1 rounded-r-lg bg-amber-300/60 dark:bg-amber-500/40 border-y border-r border-dashed border-amber-500/70 text-amber-800 dark:text-amber-200 text-[9px] font-bold flex items-center justify-end pr-1 transition-all z-0" style="left: ${startOffset + planWidthPct}%; width: ${bufferWidthPct}%;" title="最晚完成日 (Late Finish): ${formatDateDisplay(p.lateFinish)}">
+              +${p.bufferDays}天
+            </div>
+          </div>
+
+          <div class="col-span-4 text-right font-mono text-[11px] font-bold custom-accent-text bg-indigo-50/70 dark:bg-indigo-950/40 px-2.5 py-1.5 rounded-xl border border-indigo-100 dark:border-indigo-900/50 truncate">
+            ${dateRangeLabel}
+          </div>
+        </div>
+      `;
     });
 
-    allocationHtml += `
-      <div class="p-4 rounded-2xl border border-slate-200 dark:border-zinc-800 bg-white/70 dark:bg-zinc-900/70 space-y-3">
-        <div class="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-zinc-800">
-          <div class="flex items-center gap-2.5">
-            <div class="w-9 h-9 rounded-xl custom-accent-bg text-white font-extrabold flex items-center justify-center text-sm shadow-sm">
-              ${t.name.slice(0, 1)}
-            </div>
+    html += `</div>`;
+    container.innerHTML = html;
+  }
+
+  function renderTimelineList() {
+    const d = currentPlanData;
+    const container = document.getElementById('timelineList');
+    const unitText = d.workDayMode ? '工作天' : '天';
+
+    container.innerHTML = d.phases.map((p, i) => `
+      <div class="relative pl-12 pb-8 timeline-line last:pb-0">
+        <div class="absolute left-0 top-1 w-10 h-10 rounded-2xl bg-white dark:bg-zinc-900 border-2 border-indigo-500 flex items-center justify-center text-xs font-bold custom-accent-text shadow-sm">
+          ${i + 1}
+        </div>
+        <div class="rounded-2xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 p-5 hover:border-indigo-300 transition-all space-y-3">
+          <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-2">
             <div>
-              <div class="font-bold text-sm">${t.name}</div>
-              <div class="text-[11px] custom-accent-text font-semibold">${t.role}</div>
+              <h4 class="font-extrabold text-base flex items-center gap-2">
+                <span>${p.name}</span>
+              </h4>
+              <p class="text-xs opacity-70 mt-1 leading-relaxed">${p.desc}</p>
+            </div>
+            
+            <div class="text-left sm:text-right shrink-0">
+              <div class="text-xs font-bold custom-accent-text bg-indigo-50 dark:bg-indigo-950/60 px-3 py-1 rounded-full inline-block border border-indigo-200/60 dark:border-indigo-900/60">
+                ${formatDateDisplay(p.start)} — ${formatDateDisplay(p.end)} (${p.days} ${unitText})
+              </div>
+              <div class="text-[11px] font-semibold text-amber-600 dark:text-amber-400 mt-1 flex items-center justify-start sm:justify-end gap-1">
+                <i class="fa-solid fa-clock-rotate-left text-[10px]"></i>
+                <span>最晚完成期限 (Late Finish): ${formatDateDisplay(p.lateFinish)}</span>
+              </div>
             </div>
           </div>
-          <span class="px-2.5 py-1 rounded-full text-[10px] font-bold ${tidx === 0 ? 'bg-emerald-100 text-emerald-800' : 'bg-indigo-100 text-indigo-800'}">
-            ${tidx === 0 ? '當責 PM (Accountable)' : '執行主責 (Responsible)'}
-          </span>
-        </div>
 
-        <div class="space-y-2 text-xs">
-          <div>
-            <span class="opacity-60 font-medium">負責 / 參與階段：</span>
-            <div class="flex flex-wrap gap-1 mt-1">
-              ${assignedPhases.map(ph => `<span class="px-2 py-0.5 rounded-md bg-slate-100 dark:bg-zinc-800 font-medium text-[11px]">${ph}</span>`).join('')}
-            </div>
+          <div class="pt-2 border-t border-slate-100 dark:border-zinc-800/80 flex flex-col sm:flex-row sm:items-center gap-2 text-xs">
+            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-100 dark:bg-emerald-950/70 text-emerald-700 dark:text-emerald-300 font-bold shrink-0">
+              <i class="fa-solid fa-box-archive"></i> 主要交付產出 (Deliverable)
+            </span>
+            <span class="font-bold bg-slate-100/80 dark:bg-zinc-800/60 px-3 py-1 rounded-lg flex-1 border border-slate-200/50 dark:border-zinc-700/50">
+              ${p.deliverable}
+            </span>
           </div>
-
-          <div>
-            <span class="opacity-60 font-medium">主要負責交付產出 (Deliverables)：</span>
-            <ul class="list-disc list-inside mt-1 space-y-1 font-semibold text-[11px]">
-              ${assignedDeliverables.map(dl => `<li>${dl}</li>`).join('')}
-            </ul>
-          </div>
-        </div>
-      </div>
-    `;
-  });
-
-  allocationHtml += `</div></div>`;
-
-  container.innerHTML = tableHtml + allocationHtml;
-}
-
-function renderBudgetBreakdown() {
-  const d = currentPlanData;
-  const container = document.getElementById('budgetBreakdown');
-  const noteEl = document.getElementById('budgetRefNote');
-  const adviceEl = document.getElementById('budgetAdvice');
-
-  const refNote = PUBLIC_REFS[d.typeKey] || PUBLIC_REFS.custom;
-  noteEl.textContent = refNote;
-
-  const labels = d.cfg.budgetLabels || ['核心費用 1', '核心費用 2', '核心費用 3', '核心費用 4', '行政/管理', '風險預備金'];
-  const weights = [0.25, 0.25, 0.20, 0.15, 0.10, 0.05];
-
-  let html = '';
-  labels.forEach((label, idx) => {
-    const itemAmount = d.budget ? Math.round(d.budget * (weights[idx] || 0.1)) : 0;
-    html += `
-      <div class="flex items-center justify-between py-2 border-b border-slate-100 dark:border-zinc-800 text-xs">
-        <span class="opacity-70 font-medium">${label} (${(weights[idx] * 100).toFixed(0)}%)</span>
-        <span class="font-bold">${d.budget ? formatCurrency(itemAmount) : '—'}</span>
-      </div>
-    `;
-  });
-  container.innerHTML = html;
-
-  let advice = [];
-  if (d.budget && d.budget < d.budgetRange[0]) {
-    advice.push('預算低於該專案規模的市場參考區間，建議優先適度縮減非核心功能，避免壓縮測試或品質監測時程。');
-  }
-  if (d.budget && d.budget > d.budgetRange[1]) {
-    advice.push('預算充裕，建議可提高硬體/視覺/互動規格，或增加測試驗證的場次。');
-  }
-  if (d.internalDays > 0) {
-    advice.push(`已納入 ${d.internalDays} 天內部簽核/採購緩衝，請確保權責單位配合 SLA。`);
-  }
-  if (d.hardDeadline) {
-    advice.push('設有硬性截止日：建議在正式截止日前再預留 5–10 天作為最終驗收與缺失改善緩衝。');
-  }
-  advice.push('正式發包前建議向至少 2–3 家合格廠商取得細項分解報價（WBS 拆解式報價）。');
-
-  adviceEl.innerHTML = advice.map(x => `<p class="flex items-start gap-2"><i class="fa-solid fa-circle-check custom-accent-text mt-0.5 shrink-0"></i><span>${x}</span></p>`).join('');
-}
-
-function renderRiskMatrix() {
-  const d = currentPlanData;
-  const container = document.getElementById('riskGrid');
-
-  const risks = [
-    {
-      title: '關鍵路徑延誤風險',
-      level: '高',
-      color: 'rose',
-      desc: '前置階段（如規格定案或採購發包）延誤，將直接壓縮後期製作與測試時間。',
-      action: '嚴格控管 Milestone 節點，設有專責 PM 即時追蹤。'
-    },
-    {
-      title: '採購簽核/核銷時間風險',
-      level: d.internalDays > 14 ? '高' : '中',
-      color: d.internalDays > 14 ? 'rose' : 'amber',
-      desc: `內部採購流程約需 ${d.internalDays} 天，若單據缺漏可能影響對外發包與交期。`,
-      action: '提早發起採購申請，並同步預告法務與會計單位。'
-    },
-    {
-      title: '範疇蔓延 (Scope Creep)',
-      level: '中',
-      color: 'amber',
-      desc: '專案執行中途提出額外需求或修改規格，導致時程與預算超支。',
-      action: '實施嚴格變更管理流程（Change Control），新增需求須評估工期與追加預算。'
-    },
-    {
-      title: '預算/備用金風險',
-      level: '低',
-      color: 'emerald',
-      desc: `專案已編列 ${d.contingencyRate * 100}% 風險預備金 (${formatCurrency(d.budget * d.contingencyRate)})。`,
-      action: '預備金專款專用，須經 PM 與 Sponsor 雙重簽核方可支用。'
-    }
-  ];
-
-  container.innerHTML = risks.map(r => `
-    <div class="p-4 rounded-2xl border border-slate-200 dark:border-zinc-800 bg-white/70 dark:bg-zinc-900/70 space-y-2">
-      <div class="flex items-center justify-between">
-        <h4 class="font-bold text-sm flex items-center gap-2">
-          <i class="fa-solid fa-triangle-exclamation text-${r.color}-500"></i>
-          <span>${r.title}</span>
-        </h4>
-        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-${r.color}-100 text-${r.color}-700 dark:bg-${r.color}-950/60 dark:text-${r.color}-300">
-          風險程度：${r.level}
-        </span>
-      </div>
-      <p class="text-xs opacity-70 leading-relaxed">${r.desc}</p>
-      <div class="pt-2 border-t border-slate-100 dark:border-zinc-800/80 text-xs font-medium flex items-center gap-1.5">
-        <i class="fa-solid fa-shield-halved custom-accent-text"></i>
-        <span><strong>因應策略：</strong>${r.action}</span>
-      </div>
-    </div>
-  `).join('');
-}
-
-function exportCSV() {
-  if (!currentPlanData) return;
-  const d = currentPlanData;
-  let csv = '\uFEFF階段名稱,階段說明,工期(天),起始日期,截止日期,最晚完成日,主要交付產出\n';
-  d.phases.forEach(p => {
-    csv += `"${p.name}","${p.desc.replace(/"/g, '""')}",${p.days},"${formatDateDisplay(p.start)}","${formatDateDisplay(p.end)}","${formatDateDisplay(p.lateFinish)}","${p.deliverable.replace(/"/g, '""')}"\n`;
-  });
-  
-  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-  const link = document.createElement('a');
-  link.href = URL.createObjectURL(blob);
-  link.download = `${d.name}_專案時程表.csv`;
-  link.click();
-  showToast('已成功匯出 CSV (Excel) 檔案！', 'success');
-}
-
-function exportICS() {
-  if (!currentPlanData) return;
-  const d = currentPlanData;
-  let ics = 'BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//Project Flow Pro//TW\n';
-  d.phases.forEach((p, i) => {
-    const dtStart = p.start.toISOString().replace(/-|:|\.\d+/g, '').slice(0, 8);
-    const dtEnd = p.end.toISOString().replace(/-|:|\.\d+/g, '').slice(0, 8);
-    ics += 'BEGIN:VEVENT\n';
-    ics += `SUMMARY:[${d.name}] M${i + 1}: ${p.name}\n`;
-    ics += `DESCRIPTION:${p.desc} | 主要交付產出: ${p.deliverable}\n`;
-    ics += `DTSTART;VALUE=DATE:${dtStart}\n`;
-    ics += `DTEND;VALUE=DATE:${dtEnd}\n`;
-    ics += 'END:VEVENT\n';
-  });
-  ics += 'END:VCALENDAR';
-
-  const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8;' });
-  const link = document.createElement('a');
-  link.href = URL.createObjectURL(blob);
-  link.download = `${d.name}_專案行事曆.ics`;
-  link.click();
-  showToast('已成功匯出 .ICS 行事曆檔案！', 'success');
-}
-
-function exportMarkdown() {
-  if (!currentPlanData) return;
-  const d = currentPlanData;
-  let md = `# 專案規劃報告：${d.name}\n\n`;
-  md += `- **專案類型**: ${d.cfg.name}\n`;
-  md += `- **執行期間**: ${formatDateDisplay(d.startDate)} 至 ${formatDateDisplay(d.endDate)} (共 ${d.totalDays} 天)\n`;
-  md += `- **專案總預算**: ${formatCurrency(d.budget)}\n\n`;
-  md += `## 階段里程碑與交付物\n\n`;
-  md += `| 階段 | 說明 | 工期 | 起始日期 — 截止日期 | 最晚完成日 | 主要交付產出 |\n`;
-  md += `| --- | --- | --- | --- | --- | --- |\n`;
-  d.phases.forEach((p, i) => {
-    md += `| ${i + 1}. ${p.name} | ${p.desc} | ${p.days}天 | ${formatDateDisplay(p.start)} — ${formatDateDisplay(p.end)} | ${formatDateDisplay(p.lateFinish)} | ${p.deliverable} |\n`;
-  });
-
-  const textarea = document.createElement('textarea');
-  textarea.value = md;
-  document.body.appendChild(textarea);
-  textarea.select();
-  document.execCommand('copy');
-  document.body.removeChild(textarea);
-
-  showToast('Markdown 格式報告已複製至剪貼簿！', 'success');
-}
-
-function exportProjectJSON() {
-  if (!currentPlanData) return;
-  const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(currentPlanData, null, 2));
-  const downloadAnchor = document.createElement('a');
-  downloadAnchor.setAttribute("href", dataStr);
-  downloadAnchor.setAttribute("download", `${currentPlanData.name}_範例檔.json`);
-  document.body.appendChild(downloadAnchor);
-  downloadAnchor.click();
-  downloadAnchor.remove();
-  showToast('已成功匯出可重複上傳的範例 JSON 檔案！', 'success');
-}
-
-function triggerImportCustomPreset() {
-  toggleDropdown('presetDropdown');
-  document.getElementById('importPresetInput').click();
-}
-
-async function handlePresetPdfUpload(event) {
-  const file = event.target.files[0];
-  if (!file) return;
-
-  if (!file.name.toLowerCase().endsWith('.pdf')) {
-    showToast('請選擇副檔名為 .pdf 的專案企劃書！', 'error');
-    event.target.value = '';
-    return;
-  }
-
-  showToast(`正在讀取並解析 PDF 文件「${file.name}」...`, 'info');
-
-  try {
-    const arrayBuffer = await file.arrayBuffer();
-    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-    let fullText = '';
-    
-    for (let i = 1; i <= pdf.numPages; i++) {
-      const page = await pdf.getPage(i);
-      const textContent = await page.getTextContent();
-      const pageText = textContent.items.map(item => item.str).join(' ');
-      fullText += pageText + '\n';
-    }
-
-    const pdfFileName = file.name.replace(/\.pdf$/i, '');
-    
-    let detectedBudget = 1000000;
-    const budgetMatch = fullText.match(/(?:預算|金額|總價|費用|經費)[：:\s]*(?:NT\$?|TWD)?\s*([0-9,]+)/i);
-    if (budgetMatch) {
-      const bNum = parseInt(budgetMatch[1].replace(/,/g, ''), 10);
-      if (!isNaN(bNum) && bNum > 0) detectedBudget = bNum;
-    }
-
-    selectProjectTypeCard('custom');
-    document.getElementById('projectName').value = pdfFileName;
-    document.getElementById('budget').value = detectedBudget;
-    document.getElementById('customKeywordInput').value = pdfFileName;
-
-    synthesizeCustomBlueprint(pdfFileName);
-
-    goToPage(2);
-    showToast(`已成功讀取 PDF「${file.name}」並提取專案時程架構！`, 'success');
-  } catch (err) {
-    console.error(err);
-    showToast('解析 PDF 檔案失敗，請確認檔案是否密碼保護或損壞！', 'error');
-  }
-  event.target.value = '';
-}
-
-function saveCurrentProject() {
-  if (!currentPlanData) return;
-  const list = JSON.parse(localStorage.getItem('pf_saved_projects') || '[]');
-  const newRecord = {
-    id: Date.now(),
-    name: currentPlanData.name,
-    date: new Date().toLocaleDateString('zh-TW'),
-    data: currentPlanData
-  };
-  list.unshift(newRecord);
-  localStorage.setItem('pf_saved_projects', JSON.stringify(list));
-  showToast('專案已成功儲存至瀏覽器專案庫！', 'success');
-}
-
-function openStorageModal() {
-  const modal = document.getElementById('storageModal');
-  const container = document.getElementById('savedProjectsList');
-  const list = JSON.parse(localStorage.getItem('pf_saved_projects') || '[]');
-
-  if (!list.length) {
-    container.innerHTML = `<div class="text-xs text-slate-400 text-center py-8">專案庫目前沒有任何儲存紀錄。</div>`;
-  } else {
-    container.innerHTML = list.map((item) => `
-      <div class="flex items-center justify-between p-3.5 rounded-2xl border border-slate-200 dark:border-zinc-800 hover:bg-slate-50 dark:hover:bg-zinc-800/50 transition-all text-xs">
-        <div>
-          <div class="font-bold">${item.name}</div>
-          <div class="text-[11px] opacity-60 mt-0.5">儲存時間：${item.date}</div>
-        </div>
-        <div class="flex items-center gap-2">
-          <button onclick="loadSavedProject(${item.id})" class="px-3 py-1.5 rounded-xl custom-accent-bg text-white font-semibold text-[11px]">載入</button>
-          <button onclick="deleteSavedProject(${item.id})" class="p-1.5 opacity-60 hover:text-rose-500"><i class="fa-solid fa-trash-can"></i></button>
         </div>
       </div>
     `).join('');
   }
 
-  modal.classList.remove('hidden');
-}
+  function renderRaciMatrix() {
+    const d = currentPlanData;
+    const container = document.getElementById('raciMatrixWrapper');
 
-function closeStorageModal() {
-  document.getElementById('storageModal').classList.add('hidden');
-}
+    if (!d.team.length) {
+      container.innerHTML = `<div class="text-xs opacity-60 py-6 text-center">未填寫團隊成員，無法產生 RACI 與工作分配表。</div>`;
+      return;
+    }
 
-function loadSavedProject(id) {
-  const list = JSON.parse(localStorage.getItem('pf_saved_projects') || '[]');
-  const found = list.find(x => x.id === id);
-  if (found) {
-    currentPlanData = found.data;
-    currentPlanData.startDate = new Date(currentPlanData.startDate);
-    currentPlanData.endDate = new Date(currentPlanData.endDate);
-    currentPlanData.phases.forEach(p => {
-      p.start = new Date(p.start);
-      p.end = new Date(p.end);
-      p.lateFinish = new Date(p.lateFinish);
+    let tableHtml = `
+      <table class="w-full text-xs text-left border-collapse mb-8">
+        <thead>
+          <tr class="border-b border-slate-200 dark:border-zinc-800 bg-slate-50 dark:bg-zinc-900">
+            <th class="py-3 px-3 font-semibold opacity-70">專案階段 / Phase</th>
+            ${d.team.map(t => `<th class="py-3 px-3 font-semibold text-center">${t.name}<br><span class="text-[10px] opacity-60 font-normal">${t.role}</span></th>`).join('')}
+          </tr>
+        </thead>
+        <tbody>
+    `;
+
+    d.phases.forEach((p, idx) => {
+      tableHtml += `<tr class="border-b border-slate-100 dark:border-zinc-800/50">`;
+      tableHtml += `<td class="py-3 px-3 font-medium">${p.name}</td>`;
+
+      d.team.forEach((t, tidx) => {
+        let raciCode = 'I';
+        if (tidx === 0) raciCode = 'A';
+        else if (t.role.includes('執行') || t.role.includes('顧問') || t.role.includes('設計') || t.role.includes('工程') || t.role.includes('企劃')) {
+          if (idx === 2 || idx === 3 || idx === 4) raciCode = 'R';
+          else raciCode = 'C';
+        }
+
+        const badges = {
+          'R': '<span class="px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-700 font-bold" title="Responsible 負責執行">R</span>',
+          'A': '<span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-bold" title="Accountable 當責對象">A</span>',
+          'C': '<span class="px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 font-bold" title="Consulted 諮詢對象">C</span>',
+          'I': '<span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 font-bold" title="Informed 知會對象">I</span>'
+        };
+
+        tableHtml += `<td class="py-3 px-3 text-center">${badges[raciCode]}</td>`;
+      });
+
+      tableHtml += `</tr>`;
     });
-    renderResults();
-    closeStorageModal();
-    goToPage(3);
-    showToast(`已載入專案：「${found.name}」`, 'success');
+
+    tableHtml += `</tbody></table>`;
+
+    let allocationHtml = `
+      <div class="mt-8 pt-6 border-t border-slate-200 dark:border-zinc-800">
+        <div class="mb-4">
+          <h4 class="text-lg font-bold flex items-center gap-2">
+            <i class="fa-solid fa-users-gear custom-accent-text"></i>
+            <span>團隊人力與交付工作分配表</span>
+          </h4>
+          <p class="text-xs opacity-70">依據人力配置角色，自動彙整各成員負責階段、主要交付產出物與 RACI 當責職責。</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    `;
+
+    d.team.forEach((t, tidx) => {
+      const assignedPhases = [];
+      const assignedDeliverables = [];
+
+      d.phases.forEach((p, idx) => {
+        let isResponsible = false;
+        if (tidx === 0) isResponsible = true;
+        else if (t.role.includes('設計') && p.name.includes('設計')) isResponsible = true;
+        else if (t.role.includes('工程') && (p.name.includes('測試') || p.name.includes('施工') || p.name.includes('研發'))) isResponsible = true;
+        else if (t.role.includes('企劃') && (p.name.includes('企劃') || p.name.includes('策劃'))) isResponsible = true;
+        else if (t.role.includes('核銷') || t.role.includes('採購')) {
+          if (p.name.includes('採購') || p.name.includes('結案') || p.name.includes('核銷')) isResponsible = true;
+        } else if (idx % d.team.length === tidx % d.team.length) {
+          isResponsible = true;
+        }
+
+        if (isResponsible) {
+          assignedPhases.push(p.name);
+          assignedDeliverables.push(p.deliverable);
+        }
+      });
+
+      allocationHtml += `
+        <div class="p-4 rounded-2xl border border-slate-200 dark:border-zinc-800 bg-white/70 dark:bg-zinc-900/70 space-y-3">
+          <div class="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-zinc-800">
+            <div class="flex items-center gap-2.5">
+              <div class="w-9 h-9 rounded-xl custom-accent-bg text-white font-extrabold flex items-center justify-center text-sm shadow-sm">
+                ${t.name.slice(0, 1)}
+              </div>
+              <div>
+                <div class="font-bold text-sm">${t.name}</div>
+                <div class="text-[11px] custom-accent-text font-semibold">${t.role}</div>
+              </div>
+            </div>
+            <span class="px-2.5 py-1 rounded-full text-[10px] font-bold ${tidx === 0 ? 'bg-emerald-100 text-emerald-800' : 'bg-indigo-100 text-indigo-800'}">
+              ${tidx === 0 ? '當責 PM (Accountable)' : '執行主責 (Responsible)'}
+            </span>
+          </div>
+
+          <div class="space-y-2 text-xs">
+            <div>
+              <span class="opacity-60 font-medium">負責 / 參與階段：</span>
+              <div class="flex flex-wrap gap-1 mt-1">
+                ${assignedPhases.map(ph => `<span class="px-2 py-0.5 rounded-md bg-slate-100 dark:bg-zinc-800 font-medium text-[11px]">${ph}</span>`).join('')}
+              </div>
+            </div>
+
+            <div>
+              <span class="opacity-60 font-medium">主要負責交付產出 (Deliverables)：</span>
+              <ul class="list-disc list-inside mt-1 space-y-1 font-semibold text-[11px]">
+                ${assignedDeliverables.map(dl => `<li>${dl}</li>`).join('')}
+              </ul>
+            </div>
+          </div>
+        </div>
+      `;
+    });
+
+    allocationHtml += `</div></div>`;
+    container.innerHTML = tableHtml + allocationHtml;
   }
-}
 
-function deleteSavedProject(id) {
-  let list = JSON.parse(localStorage.getItem('pf_saved_projects') || '[]');
-  list = list.filter(x => x.id !== id);
-  localStorage.setItem('pf_saved_projects', JSON.stringify(list));
-  openStorageModal();
-  showToast('已刪除專案紀錄', 'info');
-}
+  function renderBudgetBreakdown() {
+    const d = currentPlanData;
+    const container = document.getElementById('budgetBreakdown');
+    const noteEl = document.getElementById('budgetRefNote');
+    const adviceEl = document.getElementById('budgetAdvice');
 
-function loadPreset(key) {
-  toggleDropdown('presetDropdown');
-  if (key === 'custom_esg') {
-    selectProjectTypeCard('custom');
-    document.getElementById('customKeywordInput').value = 'ESG 永續報告書輔導';
-    document.getElementById('projectName').value = '2026 ESG永續報告書與溫室氣體盤查輔導專案';
-    document.getElementById('budget').value = '1200000';
-    triggerSearchAnalysis();
-  } else {
-    selectProjectTypeCard(key);
-    if (key === 'exhibition') {
-      document.getElementById('projectName').value = '2026 國際半導體展成果館特裝建置';
-      document.getElementById('budget').value = '800000';
-    } else if (key === 'hardware') {
-      document.getElementById('projectName').value = 'AI 邊緣運算嵌入式控制硬體開發';
-      document.getElementById('budget').value = '5000000';
-    } else if (key === 'event') {
-      document.getElementById('projectName').value = '2026 全球科技新品發表會暨經銷商大會';
-      document.getElementById('budget').value = '1200000';
+    const refNote = PUBLIC_REFS[d.typeKey] || PUBLIC_REFS.custom;
+    noteEl.textContent = refNote;
+
+    const labels = d.cfg.budgetLabels || ['核心費用 1', '核心費用 2', '核心費用 3', '核心費用 4', '行政/管理', '風險預備金'];
+    const weights = [0.25, 0.25, 0.20, 0.15, 0.10, 0.05];
+
+    let html = '';
+    labels.forEach((label, idx) => {
+      const itemAmount = d.budget ? Math.round(d.budget * (weights[idx] || 0.1)) : 0;
+      html += `
+        <div class="flex items-center justify-between py-2 border-b border-slate-100 dark:border-zinc-800 text-xs">
+          <span class="opacity-70 font-medium">${label} (${(weights[idx] * 100).toFixed(0)}%)</span>
+          <span class="font-bold">${d.budget ? formatCurrency(itemAmount) : '—'}</span>
+        </div>
+      `;
+    });
+    container.innerHTML = html;
+
+    let advice = [];
+    if (d.budget && d.budget < d.budgetRange[0]) {
+      advice.push('預算低於該專案規模的市場參考區間，建議優先適度縮減非核心功能，避免壓縮測試或品質監測時程。');
+    }
+    if (d.budget && d.budget > d.budgetRange[1]) {
+      advice.push('預算充裕，建議可提高硬體/視覺/互動規格，或增加測試驗證的場次。');
+    }
+    if (d.internalDays > 0) {
+      advice.push(`已納入 ${d.internalDays} 天內部簽核/採購緩衝，請確保權責單位配合 SLA。`);
+    }
+    if (d.hardDeadline) {
+      advice.push('設有硬性截止日：建議在正式截止日前再預留 5–10 天作為最終驗收與缺失改善緩衝。');
+    }
+    advice.push('正式發包前建議向至少 2–3 家合格廠商取得細項分解報價（WBS 拆解式報價）。');
+
+    adviceEl.innerHTML = advice.map(x => `<p class="flex items-start gap-2"><i class="fa-solid fa-circle-check custom-accent-text mt-0.5 shrink-0"></i><span>${x}</span></p>`).join('');
+  }
+
+  function renderRiskMatrix() {
+    const d = currentPlanData;
+    const container = document.getElementById('riskGrid');
+
+    const risks = [
+      {
+        title: '關鍵路徑延誤風險',
+        level: '高',
+        color: 'rose',
+        desc: '前置階段（如規格定案或採購發包）延誤，將直接壓縮後期製作與測試時間。',
+        action: '嚴格控管 Milestone 節點，設有專責 PM 即時追蹤。'
+      },
+      {
+        title: '採購簽核/核銷時間風險',
+        level: d.internalDays > 14 ? '高' : '中',
+        color: d.internalDays > 14 ? 'rose' : 'amber',
+        desc: `內部採購流程約需 ${d.internalDays} 天，若單據缺漏可能影響對外發包與交期。`,
+        action: '提早發起採購申請，並同步預告法務與會計單位。'
+      },
+      {
+        title: '範疇蔓延 (Scope Creep)',
+        level: '中',
+        color: 'amber',
+        desc: '專案執行中途提出額外需求或修改規格，導致時程與預算超支。',
+        action: '實施嚴格變更管理流程（Change Control），新增需求須評估工期與追加預算。'
+      },
+      {
+        title: '預算/備用金風險',
+        level: '低',
+        color: 'emerald',
+        desc: `專案已編列 ${d.contingencyRate * 100}% 風險預備金 (${formatCurrency(d.budget * d.contingencyRate)})。`,
+        action: '預備金專款專用，須經 PM 與 Sponsor 雙重簽核方可支用。'
+      }
+    ];
+
+    container.innerHTML = risks.map(r => `
+      <div class="p-4 rounded-2xl border border-slate-200 dark:border-zinc-800 bg-white/70 dark:bg-zinc-900/70 space-y-2">
+        <div class="flex items-center justify-between">
+          <h4 class="font-bold text-sm flex items-center gap-2">
+            <i class="fa-solid fa-triangle-exclamation text-${r.color}-500"></i>
+            <span>${r.title}</span>
+          </h4>
+          <span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-${r.color}-100 text-${r.color}-700 dark:bg-${r.color}-950/60 dark:text-${r.color}-300">
+            風險程度：${r.level}
+          </span>
+        </div>
+        <p class="text-xs opacity-70 leading-relaxed">${r.desc}</p>
+        <div class="pt-2 border-t border-slate-100 dark:border-zinc-800/80 text-xs font-medium flex items-center gap-1.5">
+          <i class="fa-solid fa-shield-halved custom-accent-text"></i>
+          <span><strong>因應策略：</strong>${r.action}</span>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  async function downloadSectionAsImage(elementId, titleName) {
+    const element = document.getElementById(elementId);
+    if (!element) return;
+
+    if (typeof html2canvas === 'undefined') {
+      showToast('圖檔匯出引擎載入中，請稍後重試...', 'error');
+      return;
+    }
+
+    showToast(`正在繪製並產生「${titleName}」高畫質圖檔...`, 'info');
+
+    try {
+      const canvas = await html2canvas(element, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#ffffff',
+        width: element.scrollWidth,
+        height: element.scrollHeight,
+        onclone: (clonedDoc) => {
+          const clonedEl = clonedDoc.getElementById(elementId);
+          if (clonedEl) {
+            clonedEl.style.overflow = 'visible';
+            clonedEl.style.maxWidth = 'none';
+          }
+        }
+      });
+
+      const dataUrl = canvas.toDataURL('image/png');
+      const downloadLink = document.createElement('a');
+      const projectName = currentPlanData ? currentPlanData.name : '專案';
+      downloadLink.href = dataUrl;
+      downloadLink.download = `${projectName}_${titleName}.png`;
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      downloadLink.remove();
+
+      showToast(`已成功下載「${titleName}」PNG 高畫質圖檔！`, 'success');
+    } catch (err) {
+      console.error(err);
+      showToast('產生圖檔失敗，請稍後再試一次。', 'error');
     }
   }
-  showToast(`已成功載入「${key}」範本資料`, 'success');
-}
-</script>
+
+  function exportExcelMultiSheet() {
+    if (!currentPlanData) {
+      showToast('請先產生專案規劃報告！', 'error');
+      return;
+    }
+    const d = currentPlanData;
+
+    if (typeof XLSX === 'undefined') {
+      showToast('Excel 匯出引擎載入中，請稍後重試...', 'error');
+      return;
+    }
+
+    const wb = XLSX.utils.book_new();
+
+    // ==========================================
+    // 工作表一：專案基本資訊 (Project Overview & Summary)
+    // ==========================================
+    const sheet1Data = [
+      ['專案規劃報告 — 基本資訊與評估摘要', ''],
+      ['', ''],
+      ['欄位項目', '設定內容'],
+      ['專案完整名稱', d.name],
+      ['專案類型範本', d.typeKey === 'custom' ? `自訂關鍵字: ${d.customKw}` : d.cfg.name],
+      ['專案規模 (Scale)', d.scale === 'small' ? '小型 (精實)' : (d.scale === 'medium' ? '中型 (標準)' : '大型 (旗艦)')],
+      ['工期計算模式', d.workDayMode ? '工作天 (扣除雙休假日)' : '日曆日 (Calendar Days)'],
+      ['預計啟動日期 (Start Date)', formatDateDisplay(d.startDate)],
+      ['預計完成日期 (End Date)', formatDateDisplay(d.endDate)],
+      ['總計畫工期', `${d.totalDays} ${d.workDayMode ? '工作天' : '天'}`],
+      ['專案規劃總預算 (TWD)', d.budget ? formatCurrency(d.budget) : '未設定'],
+      ['預算評估健康度', d.budgetStatus],
+      ['市場建議行情區間', `${formatCurrency(d.budgetRange[0])} 〜 ${formatCurrency(d.budgetRange[1])}`],
+      ['內部簽核/採購預留期', `${d.internalDays} 天`],
+      ['風險預備金比率', `${d.contingencyRate * 100}% (${d.budget ? formatCurrency(d.budget * d.contingencyRate) : '—'})`],
+      ['硬性截止日限制', d.hardDeadline ? '有 (死線彈性低)' : '無 (彈性調整)'],
+      ['備註說明', d.notes || '無'],
+      ['', ''],
+      ['專案團隊成員與權責配置', ''],
+      ['成員姓名 / 代號', '分配角色職責']
+    ];
+
+    d.team.forEach(t => sheet1Data.push([t.name, t.role]));
+    const ws1 = XLSX.utils.aoa_to_sheet(sheet1Data);
+    XLSX.utils.book_append_sheet(wb, ws1, '專案基本資訊');
+
+    // ==========================================
+    // 工作表二：甘特圖與時程 (Gantt Schedule & Milestones)
+    // ==========================================
+    const sheet2Data = [
+      ['項次', '階段里程碑名稱', '預定工期(天)', '起始日期', '截止日期', '最晚完成日 (Late Finish Buffer)', '緩衝天數']
+    ];
+    d.phases.forEach((p, idx) => {
+      sheet2Data.push([
+        idx + 1,
+        p.name,
+        p.days,
+        formatDateDisplay(p.start),
+        formatDateDisplay(p.end),
+        formatDateDisplay(p.lateFinish),
+        `+${p.bufferDays}天`
+      ]);
+    });
+    const ws2 = XLSX.utils.aoa_to_sheet(sheet2Data);
+    XLSX.utils.book_append_sheet(wb, ws2, '甘特圖與時程');
+
+    // ==========================================
+    // 工作表三：時程與交付物 (Timeline Details & Deliverables)
+    // ==========================================
+    const sheet3Data = [
+      ['項次', '階段名稱', '階段詳細作業內容說明', '工期', '執行日期區間', '主要交付產出 (Deliverables)']
+    ];
+    d.phases.forEach((p, idx) => {
+      sheet3Data.push([
+        idx + 1,
+        p.name,
+        p.desc,
+        `${p.days} ${d.workDayMode ? '工作天' : '天'}`,
+        `${formatDateDisplay(p.start)} — ${formatDateDisplay(p.end)}`,
+        p.deliverable
+      ]);
+    });
+    const ws3 = XLSX.utils.aoa_to_sheet(sheet3Data);
+    XLSX.utils.book_append_sheet(wb, ws3, '時程與交付物');
+
+    // ==========================================
+    // 工作表四：RACI矩陣與分工 (RACI Matrix & Task Assignment)
+    // ==========================================
+    const raciHeader = ['階段名稱 / Phase', ...d.team.map(t => `${t.name} (${t.role})`)];
+    const sheet4Data = [
+      ['RACI 職責轉移矩陣 (A:當責, R:負責, C:諮詢, I:知會)', ...Array(d.team.length).fill('')],
+      raciHeader
+    ];
+
+    d.phases.forEach((p, idx) => {
+      const row = [p.name];
+      d.team.forEach((t, tidx) => {
+        let code = 'I (知會)';
+        if (tidx === 0) code = 'A (當責)';
+        else if (t.role.includes('執行') || t.role.includes('顧問') || t.role.includes('設計') || t.role.includes('工程') || t.role.includes('企劃')) {
+          if (idx === 2 || idx === 3 || idx === 4) code = 'R (負責)';
+          else code = 'C (諮詢)';
+        }
+        row.push(code);
+      });
+      sheet4Data.push(row);
+    });
+
+    sheet4Data.push([]);
+    sheet4Data.push(['團隊成員工作與交付物分工明細表', '']);
+    sheet4Data.push(['成員姓名', '角色', '責任定位', '負責 / 參與階段', '負責主要交付物 (Deliverables)']);
+
+    d.team.forEach((t, tidx) => {
+      const assignedPhases = [];
+      const assignedDeliverables = [];
+
+      d.phases.forEach((p, idx) => {
+        let isResponsible = false;
+        if (tidx === 0) isResponsible = true;
+        else if (t.role.includes('設計') && p.name.includes('設計')) isResponsible = true;
+        else if (t.role.includes('工程') && (p.name.includes('測試') || p.name.includes('施工') || p.name.includes('研發'))) isResponsible = true;
+        else if (t.role.includes('企劃') && (p.name.includes('企劃') || p.name.includes('策劃'))) isResponsible = true;
+        else if (t.role.includes('核銷') || t.role.includes('採購')) {
+          if (p.name.includes('採購') || p.name.includes('結案') || p.name.includes('核銷')) isResponsible = true;
+        } else if (idx % d.team.length === tidx % d.team.length) {
+          isResponsible = true;
+        }
+
+        if (isResponsible) {
+          assignedPhases.push(p.name);
+          assignedDeliverables.push(p.deliverable);
+        }
+      });
+
+      sheet4Data.push([
+        t.name,
+        t.role,
+        tidx === 0 ? '當責 PM (Accountable)' : '執行主責 (Responsible)',
+        assignedPhases.join('; '),
+        assignedDeliverables.join('; ')
+      ]);
+    });
+
+    const ws4 = XLSX.utils.aoa_to_sheet(sheet4Data);
+    XLSX.utils.book_append_sheet(wb, ws4, 'RACI矩陣與分工');
+
+    // ==========================================
+    // 工作表五：預算拆解與風險 (Budget & Risk Analysis)
+    // ==========================================
+    const sheet5Data = [
+      ['預算結構拆解與市場行情說明', ''],
+      ['參考行情標準', PUBLIC_REFS[d.typeKey] || PUBLIC_REFS.custom],
+      ['', ''],
+      ['預算拆解項目', '權重佔比', '預估拆解金額 (TWD)'],
+    ];
+
+    const labels = d.cfg.budgetLabels || ['核心費用 1', '核心費用 2', '核心費用 3', '核心費用 4', '行政/管理', '風險預備金'];
+    const weights = [0.25, 0.25, 0.20, 0.15, 0.10, 0.05];
+
+    labels.forEach((lbl, idx) => {
+      const amt = d.budget ? Math.round(d.budget * (weights[idx] || 0.1)) : 0;
+      sheet5Data.push([lbl, `${(weights[idx] * 100).toFixed(0)}%`, amt ? formatCurrency(amt) : '—']);
+    });
+
+    sheet5Data.push([]);
+    sheet5Data.push(['專案風險評估與因應策略表', '']);
+    sheet5Data.push(['風險項目名稱', '風險程度', '風險詳細說明', '建議因應策略']);
+
+    const risks = [
+      ['關鍵路徑延誤風險', '高', '前置階段（如規格定案或採購發包）延誤，將直接壓縮後期製作與測試時間。', '嚴格控管 Milestone 節點，設有專責 PM 即時追蹤。'],
+      ['採購簽核/核銷時間風險', d.internalDays > 14 ? '高' : '中', `內部採購流程約需 ${d.internalDays} 天，若單據缺漏可能影響對外發包與交期。`, '提早發起採購申請，並同步預告法務與會計單位。'],
+      ['範疇蔓延 (Scope Creep)', '中', '專案執行中途提出額外需求或修改規格，導致時程與預算超支。', '實施嚴格變更管理流程（Change Control），新增需求須評估工期與追加預算。'],
+      ['預算/備用金風險', '低', `專案已編列 ${d.contingencyRate * 100}% 風險預備金 (${formatCurrency(d.budget * d.contingencyRate)})。`, '預備金專款專用，須經 PM 與 Sponsor 雙重簽核方可支用。']
+    ];
+
+    risks.forEach(r => sheet5Data.push(r));
+
+    const ws5 = XLSX.utils.aoa_to_sheet(sheet5Data);
+    XLSX.utils.book_append_sheet(wb, ws5, '預算拆解與風險');
+
+    // Trigger XLSX file download
+    XLSX.writeFile(wb, `${d.name}_完整專案規劃報告.xlsx`);
+    showToast('已匯出包含 5 個工作表之完整 Excel 報告！', 'success');
+  }
+
+  function exportICS() {
+    if (!currentPlanData) return;
+    const d = currentPlanData;
+    let ics = 'BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//Project Flow Pro//TW\n';
+    d.phases.forEach((p, i) => {
+      const dtStart = p.start.toISOString().replace(/-|:|\.\d+/g, '').slice(0, 8);
+      const dtEnd = p.end.toISOString().replace(/-|:|\.\d+/g, '').slice(0, 8);
+      ics += 'BEGIN:VEVENT\n';
+      ics += `SUMMARY:[${d.name}] M${i + 1}: ${p.name}\n`;
+      ics += `DESCRIPTION:${p.desc} | 主要交付產出: ${p.deliverable}\n`;
+      ics += `DTSTART;VALUE=DATE:${dtStart}\n`;
+      ics += `DTEND;VALUE=DATE:${dtEnd}\n`;
+      ics += 'END:VEVENT\n';
+    });
+    ics += 'END:VCALENDAR';
+
+    const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `${d.name}_專案行事曆.ics`;
+    link.click();
+    showToast('已成功匯出 .ICS 行事曆檔案！', 'success');
+  }
+
+  function exportMarkdown() {
+    if (!currentPlanData) return;
+    const d = currentPlanData;
+    let md = `# 專案規劃總體報告：${d.name}\n\n`;
+    md += `- **專案類型**: ${d.cfg.name}\n`;
+    md += `- **執行期間**: ${formatDateDisplay(d.startDate)} 至 ${formatDateDisplay(d.endDate)} (共 ${d.totalDays} 天)\n`;
+    md += `- **專案總預算**: ${formatCurrency(d.budget)}\n`;
+    md += `- **預算評估**: ${d.budgetStatus}\n\n`;
+    
+    md += `## 1. 階段里程碑與交付物\n\n`;
+    md += `| 階段 | 說明 | 工期 | 起始日期 — 截止日期 | 最晚完成日 | 主要交付產出 |\n`;
+    md += `| --- | --- | --- | --- | --- | --- |\n`;
+    d.phases.forEach((p, i) => {
+      md += `| ${i + 1}. ${p.name} | ${p.desc} | ${p.days}天 | ${formatDateDisplay(p.start)} — ${formatDateDisplay(p.end)} | ${formatDateDisplay(p.lateFinish)} | ${p.deliverable} |\n`;
+    });
+
+    md += `\n## 2. RACI 職責與團隊成員分工\n\n`;
+    md += `| 成員 | 角色職責 | 責任定位 | 負責交付產出 |\n`;
+    md += `| --- | --- | --- | --- |\n`;
+    d.team.forEach((t, idx) => {
+      const deliverables = d.phases.map(p => p.deliverable).slice(0, 2).join('; ');
+      md += `| ${t.name} | ${t.role} | ${idx === 0 ? '當責 PM (Accountable)' : '執行主責 (Responsible)'} | ${deliverables} |\n`;
+    });
+
+    const textarea = document.createElement('textarea');
+    textarea.value = md;
+    document.body.appendChild(textarea);
+    textarea.select();
+    document.execCommand('copy');
+    document.body.removeChild(textarea);
+
+    showToast('已將全維度 Markdown 報告複製至剪貼簿！', 'success');
+  }
+
+  function exportProjectJSON() {
+    if (!currentPlanData) return;
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(currentPlanData, null, 2));
+    const downloadAnchor = document.createElement('a');
+    downloadAnchor.setAttribute("href", dataStr);
+    downloadAnchor.setAttribute("download", `${currentPlanData.name}_範例檔.json`);
+    document.body.appendChild(downloadAnchor);
+    downloadAnchor.click();
+    downloadAnchor.remove();
+    showToast('已成功匯出可重複上傳的範例 JSON 檔案！', 'success');
+  }
+
+  function triggerImportCustomPreset() {
+    toggleDropdown('presetDropdown');
+    document.getElementById('importPresetInput').click();
+  }
+
+  async function handlePresetPdfUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    if (!file.name.toLowerCase().endsWith('.pdf')) {
+      showToast('請選擇副檔名為 .pdf 的專案企劃書！', 'error');
+      event.target.value = '';
+      return;
+    }
+
+    showToast(`正在讀取並解析 PDF 文件「${file.name}」...`, 'info');
+
+    try {
+      const arrayBuffer = await file.arrayBuffer();
+      const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+      let fullText = '';
+      
+      for (let i = 1; i <= pdf.numPages; i++) {
+        const page = await pdf.getPage(i);
+        const textContent = await page.getTextContent();
+        const pageText = textContent.items.map(item => item.str).join(' ');
+        fullText += pageText + '\n';
+      }
+
+      const pdfFileName = file.name.replace(/\.pdf$/i, '');
+      
+      let detectedBudget = 1000000;
+      const budgetMatch = fullText.match(/(?:預算|金額|總價|費用|經費)[：:\s]*(?:NT\$?|TWD)?\s*([0-9,]+)/i);
+      if (budgetMatch) {
+        const bNum = parseInt(budgetMatch[1].replace(/,/g, ''), 10);
+        if (!isNaN(bNum) && bNum > 0) detectedBudget = bNum;
+      }
+
+      selectProjectTypeCard('custom');
+      document.getElementById('projectName').value = pdfFileName;
+      document.getElementById('budget').value = detectedBudget;
+      document.getElementById('customKeywordInput').value = pdfFileName;
+
+      synthesizeCustomBlueprint(pdfFileName);
+
+      goToPage(2);
+      showToast(`已成功讀取 PDF「${file.name}」並提取專案時程架構！`, 'success');
+    } catch (err) {
+      console.error(err);
+      showToast('解析 PDF 檔案失敗，請確認檔案是否密碼保護或損壞！', 'error');
+    }
+    event.target.value = '';
+  }
+
+  function saveCurrentProject() {
+    if (!currentPlanData) return;
+    const list = JSON.parse(localStorage.getItem('pf_saved_projects') || '[]');
+    const newRecord = {
+      id: Date.now(),
+      name: currentPlanData.name,
+      date: new Date().toLocaleDateString('zh-TW'),
+      data: currentPlanData
+    };
+    list.unshift(newRecord);
+    localStorage.setItem('pf_saved_projects', JSON.stringify(list));
+    showToast('專案已成功儲存至瀏覽器專案庫！', 'success');
+  }
+
+  function openStorageModal() {
+    const modal = document.getElementById('storageModal');
+    const container = document.getElementById('savedProjectsList');
+    const list = JSON.parse(localStorage.getItem('pf_saved_projects') || '[]');
+
+    if (!list.length) {
+      container.innerHTML = `<div class="text-xs text-slate-400 text-center py-8">專案庫目前沒有任何儲存紀錄。</div>`;
+    } else {
+      container.innerHTML = list.map((item) => `
+        <div class="flex items-center justify-between p-3.5 rounded-2xl border border-slate-200 dark:border-zinc-800 hover:bg-slate-50 dark:hover:bg-zinc-800/50 transition-all text-xs">
+          <div>
+            <div class="font-bold">${item.name}</div>
+            <div class="text-[11px] opacity-60 mt-0.5">儲存時間：${item.date}</div>
+          </div>
+          <div class="flex items-center gap-2">
+            <button onclick="loadSavedProject(${item.id})" class="px-3 py-1.5 rounded-xl custom-accent-bg text-white font-semibold text-[11px]">載入</button>
+            <button onclick="deleteSavedProject(${item.id})" class="p-1.5 opacity-60 hover:text-rose-500"><i class="fa-solid fa-trash-can"></i></button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    modal.classList.remove('hidden');
+  }
+
+  function closeStorageModal() {
+    document.getElementById('storageModal').classList.add('hidden');
+  }
+
+  function loadSavedProject(id) {
+    const list = JSON.parse(localStorage.getItem('pf_saved_projects') || '[]');
+    const found = list.find(x => x.id === id);
+    if (found) {
+      currentPlanData = found.data;
+      currentPlanData.startDate = new Date(currentPlanData.startDate);
+      currentPlanData.endDate = new Date(currentPlanData.endDate);
+      currentPlanData.phases.forEach(p => {
+        p.start = new Date(p.start);
+        p.end = new Date(p.end);
+        p.lateFinish = new Date(p.lateFinish);
+      });
+      renderResults();
+      closeStorageModal();
+      goToPage(3);
+      showToast(`已載入專案：「${found.name}」`, 'success');
+    }
+  }
+
+  function deleteSavedProject(id) {
+    let list = JSON.parse(localStorage.getItem('pf_saved_projects') || '[]');
+    list = list.filter(x => x.id !== id);
+    localStorage.setItem('pf_saved_projects', JSON.stringify(list));
+    openStorageModal();
+    showToast('已刪除專案紀錄', 'info');
+  }
+
+  function loadPreset(key) {
+    toggleDropdown('presetDropdown');
+    if (key === 'custom_esg') {
+      selectProjectTypeCard('custom');
+      document.getElementById('customKeywordInput').value = 'ESG 永續報告書輔導';
+      document.getElementById('projectName').value = '2026 ESG永續報告書與溫室氣體盤查輔導專案';
+      document.getElementById('budget').value = '1200000';
+      triggerSearchAnalysis();
+    } else {
+      selectProjectTypeCard(key);
+      if (key === 'exhibition') {
+        document.getElementById('projectName').value = '2026 國際半導體展成果館特裝建置';
+        document.getElementById('budget').value = '800000';
+      } else if (key === 'hardware') {
+        document.getElementById('projectName').value = 'AI 邊緣運算嵌入式控制硬體開發';
+        document.getElementById('budget').value = '5000000';
+      } else if (key === 'event') {
+        document.getElementById('projectName').value = '2026 全球科技新品發表會暨經銷商大會';
+        document.getElementById('budget').value = '1200000';
+      }
+    }
+    showToast(`已成功載入「${key}」範本資料`, 'success');
+  }
+  </script>
 </body>
 </html>
