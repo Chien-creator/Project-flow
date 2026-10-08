@@ -6,7 +6,19 @@
 <title>Project Flow Pro — 智能專案時程與資源規劃系統</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<!-- PWA 宣告 -->
+<link rel="manifest" href="./manifest.json">
+<meta name="theme-color" content="#6366f1">
+<link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/1087/1087815.png">
+
 <script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js');
+    });
+  }
+</script>
+  <script>
 tailwind.config = {
   darkMode: 'class',
   theme: {
