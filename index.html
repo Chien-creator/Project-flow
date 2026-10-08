@@ -37,22 +37,34 @@
   :root {
     --accent-primary: #6366f1;
     --bg-main: #f8fafc;
+    --card-bg: #ffffff;
     --text-main: #0f172a;
+    --border-color: #e2e8f0;
+    --muted-text: #64748b;
     --radius-main: 1.5rem;
   }
+
   body {
     background-color: var(--bg-main);
     color: var(--text-main);
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    transition: background-color 0.3s ease, color 0.3s ease;
   }
+
+  /* Dynamic CSS variable bindings */
   .custom-accent-bg { background-color: var(--accent-primary) !important; }
   .custom-accent-text { color: var(--accent-primary) !important; }
   .custom-accent-border { border-color: var(--accent-primary) !important; }
-  
+  .custom-card-bg { background-color: var(--card-bg) !important; }
+  .custom-card-border { border-color: var(--border-color) !important; }
+  .custom-main-text { color: var(--text-main) !important; }
+
   .type-card {
     border-radius: var(--radius-main);
     transition: all 0.25s ease;
     cursor: pointer;
+    background-color: var(--card-bg);
+    border-color: var(--border-color);
   }
   .type-card:hover {
     transform: translateY(-2px);
@@ -60,7 +72,7 @@
   }
   .type-card.active {
     border-color: var(--accent-primary);
-    background-color: rgba(99, 102, 241, 0.04);
+    background-color: var(--card-bg);
     box-shadow: 0 0 0 2px var(--accent-primary);
   }
   
@@ -72,7 +84,7 @@
     top: 36px;
     bottom: -10px;
     width: 2px;
-    background-color: #e2e8f0;
+    background-color: var(--border-color);
   }
   .timeline-line:last-child::before {
     display: none;
@@ -80,7 +92,7 @@
 
   /* PRINT STYLES - Ensures ALL tabs and sections are visible when printing/exporting PDF */
   @media print {
-    header, #presetDropdown, #headerExportMenu, #storageModal, #toastContainer, button, .no-print {
+    header, #presetDropdown, #headerExportMenu, #storageModal, #themeModal, #toastContainer, button, .no-print {
       display: none !important;
     }
     body {
@@ -107,15 +119,15 @@
 <body class="min-h-screen flex flex-col antialiased selection:bg-indigo-500 selection:text-white">
 
   <!-- Top Navigation Header -->
-  <header class="sticky top-0 z-40 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-md border-b border-slate-200/80 dark:border-zinc-800">
+  <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-sm custom-card-bg custom-card-border">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
       <div class="flex items-center gap-3">
         <div class="w-10 h-10 rounded-2xl custom-accent-bg text-white flex items-center justify-center font-black text-xl shadow-md">
           P
         </div>
         <div>
-          <h1 class="font-extrabold text-base sm:text-lg tracking-tight">Project Flow Pro</h1>
-          <p class="text-[11px] opacity-60 hidden sm:block">智能專案時程與資源規劃系統</p>
+          <h1 class="font-extrabold text-base sm:text-lg tracking-tight custom-main-text">Project Flow Pro</h1>
+          <p class="text-[11px] opacity-60 hidden sm:block text-slate-500">智能專案時程與資源規劃系統</p>
         </div>
       </div>
 
@@ -125,58 +137,64 @@
           <span class="w-7 h-7 rounded-full custom-accent-bg text-white flex items-center justify-center text-xs shadow-md">1</span>
           <span>選取專案範本</span>
         </div>
-        <div class="w-8 h-0.5 bg-slate-200 dark:bg-zinc-800 relative overflow-hidden">
+        <div class="w-8 h-0.5 bg-slate-200 relative overflow-hidden">
           <div id="stepLine1" class="absolute top-0 left-0 bottom-0 custom-accent-bg w-0 transition-all duration-300"></div>
         </div>
         <div id="stepIndicator2" class="flex items-center gap-2 font-semibold text-xs sm:text-sm text-slate-400">
-          <span id="stepBadge2" class="w-7 h-7 rounded-full bg-slate-200 dark:bg-zinc-800 text-slate-500 flex items-center justify-center text-xs">2</span>
+          <span id="stepBadge2" class="w-7 h-7 rounded-full bg-slate-200 text-slate-500 flex items-center justify-center text-xs">2</span>
           <span>設定參數與團隊</span>
         </div>
-        <div class="w-8 h-0.5 bg-slate-200 dark:bg-zinc-800 relative overflow-hidden">
+        <div class="w-8 h-0.5 bg-slate-200 relative overflow-hidden">
           <div id="stepLine2" class="absolute top-0 left-0 bottom-0 custom-accent-bg w-0 transition-all duration-300"></div>
         </div>
         <div id="stepIndicator3" class="flex items-center gap-2 font-semibold text-xs sm:text-sm text-slate-400">
-          <span id="stepBadge3" class="w-7 h-7 rounded-full bg-slate-200 dark:bg-zinc-800 text-slate-500 flex items-center justify-center text-xs">3</span>
+          <span id="stepBadge3" class="w-7 h-7 rounded-full bg-slate-200 text-slate-500 flex items-center justify-center text-xs">3</span>
           <span>檢視報告與圖表</span>
         </div>
       </div>
 
       <!-- Action Tools -->
       <div class="flex items-center gap-2">
+        <!-- Visual Theme Button (NEW) -->
+        <button onclick="openThemeModal()" class="px-3 py-2 rounded-xl text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors flex items-center gap-1.5 shadow-sm">
+          <i class="fa-solid fa-palette custom-accent-text"></i>
+          <span>視覺風格</span>
+        </button>
+
         <!-- Storage Modal Trigger -->
-        <button onclick="openStorageModal()" class="px-3 py-2 rounded-xl text-xs font-semibold bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 transition-colors flex items-center gap-1.5">
+        <button onclick="openStorageModal()" class="px-3 py-2 rounded-xl text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors flex items-center gap-1.5 shadow-sm">
           <i class="fa-solid fa-box-archive custom-accent-text"></i>
           <span>專案庫</span>
         </button>
 
         <!-- Preset Menu Dropdown -->
         <div class="relative">
-          <button onclick="toggleDropdown('presetDropdown')" class="px-3 py-2 rounded-xl text-xs font-semibold border border-slate-200 dark:border-zinc-800 hover:bg-slate-50 dark:hover:bg-zinc-900 transition-colors flex items-center gap-1.5">
+          <button onclick="toggleDropdown('presetDropdown')" class="px-3 py-2 rounded-xl text-xs font-semibold border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 transition-colors flex items-center gap-1.5 shadow-sm">
             <i class="fa-solid fa-wand-magic-sparkles custom-accent-text"></i>
             <span>快速載入</span>
             <i class="fa-solid fa-chevron-down text-[10px] opacity-60"></i>
           </button>
           
-          <div id="presetDropdown" class="hidden absolute right-0 mt-2 w-64 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shadow-xl p-2 z-50 text-xs space-y-1">
+          <div id="presetDropdown" class="hidden absolute right-0 mt-2 w-64 rounded-2xl bg-white border border-slate-200 shadow-xl p-2 z-50 text-xs space-y-1">
             <div class="px-3 py-2 font-bold text-slate-400 text-[10px] tracking-wider uppercase">預設範例專案</div>
-            <button onclick="loadPreset('exhibition')" class="w-full text-left px-3 py-2 rounded-xl hover:bg-slate-100 dark:hover:bg-zinc-800 flex items-center gap-2">
+            <button onclick="loadPreset('exhibition')" class="w-full text-left px-3 py-2 rounded-xl hover:bg-slate-100 flex items-center gap-2 text-slate-800">
               <i class="fa-solid fa-archway text-indigo-500"></i>
               <span>2026 國際半導體展特裝建置</span>
             </button>
-            <button onclick="loadPreset('hardware')" class="w-full text-left px-3 py-2 rounded-xl hover:bg-slate-100 dark:hover:bg-zinc-800 flex items-center gap-2">
+            <button onclick="loadPreset('hardware')" class="w-full text-left px-3 py-2 rounded-xl hover:bg-slate-100 flex items-center gap-2 text-slate-800">
               <i class="fa-solid fa-microchip text-emerald-500"></i>
               <span>AI 邊緣運算硬體開發</span>
             </button>
-            <button onclick="loadPreset('event')" class="w-full text-left px-3 py-2 rounded-xl hover:bg-slate-100 dark:hover:bg-zinc-800 flex items-center gap-2">
+            <button onclick="loadPreset('event')" class="w-full text-left px-3 py-2 rounded-xl hover:bg-slate-100 flex items-center gap-2 text-slate-800">
               <i class="fa-solid fa-bullhorn text-amber-500"></i>
               <span>全球科技新品發表會</span>
             </button>
-            <button onclick="loadPreset('custom_esg')" class="w-full text-left px-3 py-2 rounded-xl hover:bg-slate-100 dark:hover:bg-zinc-800 flex items-center gap-2">
+            <button onclick="loadPreset('custom_esg')" class="w-full text-left px-3 py-2 rounded-xl hover:bg-slate-100 flex items-center gap-2 text-slate-800">
               <i class="fa-solid fa-leaf text-teal-500"></i>
               <span>ESG 永續報告書與盤查專案</span>
             </button>
-            <div class="pt-2 border-t border-slate-100 dark:border-zinc-800">
-              <button onclick="triggerImportCustomPreset()" class="w-full text-left px-3 py-2 rounded-xl custom-accent-text hover:bg-indigo-50 dark:hover:bg-indigo-950/50 font-bold flex items-center gap-2">
+            <div class="pt-2 border-t border-slate-100">
+              <button onclick="triggerImportCustomPreset()" class="w-full text-left px-3 py-2 rounded-xl custom-accent-text hover:bg-indigo-50 font-bold flex items-center gap-2">
                 <i class="fa-solid fa-file-pdf"></i>
                 <span>📄 上傳自訂 PDF 範例 (.pdf)</span>
               </button>
@@ -192,20 +210,20 @@
             <i class="fa-solid fa-chevron-down text-[10px] opacity-80"></i>
           </button>
           
-          <div id="headerExportMenu" class="hidden absolute right-0 mt-2 w-52 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shadow-xl p-2 z-50 text-xs space-y-1">
-            <button onclick="exportExcelMultiSheet()" class="w-full text-left px-3 py-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-zinc-800 flex items-center gap-2 font-semibold">
+          <div id="headerExportMenu" class="hidden absolute right-0 mt-2 w-52 rounded-2xl bg-white border border-slate-200 shadow-xl p-2 z-50 text-xs space-y-1">
+            <button onclick="exportExcelMultiSheet()" class="w-full text-left px-3 py-2.5 rounded-xl hover:bg-slate-100 flex items-center gap-2 font-semibold text-slate-800">
               <i class="fa-solid fa-file-excel text-emerald-600 text-sm"></i>
               <span>Excel 試算表 (.xlsx 多工作表)</span>
             </button>
-            <button onclick="window.print()" class="w-full text-left px-3 py-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-zinc-800 flex items-center gap-2 font-semibold">
+            <button onclick="window.print()" class="w-full text-left px-3 py-2.5 rounded-xl hover:bg-slate-100 flex items-center gap-2 font-semibold text-slate-800">
               <i class="fa-solid fa-file-pdf text-rose-500 text-sm"></i>
               <span>PDF 報告檔 / 全觀列印</span>
             </button>
-            <button onclick="exportICS()" class="w-full text-left px-3 py-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-zinc-800 flex items-center gap-2 font-semibold">
+            <button onclick="exportICS()" class="w-full text-left px-3 py-2.5 rounded-xl hover:bg-slate-100 flex items-center gap-2 font-semibold text-slate-800">
               <i class="fa-solid fa-calendar-days text-sky-500 text-sm"></i>
               <span>行事曆檔案 (.ics)</span>
             </button>
-            <button onclick="exportMarkdown()" class="w-full text-left px-3 py-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-zinc-800 flex items-center gap-2 font-semibold">
+            <button onclick="exportMarkdown()" class="w-full text-left px-3 py-2.5 rounded-xl hover:bg-slate-100 flex items-center gap-2 font-semibold text-slate-800">
               <i class="fa-solid fa-code text-indigo-500 text-sm"></i>
               <span>Markdown 全內容檔</span>
             </button>
@@ -225,8 +243,8 @@
         <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold custom-accent-bg text-white shadow-sm">
           <i class="fa-solid fa-layer-group"></i> STEP 01
         </span>
-        <h2 class="text-2xl sm:text-3xl font-black tracking-tight">從想法到落地，打造清晰可執行的專案時程</h2>
-        <p class="text-xs sm:text-sm opacity-70">選取最符合您業務場景的專案類型，系統將自動套用經驗參數、維度權重與人力角色矩陣。</p>
+        <h2 class="text-2xl sm:text-3xl font-black tracking-tight custom-main-text">從想法到落地，打造清晰可執行的專案時程</h2>
+        <p class="text-xs sm:text-sm text-slate-600">選取最符合您業務場景的專案類型，系統將自動套用經驗參數、維度權重與人力角色矩陣。</p>
       </div>
 
       <!-- Type Cards Grid -->
@@ -235,7 +253,7 @@
       </div>
 
       <!-- Custom Keyword Search Wrapper (Shows when 'custom' is selected) -->
-      <div id="customKeywordWrapper" class="hidden rounded-3xl border-2 border-indigo-500/30 bg-indigo-50/50 dark:bg-indigo-950/20 p-6 space-y-4">
+      <div id="customKeywordWrapper" class="hidden rounded-3xl border-2 border-indigo-200 bg-indigo-50/70 p-6 space-y-4 shadow-sm">
         <div class="flex items-center justify-between gap-4">
           <div class="flex items-center gap-2 font-extrabold text-sm custom-accent-text">
             <i class="fa-solid fa-wand-magic-sparkles"></i>
@@ -248,14 +266,14 @@
         </div>
 
         <div class="flex flex-col sm:flex-row gap-3">
-          <input type="text" id="customKeywordInput" class="flex-1 rounded-2xl border border-slate-300 dark:border-zinc-700 px-4 py-3 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-zinc-900" placeholder="例如：ESG 永續報告書輔導、新品牌形象設計、雲端架構遷移..." value="ESG 永續報告書輔導">
+          <input type="text" id="customKeywordInput" class="flex-1 rounded-2xl border border-slate-300 px-4 py-3 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white text-slate-900" placeholder="例如：ESG 永續報告書輔導、新品牌形象設計、雲端架構遷移..." value="ESG 永續報告書輔導">
           <button onclick="triggerSearchAnalysis()" class="px-6 py-3 rounded-2xl custom-accent-bg text-white font-bold text-xs shadow-lg hover:opacity-95 transition-all flex items-center justify-center gap-2 shrink-0">
             <i id="searchIcon" class="fa-solid fa-magnifying-glass"></i>
             <span>智慧解析專案架構</span>
           </button>
         </div>
 
-        <div id="customSearchStatusText" class="text-xs font-medium opacity-70 flex items-center gap-2">
+        <div id="customSearchStatusText" class="text-xs font-medium text-slate-600 flex items-center gap-2">
           <span>✨ 準備完成，點擊上方按鈕開始檢索專案生命週期...</span>
         </div>
       </div>
@@ -288,22 +306,22 @@
 
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
         <!-- Basic Parameters (Left Column) -->
-        <div class="lg:col-span-7 space-y-6 bg-white/80 dark:bg-zinc-900/80 rounded-3xl p-6 border border-slate-200/80 dark:border-zinc-800 shadow-sm">
-          <h3 class="font-extrabold text-base flex items-center gap-2 border-b border-slate-100 dark:border-zinc-800 pb-3">
+        <div class="lg:col-span-7 space-y-6 bg-white custom-card-bg rounded-3xl p-6 border border-slate-200/80 custom-card-border shadow-sm">
+          <h3 class="font-extrabold text-base custom-main-text flex items-center gap-2 border-b border-slate-100 pb-3">
             <i class="fa-solid fa-sliders custom-accent-text"></i>
             <span>專案基本參數與時程設定</span>
           </h3>
 
           <div class="space-y-4 text-xs">
             <div>
-              <label class="block font-bold mb-1.5 opacity-80">專案名稱 / 計畫代號</label>
-              <input type="text" id="projectName" class="w-full rounded-2xl border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 px-4 py-3 font-semibold focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="請輸入專案完整名稱" value="2026 國際半導體展成果館特裝建置">
+              <label class="block font-bold mb-1.5 opacity-80 custom-main-text">專案名稱 / 計畫代號</label>
+              <input type="text" id="projectName" class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 font-semibold focus:ring-2 focus:ring-indigo-500 focus:outline-none text-slate-900" placeholder="請輸入專案完整名稱" value="2026 國際半導體展成果館特裝建置">
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label class="block font-bold mb-1.5 opacity-80">專案規模 (Scale)</label>
-                <select id="scale" class="w-full rounded-2xl border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 px-4 py-3 font-semibold focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                <label class="block font-bold mb-1.5 opacity-80 custom-main-text">專案規模 (Scale)</label>
+                <select id="scale" class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 font-semibold focus:ring-2 focus:ring-indigo-500 focus:outline-none text-slate-900">
                   <option value="small">小型專案 (精實製作)</option>
                   <option value="medium" selected>中型專案 (標準規格)</option>
                   <option value="large">大型專案 (旗艦規格)</option>
@@ -311,8 +329,8 @@
               </div>
 
               <div>
-                <label class="block font-bold mb-1.5 opacity-80">工期計算模式</label>
-                <select id="workDayMode" class="w-full rounded-2xl border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 px-4 py-3 font-semibold focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                <label class="block font-bold mb-1.5 opacity-80 custom-main-text">工期計算模式</label>
+                <select id="workDayMode" class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 font-semibold focus:ring-2 focus:ring-indigo-500 focus:outline-none text-slate-900">
                   <option value="calendar">日曆日 (Calendar Days)</option>
                   <option value="workday" selected>工作天 (扣除雙休假日)</option>
                 </select>
@@ -321,25 +339,25 @@
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label class="block font-bold mb-1.5 opacity-80">預計啟動日期 (Start Date)</label>
-                <input type="date" id="startDate" class="w-full rounded-2xl border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 px-4 py-3 font-semibold focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                <label class="block font-bold mb-1.5 opacity-80 custom-main-text">預計啟動日期 (Start Date)</label>
+                <input type="date" id="startDate" class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 font-semibold focus:ring-2 focus:ring-indigo-500 focus:outline-none text-slate-900">
               </div>
 
               <div>
-                <label class="block font-bold mb-1.5 opacity-80">預計完成日期 (End Date)</label>
-                <input type="date" id="endDate" class="w-full rounded-2xl border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 px-4 py-3 font-semibold focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                <label class="block font-bold mb-1.5 opacity-80 custom-main-text">預計完成日期 (End Date)</label>
+                <input type="date" id="endDate" class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 font-semibold focus:ring-2 focus:ring-indigo-500 focus:outline-none text-slate-900">
               </div>
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label class="block font-bold mb-1.5 opacity-80">專案規劃總預算 (TWD)</label>
-                <input type="number" id="budget" class="w-full rounded-2xl border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 px-4 py-3 font-semibold focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="例如：1200000" value="800000">
+                <label class="block font-bold mb-1.5 opacity-80 custom-main-text">專案規劃總預算 (TWD)</label>
+                <input type="number" id="budget" class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 font-semibold focus:ring-2 focus:ring-indigo-500 focus:outline-none text-slate-900" placeholder="例如：1200000" value="800000">
               </div>
 
               <div>
-                <label class="block font-bold mb-1.5 opacity-80">風險預備金比率 (Contingency)</label>
-                <select id="contingencyRate" class="w-full rounded-2xl border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 px-4 py-3 font-semibold focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                <label class="block font-bold mb-1.5 opacity-80 custom-main-text">風險預備金比率 (Contingency)</label>
+                <select id="contingencyRate" class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 font-semibold focus:ring-2 focus:ring-indigo-500 focus:outline-none text-slate-900">
                   <option value="0.05">5% (常規風險)</option>
                   <option value="0.10" selected>10% (標準風險)</option>
                   <option value="0.15">15% (高不確定性)</option>
@@ -350,8 +368,8 @@
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label class="block font-bold mb-1.5 opacity-80">內部簽核 / 採購程序預留</label>
-                <select id="internalProcess" class="w-full rounded-2xl border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 px-4 py-3 font-semibold focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                <label class="block font-bold mb-1.5 opacity-80 custom-main-text">內部簽核 / 採購程序預留</label>
+                <select id="internalProcess" class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 font-semibold focus:ring-2 focus:ring-indigo-500 focus:outline-none text-slate-900">
                   <option value="none">無 (流程極簡直通)</option>
                   <option value="short" selected>7 天 (快速簽核)</option>
                   <option value="medium">14 天 (標準採購流程)</option>
@@ -360,8 +378,8 @@
               </div>
 
               <div>
-                <label class="block font-bold mb-1.5 opacity-80">是否有不可延後之硬性截止日？</label>
-                <select id="hardDeadline" class="w-full rounded-2xl border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 px-4 py-3 font-semibold focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                <label class="block font-bold mb-1.5 opacity-80 custom-main-text">是否有不可延後之硬性截止日？</label>
+                <select id="hardDeadline" class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 font-semibold focus:ring-2 focus:ring-indigo-500 focus:outline-none text-slate-900">
                   <option value="no">否 (可彈性調整時程)</option>
                   <option value="yes" selected>是 (設有實體展期/發表會死線)</option>
                 </select>
@@ -369,17 +387,17 @@
             </div>
 
             <div>
-              <label class="block font-bold mb-1.5 opacity-80">備註說明 / 特殊需求限制</label>
-              <textarea id="notes" rows="3" class="w-full rounded-2xl border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 px-4 py-3 font-medium focus:ring-2 focus:ring-indigo-500 focus:outline-none resize-none" placeholder="補充說明專案特定注意事項..."></textarea>
+              <label class="block font-bold mb-1.5 opacity-80 custom-main-text">備註說明 / 特殊需求限制</label>
+              <textarea id="notes" rows="3" class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 font-medium focus:ring-2 focus:ring-indigo-500 focus:outline-none resize-none text-slate-900" placeholder="補充說明專案特定注意事項..."></textarea>
             </div>
           </div>
         </div>
 
         <!-- Team Roles Allocation (Right Column) -->
-        <div class="lg:col-span-5 space-y-6 bg-white/80 dark:bg-zinc-900/80 rounded-3xl p-6 border border-slate-200/80 dark:border-zinc-800 shadow-sm flex flex-col justify-between">
+        <div class="lg:col-span-5 space-y-6 bg-white custom-card-bg rounded-3xl p-6 border border-slate-200/80 custom-card-border shadow-sm flex flex-col justify-between">
           <div class="space-y-4">
-            <div class="flex items-center justify-between border-b border-slate-100 dark:border-zinc-800 pb-3">
-              <h3 class="font-extrabold text-base flex items-center gap-2">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+              <h3 class="font-extrabold text-base custom-main-text flex items-center gap-2">
                 <i class="fa-solid fa-users custom-accent-text"></i>
                 <span>專案團隊人力與職責配置</span>
               </h3>
@@ -388,15 +406,15 @@
               </button>
             </div>
 
-            <p class="text-xs opacity-70">設定團隊參與成員及其職責角色，系統將自動建構 RACI 職責轉移矩陣與交付物責任歸屬。</p>
+            <p class="text-xs text-slate-600">設定團隊參與成員及其職責角色，系統將自動建構 RACI 職責轉移矩陣與交付物責任歸屬。</p>
 
             <div id="peopleContainer" class="space-y-3 max-h-[380px] overflow-y-auto pr-1">
               <!-- Dynamically populated via addPersonRow() -->
             </div>
           </div>
 
-          <div class="pt-6 border-t border-slate-100 dark:border-zinc-800 flex items-center justify-between gap-4">
-            <button onclick="goToPage(1)" class="px-6 py-3 rounded-2xl bg-slate-100 dark:bg-zinc-800 font-bold text-xs hover:bg-slate-200 transition-colors">
+          <div class="pt-6 border-t border-slate-100 flex items-center justify-between gap-4">
+            <button onclick="goToPage(1)" class="px-6 py-3 rounded-2xl bg-slate-100 font-bold text-xs hover:bg-slate-200 text-slate-700 transition-colors">
               <i class="fa-solid fa-arrow-left mr-1"></i>上一步
             </button>
             <button onclick="generatePlan()" class="flex-1 py-3.5 rounded-2xl custom-accent-bg text-white font-extrabold text-sm shadow-xl hover:opacity-95 transition-all flex items-center justify-center gap-2">
@@ -411,29 +429,29 @@
     <!-- PAGE 3: Results & Analytics Reports -->
     <section id="results" class="hidden space-y-8">
       <!-- Title & Summary Banner -->
-      <div class="rounded-3xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 p-6 shadow-sm space-y-4">
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 dark:border-zinc-800 pb-4">
+      <div class="rounded-3xl border border-slate-200/80 custom-card-border bg-white custom-card-bg p-6 shadow-sm space-y-4">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 pb-4">
           <div>
             <div class="flex items-center gap-2 mb-1">
-              <span id="searchSourceBadge" class="hidden px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300">
+              <span id="searchSourceBadge" class="hidden px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-indigo-100 text-indigo-800">
                 <i class="fa-solid fa-magnifying-glass mr-1"></i>Google 行情解構
               </span>
               <span id="healthBadge" class="px-3 py-1 rounded-2xl font-semibold text-xs bg-indigo-100 text-indigo-800">
                 健康度評估載入中...
               </span>
             </div>
-            <h2 id="resTitle" class="text-2xl font-black tracking-tight">專案名稱</h2>
-            <div id="resMeta" class="flex flex-wrap items-center gap-4 text-xs opacity-70 mt-1 font-medium">
+            <h2 id="resTitle" class="text-2xl font-black tracking-tight custom-main-text">專案名稱</h2>
+            <div id="resMeta" class="flex flex-wrap items-center gap-4 text-xs text-slate-600 mt-1 font-medium">
               <!-- Dynamic metadata -->
             </div>
           </div>
 
           <div class="flex items-center gap-2 shrink-0">
-            <button onclick="saveCurrentProject()" class="px-4 py-2.5 rounded-2xl bg-slate-100 dark:bg-zinc-800 font-bold text-xs hover:bg-slate-200 transition-colors flex items-center gap-1.5">
+            <button onclick="saveCurrentProject()" class="px-4 py-2.5 rounded-2xl bg-slate-100 text-slate-700 font-bold text-xs hover:bg-slate-200 transition-colors flex items-center gap-1.5">
               <i class="fa-solid fa-bookmark custom-accent-text"></i>
               <span>儲存專案</span>
             </button>
-            <button onclick="exportProjectJSON()" class="px-4 py-2.5 rounded-2xl bg-slate-100 dark:bg-zinc-800 font-bold text-xs hover:bg-slate-200 transition-colors flex items-center gap-1.5">
+            <button onclick="exportProjectJSON()" class="px-4 py-2.5 rounded-2xl bg-slate-100 text-slate-700 font-bold text-xs hover:bg-slate-200 transition-colors flex items-center gap-1.5">
               <i class="fa-solid fa-download"></i>
               <span>匯出範例檔 (.json)</span>
             </button>
@@ -451,26 +469,26 @@
       </div>
 
       <!-- View Navigation Tabs (Hidden during print) -->
-      <div class="flex items-center gap-2 border-b border-slate-200 dark:border-zinc-800 pb-2 no-print">
+      <div class="flex items-center gap-2 border-b border-slate-200 pb-2 no-print">
         <button id="tabGanttBtn" onclick="switchView('gantt')" class="px-4 py-2 rounded-xl text-xs font-bold transition-all custom-accent-bg text-white shadow-sm">
           <i class="fa-solid fa-chart-gantt mr-1.5"></i>甘特圖 (Gantt Chart)
         </button>
-        <button id="tabTimelineBtn" onclick="switchView('timeline')" class="px-4 py-2 rounded-xl text-xs font-bold transition-all opacity-60 hover:bg-slate-200 dark:hover:bg-zinc-800">
+        <button id="tabTimelineBtn" onclick="switchView('timeline')" class="px-4 py-2 rounded-xl text-xs font-bold transition-all opacity-60 hover:bg-slate-200 text-slate-700">
           <i class="fa-solid fa-list-check mr-1.5"></i>時程清單與交付物
         </button>
-        <button id="tabRaciBtn" onclick="switchView('raci')" class="px-4 py-2 rounded-xl text-xs font-bold transition-all opacity-60 hover:bg-slate-200 dark:hover:bg-zinc-800">
+        <button id="tabRaciBtn" onclick="switchView('raci')" class="px-4 py-2 rounded-xl text-xs font-bold transition-all opacity-60 hover:bg-slate-200 text-slate-700">
           <i class="fa-solid fa-people-arrows mr-1.5"></i>RACI 矩陣與分工
         </button>
       </div>
 
       <!-- View Container 1: Gantt Chart -->
-      <div id="viewGantt" class="rounded-3xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 p-6 shadow-sm overflow-x-auto relative">
-        <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-100 dark:border-zinc-800 no-print" data-html2canvas-ignore="true">
-          <h3 class="font-extrabold text-base flex items-center gap-2">
+      <div id="viewGantt" class="rounded-3xl border border-slate-200/80 custom-card-border bg-white custom-card-bg p-6 shadow-sm overflow-x-auto relative">
+        <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-100 no-print" data-html2canvas-ignore="true">
+          <h3 class="font-extrabold text-base custom-main-text flex items-center gap-2">
             <i class="fa-solid fa-chart-gantt custom-accent-text"></i>
             <span>甘特圖 (Gantt Chart)</span>
           </h3>
-          <button onclick="downloadSectionAsImage('viewGantt', '甘特圖')" class="px-3.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-xs font-bold transition-all flex items-center gap-1.5 custom-accent-text shadow-sm hover:scale-105">
+          <button onclick="downloadSectionAsImage('viewGantt', '甘特圖')" class="px-3.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-all flex items-center gap-1.5 custom-accent-text shadow-sm hover:scale-105">
             <i class="fa-solid fa-download"></i>
             <span>下載圖檔 (PNG)</span>
           </button>
@@ -482,13 +500,13 @@
       </div>
 
       <!-- View Container 2: Timeline List -->
-      <div id="viewTimeline" class="hidden rounded-3xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 p-6 shadow-sm relative">
-        <div class="flex items-center justify-between mb-6 pb-3 border-b border-slate-100 dark:border-zinc-800 no-print" data-html2canvas-ignore="true">
-          <h3 class="font-extrabold text-base flex items-center gap-2">
+      <div id="viewTimeline" class="hidden rounded-3xl border border-slate-200/80 custom-card-border bg-white custom-card-bg p-6 shadow-sm relative">
+        <div class="flex items-center justify-between mb-6 pb-3 border-b border-slate-100 no-print" data-html2canvas-ignore="true">
+          <h3 class="font-extrabold text-base custom-main-text flex items-center gap-2">
             <i class="fa-solid fa-list-check custom-accent-text"></i>
             <span>時程清單與交付物 (Timeline & Deliverables)</span>
           </h3>
-          <button onclick="downloadSectionAsImage('viewTimeline', '時程清單與交付物')" class="px-3.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-xs font-bold transition-all flex items-center gap-1.5 custom-accent-text shadow-sm hover:scale-105">
+          <button onclick="downloadSectionAsImage('viewTimeline', '時程清單與交付物')" class="px-3.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-all flex items-center gap-1.5 custom-accent-text shadow-sm hover:scale-105">
             <i class="fa-solid fa-download"></i>
             <span>下載圖檔 (PNG)</span>
           </button>
@@ -500,13 +518,13 @@
       </div>
 
       <!-- View Container 3: RACI Matrix -->
-      <div id="viewRaci" class="hidden rounded-3xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 p-6 shadow-sm overflow-x-auto relative">
-        <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-100 dark:border-zinc-800 no-print" data-html2canvas-ignore="true">
-          <h3 class="font-extrabold text-base flex items-center gap-2">
+      <div id="viewRaci" class="hidden rounded-3xl border border-slate-200/80 custom-card-border bg-white custom-card-bg p-6 shadow-sm overflow-x-auto relative">
+        <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-100 no-print" data-html2canvas-ignore="true">
+          <h3 class="font-extrabold text-base custom-main-text flex items-center gap-2">
             <i class="fa-solid fa-people-arrows custom-accent-text"></i>
             <span>RACI 矩陣與分工 (RACI Matrix & Task Breakdown)</span>
           </h3>
-          <button onclick="downloadSectionAsImage('viewRaci', 'RACI矩陣與分工')" class="px-3.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-xs font-bold transition-all flex items-center gap-1.5 custom-accent-text shadow-sm hover:scale-105">
+          <button onclick="downloadSectionAsImage('viewRaci', 'RACI矩陣與分工')" class="px-3.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-all flex items-center gap-1.5 custom-accent-text shadow-sm hover:scale-105">
             <i class="fa-solid fa-download"></i>
             <span>下載圖檔 (PNG)</span>
           </button>
@@ -520,25 +538,25 @@
       <!-- Budget & Risk Analysis Section -->
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
         <!-- Budget Breakdown -->
-        <div class="lg:col-span-6 rounded-3xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 p-6 shadow-sm space-y-4">
-          <h3 class="font-extrabold text-base flex items-center justify-between border-b border-slate-100 dark:border-zinc-800 pb-3">
+        <div class="lg:col-span-6 rounded-3xl border border-slate-200/80 custom-card-border bg-white custom-card-bg p-6 shadow-sm space-y-4">
+          <h3 class="font-extrabold text-base custom-main-text flex items-center justify-between border-b border-slate-100 pb-3">
             <span class="flex items-center gap-2">
               <i class="fa-solid fa-calculator custom-accent-text"></i>
               <span>預算結構拆解與市場行情說明</span>
             </span>
-            <span id="budgetRefNote" class="text-[11px] font-normal opacity-60">參考市場標準行情</span>
+            <span id="budgetRefNote" class="text-[11px] font-normal text-slate-500">參考市場標準行情</span>
           </h3>
           <div id="budgetBreakdown" class="space-y-2">
             <!-- Dynamically populated budget items -->
           </div>
-          <div id="budgetAdvice" class="pt-3 border-t border-slate-100 dark:border-zinc-800 text-xs opacity-80 leading-relaxed space-y-1">
+          <div id="budgetAdvice" class="pt-3 border-t border-slate-100 text-xs text-slate-700 leading-relaxed space-y-1">
             <!-- Budget recommendations -->
           </div>
         </div>
 
         <!-- Risk Assessment -->
-        <div class="lg:col-span-6 rounded-3xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 p-6 shadow-sm space-y-4">
-          <h3 class="font-extrabold text-base flex items-center gap-2 border-b border-slate-100 dark:border-zinc-800 pb-3">
+        <div class="lg:col-span-6 rounded-3xl border border-slate-200/80 custom-card-border bg-white custom-card-bg p-6 shadow-sm space-y-4">
+          <h3 class="font-extrabold text-base custom-main-text flex items-center gap-2 border-b border-slate-100 pb-3">
             <i class="fa-solid fa-shield-halved text-amber-500"></i>
             <span>專案風險評估與因應策略</span>
           </h3>
@@ -550,10 +568,140 @@
     </section>
   </main>
 
+  <!-- Visual Theme Customization Modal -->
+  <div id="themeModal" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="max-w-lg w-full rounded-3xl bg-white custom-card-bg border border-slate-200 custom-card-border p-6 shadow-2xl space-y-6 text-slate-900 custom-main-text">
+      
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between border-b border-slate-200 pb-4">
+        <div>
+          <h3 class="font-extrabold text-lg flex items-center gap-2">
+            <i class="fa-solid fa-palette custom-accent-text"></i>
+            <span>視覺風格與色彩設定</span>
+          </h3>
+          <p class="text-xs text-slate-500 mt-0.5">預設內建風格均通過視覺高可視性與高對比測試</p>
+        </div>
+        <button onclick="closeThemeModal()" class="p-1.5 opacity-60 hover:opacity-100 transition-opacity"><i class="fa-solid fa-xmark text-xl"></i></button>
+      </div>
+
+      <!-- Presets Selection Grid -->
+      <div class="space-y-3">
+        <label class="block text-xs font-bold uppercase tracking-wider text-slate-400">精選風格主題 Presets</label>
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+          <!-- Classic Indigo -->
+          <button onclick="applyPresetTheme('classic')" class="p-3 rounded-2xl border border-slate-200 hover:border-indigo-500 text-left transition-all space-y-2 bg-slate-50 hover:shadow-md">
+            <div class="flex items-center gap-1.5">
+              <span class="w-4 h-4 rounded-full bg-indigo-600"></span>
+              <span class="w-4 h-4 rounded-full bg-slate-100 border border-slate-300"></span>
+              <span class="w-4 h-4 rounded-full bg-slate-900"></span>
+            </div>
+            <div class="font-bold text-xs text-slate-800">經典靛藍 (Default)</div>
+          </button>
+
+          <!-- Bauhaus -->
+          <button onclick="applyPresetTheme('bauhaus')" class="p-3 rounded-2xl border border-slate-200 hover:border-red-500 text-left transition-all space-y-2 bg-[#F8F6F0] hover:shadow-md">
+            <div class="flex items-center gap-1.5">
+              <span class="w-4 h-4 rounded-full bg-[#D62828]"></span>
+              <span class="w-4 h-4 rounded-full bg-[#003049]"></span>
+              <span class="w-4 h-4 rounded-full bg-[#F77F00]"></span>
+            </div>
+            <div class="font-bold text-xs text-slate-900">包浩斯風格</div>
+          </button>
+
+          <!-- Muji Style -->
+          <button onclick="applyPresetTheme('muji')" class="p-3 rounded-2xl border border-slate-200 hover:border-amber-700 text-left transition-all space-y-2 bg-[#FDFBF7] hover:shadow-md">
+            <div class="flex items-center gap-1.5">
+              <span class="w-4 h-4 rounded-full bg-[#8C6D53]"></span>
+              <span class="w-4 h-4 rounded-full bg-[#E6E1DA]"></span>
+              <span class="w-4 h-4 rounded-full bg-[#2D2B2A]"></span>
+            </div>
+            <div class="font-bold text-xs text-[#2D2B2A]">無印風 (Muji)</div>
+          </button>
+
+          <!-- Minimalist -->
+          <button onclick="applyPresetTheme('minimalist')" class="p-3 rounded-2xl border border-slate-200 hover:border-slate-800 text-left transition-all space-y-2 bg-slate-100 hover:shadow-md">
+            <div class="flex items-center gap-1.5">
+              <span class="w-4 h-4 rounded-full bg-slate-900"></span>
+              <span class="w-4 h-4 rounded-full bg-slate-300"></span>
+              <span class="w-4 h-4 rounded-full bg-slate-950"></span>
+            </div>
+            <div class="font-bold text-xs text-slate-900">極簡風</div>
+          </button>
+
+          <!-- Tech Style -->
+          <button onclick="applyPresetTheme('tech')" class="p-3 rounded-2xl border border-cyan-500/50 hover:border-cyan-400 text-left transition-all space-y-2 bg-[#0F172A] hover:shadow-md">
+            <div class="flex items-center gap-1.5">
+              <span class="w-4 h-4 rounded-full bg-[#0EA5E9]"></span>
+              <span class="w-4 h-4 rounded-full bg-[#1E293B]"></span>
+              <span class="w-4 h-4 rounded-full bg-[#F8FAFC]"></span>
+            </div>
+            <div class="font-bold text-xs text-white">科技感 (Cyber)</div>
+          </button>
+
+          <!-- Cyberpunk -->
+          <button onclick="applyPresetTheme('punk')" class="p-3 rounded-2xl border border-pink-500/50 hover:border-pink-400 text-left transition-all space-y-2 bg-[#18181B] hover:shadow-md">
+            <div class="flex items-center gap-1.5">
+              <span class="w-4 h-4 rounded-full bg-[#EC4899]"></span>
+              <span class="w-4 h-4 rounded-full bg-[#F59E0B]"></span>
+              <span class="w-4 h-4 rounded-full bg-[#FAFAFA]"></span>
+            </div>
+            <div class="font-bold text-xs text-white">朋克風 (Punk)</div>
+          </button>
+        </div>
+      </div>
+
+      <!-- Custom Color Pickers Section -->
+      <div class="space-y-4 border-t border-slate-200 pt-4">
+        <div class="flex items-center justify-between">
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-400">自訂微調配色 Custom Palette</label>
+          <span id="contrastIndicator" class="text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2.5 py-0.5 rounded-full flex items-center gap-1">
+            <i class="fa-solid fa-circle-check"></i> 可視性良好
+          </span>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
+          <div>
+            <label class="block font-bold mb-1.5 text-slate-600">主視覺 (Accent)</label>
+            <div class="flex items-center gap-2">
+              <input type="color" id="themeAccentPicker" onchange="onCustomColorChange()" class="w-9 h-9 rounded-xl border border-slate-200 cursor-pointer p-0.5 bg-white">
+              <span id="themeAccentHex" class="font-mono font-bold text-slate-700">#6366F1</span>
+            </div>
+          </div>
+
+          <div>
+            <label class="block font-bold mb-1.5 text-slate-600">頁面背景 (BG)</label>
+            <div class="flex items-center gap-2">
+              <input type="color" id="themeBgPicker" onchange="onCustomColorChange()" class="w-9 h-9 rounded-xl border border-slate-200 cursor-pointer p-0.5 bg-white">
+              <span id="themeBgHex" class="font-mono font-bold text-slate-700">#F8FAFC</span>
+            </div>
+          </div>
+
+          <div>
+            <label class="block font-bold mb-1.5 text-slate-600">主要文字 (Text)</label>
+            <div class="flex items-center gap-2">
+              <input type="color" id="themeTextPicker" onchange="onCustomColorChange()" class="w-9 h-9 rounded-xl border border-slate-200 cursor-pointer p-0.5 bg-white">
+              <span id="themeTextHex" class="font-mono font-bold text-slate-700">#0F172A</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex items-center justify-between border-t border-slate-200 pt-4">
+        <button onclick="resetThemeDefault()" class="px-4 py-2 rounded-xl text-xs font-bold text-slate-500 hover:text-slate-800 transition-colors">
+          <i class="fa-solid fa-rotate-left mr-1"></i>重置為預設
+        </button>
+        <button onclick="closeThemeModal()" class="px-6 py-2.5 rounded-2xl custom-accent-bg text-white font-bold text-xs shadow-md hover:opacity-95 transition-all">
+          儲存並關閉
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- Storage Modal -->
   <div id="storageModal" class="hidden fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="max-w-md w-full rounded-3xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 p-6 shadow-2xl space-y-4">
-      <div class="flex items-center justify-between border-b border-slate-100 dark:border-zinc-800 pb-3">
+    <div class="max-w-md w-full rounded-3xl bg-white border border-slate-200 p-6 shadow-2xl space-y-4 text-slate-900">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
         <h3 class="font-extrabold text-base flex items-center gap-2">
           <i class="fa-solid fa-box-archive custom-accent-text"></i>
           <span>已儲存專案紀錄</span>
@@ -726,6 +874,16 @@
     }
   };
 
+  // Pre-configured Color Theme Presets
+  const THEME_PRESETS = {
+    classic: { accent: '#6366f1', bg: '#f8fafc', card: '#ffffff', text: '#0f172a', border: '#e2e8f0' },
+    bauhaus: { accent: '#D62828', bg: '#F8F6F0', card: '#FFFFFF', text: '#111827', border: '#D1D5DB' },
+    muji: { accent: '#8C6D53', bg: '#FDFBF7', card: '#FFFFFF', text: '#2D2B2A', border: '#E6E1DA' },
+    minimalist: { accent: '#0F172A', bg: '#F1F5F9', card: '#FFFFFF', text: '#020617', border: '#CBD5E1' },
+    tech: { accent: '#0EA5E9', bg: '#0F172A', card: '#1E293B', text: '#F8FAFC', border: '#334155' },
+    punk: { accent: '#EC4899', bg: '#18181B', card: '#27272A', text: '#FAFAFA', border: '#3F3F46' }
+  };
+
   // Global State Variables
   let selectedTypeKey = 'exhibition';
   let currentPageNum = 1;
@@ -739,27 +897,126 @@
     addPersonRow('李執行', '專案組員');
   });
 
+  function openThemeModal() {
+    document.getElementById('themeModal').classList.remove('hidden');
+    updatePickerInputsFromVars();
+  }
+
+  function closeThemeModal() {
+    document.getElementById('themeModal').classList.add('hidden');
+  }
+
   function loadSavedTheme() {
     try {
       const savedTheme = localStorage.getItem('pf_custom_theme');
       if (savedTheme) {
         const config = JSON.parse(savedTheme);
         applyThemeConfig(config);
+      } else {
+        applyPresetTheme('classic');
       }
     } catch (e) {
       console.error('Failed to load saved theme', e);
     }
   }
 
+  function applyPresetTheme(presetKey) {
+    const config = THEME_PRESETS[presetKey];
+    if (config) {
+      applyThemeConfig(config);
+      showToast(`已套用「${getPresetName(presetKey)}」主題風格`, 'success');
+    }
+  }
+
+  function getPresetName(key) {
+    const names = {
+      classic: '經典靛藍',
+      bauhaus: '包浩斯風格',
+      muji: '無印風',
+      minimalist: '極簡風',
+      tech: '科技感',
+      punk: '朋克風'
+    };
+    return names[key] || '風格';
+  }
+
   function applyThemeConfig(config) {
     const root = document.documentElement;
-    document.body.className = config.class || '';
     if (config.accent) root.style.setProperty('--accent-primary', config.accent);
     if (config.bg) root.style.setProperty('--bg-main', config.bg);
+    if (config.card) root.style.setProperty('--card-bg', config.card);
     if (config.text) root.style.setProperty('--text-main', config.text);
-    if (config.radius) root.style.setProperty('--radius-main', config.radius);
+    if (config.border) root.style.setProperty('--border-color', config.border);
 
     localStorage.setItem('pf_custom_theme', JSON.stringify(config));
+    updatePickerInputsFromVars();
+    analyzeVisibilityContrast(config.bg, config.text);
+  }
+
+  function updatePickerInputsFromVars() {
+    const root = getComputedStyle(document.documentElement);
+    const accent = root.getPropertyValue('--accent-primary').trim() || '#6366f1';
+    const bg = root.getPropertyValue('--bg-main').trim() || '#f8fafc';
+    const text = root.getPropertyValue('--text-main').trim() || '#0f172a';
+
+    const accentInput = document.getElementById('themeAccentPicker');
+    const bgInput = document.getElementById('themeBgPicker');
+    const textInput = document.getElementById('themeTextPicker');
+
+    if (accentInput) {
+      accentInput.value = accent;
+      document.getElementById('themeAccentHex').textContent = accent.toUpperCase();
+    }
+    if (bgInput) {
+      bgInput.value = bg;
+      document.getElementById('themeBgHex').textContent = bg.toUpperCase();
+    }
+    if (textInput) {
+      textInput.value = text;
+      document.getElementById('themeTextHex').textContent = text.toUpperCase();
+    }
+  }
+
+  function onCustomColorChange() {
+    const accent = document.getElementById('themeAccentPicker').value;
+    const bg = document.getElementById('themeBgPicker').value;
+    const text = document.getElementById('themeTextPicker').value;
+
+    const isDarkBg = isColorDark(bg);
+    const cardBg = isDarkBg ? '#1E293B' : '#FFFFFF';
+    const border = isDarkBg ? '#334155' : '#E2E8F0';
+
+    const config = { accent, bg, card: cardBg, text, border };
+    applyThemeConfig(config);
+  }
+
+  function resetThemeDefault() {
+    applyPresetTheme('classic');
+  }
+
+  function isColorDark(hex) {
+    const c = hex.replace('#', '');
+    const r = parseInt(c.substring(0, 2), 16) || 0;
+    const g = parseInt(c.substring(2, 4), 16) || 0;
+    const b = parseInt(c.substring(4, 6), 16) || 0;
+    const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+    return brightness < 128;
+  }
+
+  function analyzeVisibilityContrast(bgHex, textHex) {
+    const indicator = document.getElementById('contrastIndicator');
+    if (!indicator) return;
+
+    const bgDark = isColorDark(bgHex);
+    const textDark = isColorDark(textHex);
+
+    if (bgDark !== textDark) {
+      indicator.className = "text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2.5 py-0.5 rounded-full flex items-center gap-1";
+      indicator.innerHTML = `<i class="fa-solid fa-circle-check"></i> 可視性良好 (超清晰)`;
+    } else {
+      indicator.className = "text-[11px] font-bold text-amber-600 bg-amber-50 px-2.5 py-0.5 rounded-full flex items-center gap-1";
+      indicator.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> 對比度較低 (建議調整)`;
+    }
   }
 
   function toggleDropdown(id) {
@@ -806,8 +1063,8 @@
       if (exportBtn) exportBtn.classList.add('hidden');
       stepLine1.style.width = '0%';
       stepLine2.style.width = '0%';
-      stepBadge2.className = 'w-7 h-7 rounded-full bg-slate-200 dark:bg-zinc-800 text-slate-500 flex items-center justify-center text-xs';
-      stepBadge3.className = 'w-7 h-7 rounded-full bg-slate-200 dark:bg-zinc-800 text-slate-500 flex items-center justify-center text-xs';
+      stepBadge2.className = 'w-7 h-7 rounded-full bg-slate-200 text-slate-500 flex items-center justify-center text-xs';
+      stepBadge3.className = 'w-7 h-7 rounded-full bg-slate-200 text-slate-500 flex items-center justify-center text-xs';
       stepInd1.className = 'flex items-center gap-2 font-bold text-xs sm:text-sm custom-accent-text';
       stepInd2.className = 'flex items-center gap-2 font-semibold text-xs sm:text-sm text-slate-400';
       stepInd3.className = 'flex items-center gap-2 font-semibold text-xs sm:text-sm text-slate-400';
@@ -818,7 +1075,7 @@
       stepLine1.style.width = '100%';
       stepLine2.style.width = '0%';
       stepBadge2.className = 'w-7 h-7 rounded-full custom-accent-bg text-white flex items-center justify-center text-xs shadow-md';
-      stepBadge3.className = 'w-7 h-7 rounded-full bg-slate-200 dark:bg-zinc-800 text-slate-500 flex items-center justify-center text-xs';
+      stepBadge3.className = 'w-7 h-7 rounded-full bg-slate-200 text-slate-500 flex items-center justify-center text-xs';
       stepInd1.className = 'flex items-center gap-2 font-semibold text-xs sm:text-sm opacity-60';
       stepInd2.className = 'flex items-center gap-2 font-bold text-xs sm:text-sm custom-accent-text';
       stepInd3.className = 'flex items-center gap-2 font-semibold text-xs sm:text-sm text-slate-400';
@@ -831,7 +1088,7 @@
       stepBadge3.className = 'w-7 h-7 rounded-full bg-emerald-600 text-white flex items-center justify-center text-xs shadow-md';
       stepInd1.className = 'flex items-center gap-2 font-semibold text-xs sm:text-sm opacity-60';
       stepInd2.className = 'flex items-center gap-2 font-semibold text-xs sm:text-sm opacity-60';
-      stepInd3.className = 'flex items-center gap-2 font-bold text-xs sm:text-sm text-emerald-600 dark:text-emerald-400';
+      stepInd3.className = 'flex items-center gap-2 font-bold text-xs sm:text-sm text-emerald-600';
     }
 
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -853,7 +1110,7 @@
     Object.entries(TYPES).forEach(([key, item]) => {
       const isActive = key === selectedTypeKey;
       html += `
-        <div onclick="selectProjectTypeCard('${key}')" id="card_${key}" class="type-card border-2 ${isActive ? 'active border-indigo-600' : 'border-slate-200 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80'} p-4 flex flex-col justify-between relative overflow-hidden">
+        <div onclick="selectProjectTypeCard('${key}')" id="card_${key}" class="type-card border-2 ${isActive ? 'active border-indigo-600' : 'border-slate-200'} p-4 flex flex-col justify-between relative overflow-hidden shadow-sm">
           <div>
             <div class="flex items-center justify-between mb-2">
               <div class="w-8 h-8 rounded-xl custom-accent-bg text-white flex items-center justify-center text-sm font-bold">
@@ -864,19 +1121,19 @@
               </span>
             </div>
 
-            <h3 class="font-extrabold text-sm mb-1.5">${item.name}</h3>
-            <p class="text-[11px] opacity-70 leading-relaxed mb-3 line-clamp-2">
+            <h3 class="font-extrabold text-sm mb-1.5 custom-main-text">${item.name}</h3>
+            <p class="text-[11px] text-slate-600 leading-relaxed mb-3 line-clamp-2">
               <strong>概述：</strong>${item.overview}
             </p>
           </div>
 
-          <div class="space-y-1.5 pt-2 border-t border-slate-100 dark:border-zinc-800 text-[11px]">
-            <div class="flex items-center justify-between opacity-80">
-              <span class="opacity-60"><i class="fa-solid fa-clock-rotate-left mr-1"></i>生命週期:</span>
-              <span class="font-semibold">${item.lifecycleSummary}</span>
+          <div class="space-y-1.5 pt-2 border-t border-slate-100 text-[11px]">
+            <div class="flex items-center justify-between text-slate-600">
+              <span class="opacity-70"><i class="fa-solid fa-clock-rotate-left mr-1"></i>生命週期:</span>
+              <span class="font-semibold text-slate-800">${item.lifecycleSummary}</span>
             </div>
-            <div class="flex items-center justify-between opacity-80">
-              <span class="opacity-60"><i class="fa-solid fa-sack-dollar mr-1"></i>市場預算:</span>
+            <div class="flex items-center justify-between text-slate-600">
+              <span class="opacity-70"><i class="fa-solid fa-sack-dollar mr-1"></i>市場預算:</span>
               <span class="font-bold custom-accent-text">${item.budgetSummary}</span>
             </div>
           </div>
@@ -895,11 +1152,11 @@
       const checkIcon = card?.querySelector('.card-radio-icon');
       if (k === key) {
         card?.classList.add('active', 'border-indigo-600');
-        card?.classList.remove('border-slate-200', 'dark:border-zinc-800');
+        card?.classList.remove('border-slate-200');
         if (checkIcon) checkIcon.classList.remove('hidden');
       } else {
         card?.classList.remove('active', 'border-indigo-600');
-        card?.classList.add('border-slate-200', 'dark:border-zinc-800');
+        card?.classList.add('border-slate-200');
         if (checkIcon) checkIcon.classList.add('hidden');
       }
     });
@@ -991,16 +1248,16 @@
     const container = document.getElementById('peopleContainer');
     
     const div = document.createElement('div');
-    div.className = 'person-row grid grid-cols-1 sm:grid-cols-12 gap-3 p-3.5 rounded-2xl bg-slate-100/70 dark:bg-zinc-900/60 border border-slate-200/60 dark:border-zinc-800/80 items-center';
+    div.className = 'person-row grid grid-cols-1 sm:grid-cols-12 gap-3 p-3.5 rounded-2xl bg-slate-100/70 border border-slate-200/70 items-center';
     
     const roleOptionsHtml = cfg.roles.map(r => `<option value="${r}" ${r === role ? 'selected' : ''}>${r}</option>`).join('') + '<option value="custom">自訂角色...</option>';
 
     div.innerHTML = `
       <div class="sm:col-span-5">
-        <input type="text" class="person-name w-full rounded-xl border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 px-3 py-2 text-xs font-medium" placeholder="姓名 / 代號 (例如：陳小明)" value="${name}">
+        <input type="text" class="person-name w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-900" placeholder="姓名 / 代號 (例如：陳小明)" value="${name}">
       </div>
       <div class="sm:col-span-6 role-wrapper">
-        <select class="person-role-select w-full rounded-xl border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 px-3 py-2 text-xs font-medium" onchange="checkCustomRole(this)">
+        <select class="person-role-select w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-900" onchange="checkCustomRole(this)">
           ${roleOptionsHtml}
         </select>
       </div>
@@ -1017,8 +1274,8 @@
       const wrapper = selectEl.closest('.role-wrapper');
       wrapper.innerHTML = `
         <div class="flex items-center gap-1.5">
-          <input type="text" class="person-role-custom w-full rounded-xl border border-indigo-300 dark:border-indigo-800 bg-white dark:bg-zinc-950 px-3 py-2 text-xs font-medium focus:border-indigo-500" placeholder="請輸入自訂職責名稱" autofocus>
-          <button type="button" onclick="resetRoleSelect(this)" class="px-2.5 py-2 text-[11px] font-semibold custom-accent-text hover:bg-indigo-50 dark:hover:bg-indigo-950/50 rounded-xl border border-indigo-200 dark:border-indigo-900 shrink-0 transition-colors" title="回到角色清單">
+          <input type="text" class="person-role-custom w-full rounded-xl border border-indigo-300 bg-white px-3 py-2 text-xs font-medium focus:border-indigo-500 text-slate-900" placeholder="請輸入自訂職責名稱" autofocus>
+          <button type="button" onclick="resetRoleSelect(this)" class="px-2.5 py-2 text-[11px] font-semibold custom-accent-text hover:bg-indigo-50 rounded-xl border border-indigo-200 shrink-0 transition-colors" title="回到角色清單">
             <i class="fa-solid fa-rotate-left mr-1"></i>清單
           </button>
         </div>
@@ -1032,7 +1289,7 @@
     const roleOptionsHtml = cfg.roles.map(r => `<option value="${r}">${r}</option>`).join('') + '<option value="custom">自訂角色...</option>';
     
     wrapper.innerHTML = `
-      <select class="person-role-select w-full rounded-xl border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 px-3 py-2 text-xs font-medium" onchange="checkCustomRole(this)">
+      <select class="person-role-select w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-900" onchange="checkCustomRole(this)">
         ${roleOptionsHtml}
       </select>
     `;
@@ -1056,7 +1313,6 @@
     return team;
   }
 
-  // Helper date functions
   function parseDate(str) { const [y, m, d] = str.split('-').map(Number); return new Date(y, m - 1, d); }
   function formatDateISO(d) { return d.toISOString().slice(0, 10); }
   function formatDateDisplay(d) { return `${d.getFullYear()}/${String(d.getMonth() + 1).padStart(2, '0')}/${String(d.getDate()).padStart(2, '0')}`; }
@@ -1204,25 +1460,25 @@
     badge.innerHTML = `<i class="fa-solid fa-heart-pulse"></i> ${d.budgetStatus}`;
 
     document.getElementById('summaryCards').innerHTML = `
-      <div class="rounded-2xl border border-slate-200/80 dark:border-zinc-800 bg-white/60 dark:bg-zinc-900/60 p-4">
-        <div class="text-xs text-slate-400">總計畫工期</div>
-        <div class="text-xl sm:text-2xl font-bold mt-1 custom-accent-text">${d.totalDays} <span class="text-xs font-normal">${d.workDayMode ? '工作天' : '天'}</span></div>
-        <div class="text-[11px] opacity-70 mt-0.5">約 ${(d.totalDays / 5).toFixed(1)} 週工時</div>
+      <div class="rounded-2xl border border-slate-200 bg-slate-50/70 p-4">
+        <div class="text-xs text-slate-500">總計畫工期</div>
+        <div class="text-xl sm:text-2xl font-bold mt-1 custom-accent-text">${d.totalDays} <span class="text-xs font-normal text-slate-600">${d.workDayMode ? '工作天' : '天'}</span></div>
+        <div class="text-[11px] text-slate-500 mt-0.5">約 ${(d.totalDays / 5).toFixed(1)} 週工時</div>
       </div>
-      <div class="rounded-2xl border border-slate-200/80 dark:border-zinc-800 bg-white/60 dark:bg-zinc-900/60 p-4">
-        <div class="text-xs text-slate-400">簽核/採購緩衝</div>
-        <div class="text-xl sm:text-2xl font-bold mt-1">${d.internalDays} <span class="text-xs font-normal">天</span></div>
-        <div class="text-[11px] opacity-70 mt-0.5">${d.internalDays > 0 ? '已納入倒推鎖定' : '未預留簽核期'}</div>
+      <div class="rounded-2xl border border-slate-200 bg-slate-50/70 p-4">
+        <div class="text-xs text-slate-500">簽核/採購緩衝</div>
+        <div class="text-xl sm:text-2xl font-bold mt-1 text-slate-800">${d.internalDays} <span class="text-xs font-normal text-slate-600">天</span></div>
+        <div class="text-[11px] text-slate-500 mt-0.5">${d.internalDays > 0 ? '已納入倒推鎖定' : '未預留簽核期'}</div>
       </div>
-      <div class="rounded-2xl border border-slate-200/80 dark:border-zinc-800 bg-white/60 dark:bg-zinc-900/60 p-4">
-        <div class="text-xs text-slate-400">風險預備金 (${d.contingencyRate * 100}%)</div>
-        <div class="text-xl sm:text-2xl font-bold mt-1 text-emerald-600 dark:text-emerald-400">${d.budget ? formatCurrency(d.budget * d.contingencyRate) : '—'}</div>
-        <div class="text-[11px] opacity-70 mt-0.5">建議獨立撥入預備專戶</div>
+      <div class="rounded-2xl border border-slate-200 bg-slate-50/70 p-4">
+        <div class="text-xs text-slate-500">風險預備金 (${d.contingencyRate * 100}%)</div>
+        <div class="text-xl sm:text-2xl font-bold mt-1 text-emerald-600">${d.budget ? formatCurrency(d.budget * d.contingencyRate) : '—'}</div>
+        <div class="text-[11px] text-slate-500 mt-0.5">建議獨立撥入預備專戶</div>
       </div>
-      <div class="rounded-2xl border border-slate-200/80 dark:border-zinc-800 bg-white/60 dark:bg-zinc-900/60 p-4">
-        <div class="text-xs text-slate-400">市場建議行情區間</div>
-        <div class="text-base sm:text-lg font-bold mt-1">${formatCurrency(d.budgetRange[0])}</div>
-        <div class="text-[11px] opacity-70 mt-0.5">至 ${formatCurrency(d.budgetRange[1])}</div>
+      <div class="rounded-2xl border border-slate-200 bg-slate-50/70 p-4">
+        <div class="text-xs text-slate-500">市場建議行情區間</div>
+        <div class="text-base sm:text-lg font-bold mt-1 text-slate-800">${formatCurrency(d.budgetRange[0])}</div>
+        <div class="text-[11px] text-slate-500 mt-0.5">至 ${formatCurrency(d.budgetRange[1])}</div>
       </div>
     `;
 
@@ -1242,7 +1498,7 @@
         if (btn) btn.className = 'px-4 py-2 rounded-xl text-xs font-bold transition-all custom-accent-bg text-white shadow-sm';
       } else {
         if (el) el.classList.add('hidden');
-        if (btn) btn.className = 'px-4 py-2 rounded-xl text-xs font-bold transition-all opacity-60 hover:bg-slate-200 dark:hover:bg-zinc-800';
+        if (btn) btn.className = 'px-4 py-2 rounded-xl text-xs font-bold transition-all opacity-60 hover:bg-slate-200 text-slate-700';
       }
     });
   }
@@ -1255,18 +1511,18 @@
     const totalMs = maxLateDate - d.startDate;
 
     let html = `
-      <div class="flex flex-wrap items-center justify-between gap-4 mb-4 pb-3 border-b border-slate-200 dark:border-zinc-800 text-xs">
+      <div class="flex flex-wrap items-center justify-between gap-4 mb-4 pb-3 border-b border-slate-200 text-xs">
         <div class="flex items-center gap-4">
-          <div class="flex items-center gap-1.5 font-medium">
+          <div class="flex items-center gap-1.5 font-medium text-slate-700">
             <span class="w-3 h-3 rounded-md custom-accent-bg shadow-sm"></span>
             <span>預定時程 (Scheduled)</span>
           </div>
-          <div class="flex items-center gap-1.5 font-medium">
-            <span class="w-3 h-3 rounded-md bg-amber-400/80 dark:bg-amber-500/70 border border-dashed border-amber-600"></span>
+          <div class="flex items-center gap-1.5 font-medium text-slate-700">
+            <span class="w-3 h-3 rounded-md bg-amber-200 border border-dashed border-amber-600"></span>
             <span>最晚緩衝期 (Late Finish Buffer)</span>
           </div>
         </div>
-        <div class="opacity-60 font-mono text-[11px]">
+        <div class="text-slate-500 font-mono text-[11px]">
           起始/截止欄位格式：起始日期 — 截止日期 (工期)
         </div>
       </div>
@@ -1283,23 +1539,23 @@
       const dateRangeLabel = `${formatDateDisplay(p.start)} — ${formatDateDisplay(p.end)} (${p.days}${unitText})`;
 
       html += `
-        <div class="grid grid-cols-12 gap-3 items-center text-xs py-2 border-b border-slate-100 dark:border-zinc-800/60 hover:bg-slate-50/50 dark:hover:bg-zinc-900/30 transition-colors rounded-xl px-1">
-          <div class="col-span-3 font-semibold truncate flex items-center gap-2">
+        <div class="grid grid-cols-12 gap-3 items-center text-xs py-2 border-b border-slate-100 hover:bg-slate-50/50 transition-colors rounded-xl px-1">
+          <div class="col-span-3 font-semibold truncate flex items-center gap-2 custom-main-text">
             <span class="w-5 h-5 rounded-full custom-accent-bg text-white flex items-center justify-center text-[10px] shrink-0 font-bold">${idx + 1}</span>
             <span class="truncate" title="${p.name}">${p.name}</span>
           </div>
 
-          <div class="col-span-5 relative h-8 bg-slate-100 dark:bg-zinc-900/80 rounded-xl overflow-hidden p-0.5 flex items-center">
+          <div class="col-span-5 relative h-8 bg-slate-100/80 rounded-xl overflow-hidden p-0.5 flex items-center">
             <div class="absolute top-1 bottom-1 rounded-lg custom-accent-bg text-white text-[10px] font-bold flex items-center px-2 shadow-sm truncate transition-all z-10" style="left: ${startOffset}%; width: ${planWidthPct}%;">
               ${p.days} ${unitText}
             </div>
 
-            <div class="absolute top-1 bottom-1 rounded-r-lg bg-amber-300/60 dark:bg-amber-500/40 border-y border-r border-dashed border-amber-500/70 text-amber-800 dark:text-amber-200 text-[9px] font-bold flex items-center justify-end pr-1 transition-all z-0" style="left: ${startOffset + planWidthPct}%; width: ${bufferWidthPct}%;" title="最晚完成日 (Late Finish): ${formatDateDisplay(p.lateFinish)}">
+            <div class="absolute top-1 bottom-1 rounded-r-lg bg-amber-200 border-y border-r border-dashed border-amber-500 text-amber-900 text-[9px] font-bold flex items-center justify-end pr-1 transition-all z-0" style="left: ${startOffset + planWidthPct}%; width: ${bufferWidthPct}%;" title="最晚完成日 (Late Finish): ${formatDateDisplay(p.lateFinish)}">
               +${p.bufferDays}天
             </div>
           </div>
 
-          <div class="col-span-4 text-right font-mono text-[11px] font-bold custom-accent-text bg-indigo-50/70 dark:bg-indigo-950/40 px-2.5 py-1.5 rounded-xl border border-indigo-100 dark:border-indigo-900/50 truncate">
+          <div class="col-span-4 text-right font-mono text-[11px] font-bold custom-accent-text bg-indigo-50 px-2.5 py-1.5 rounded-xl border border-indigo-100 truncate">
             ${dateRangeLabel}
           </div>
         </div>
@@ -1317,34 +1573,34 @@
 
     container.innerHTML = d.phases.map((p, i) => `
       <div class="relative pl-12 pb-8 timeline-line last:pb-0">
-        <div class="absolute left-0 top-1 w-10 h-10 rounded-2xl bg-white dark:bg-zinc-900 border-2 border-indigo-500 flex items-center justify-center text-xs font-bold custom-accent-text shadow-sm">
+        <div class="absolute left-0 top-1 w-10 h-10 rounded-2xl bg-white border-2 border-indigo-500 flex items-center justify-center text-xs font-bold custom-accent-text shadow-sm">
           ${i + 1}
         </div>
-        <div class="rounded-2xl border border-slate-200/80 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 p-5 hover:border-indigo-300 transition-all space-y-3">
+        <div class="rounded-2xl border border-slate-200/80 bg-white custom-card-bg p-5 hover:border-indigo-300 transition-all space-y-3">
           <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-2">
             <div>
-              <h4 class="font-extrabold text-base flex items-center gap-2">
+              <h4 class="font-extrabold text-base custom-main-text flex items-center gap-2">
                 <span>${p.name}</span>
               </h4>
-              <p class="text-xs opacity-70 mt-1 leading-relaxed">${p.desc}</p>
+              <p class="text-xs text-slate-600 mt-1 leading-relaxed">${p.desc}</p>
             </div>
             
             <div class="text-left sm:text-right shrink-0">
-              <div class="text-xs font-bold custom-accent-text bg-indigo-50 dark:bg-indigo-950/60 px-3 py-1 rounded-full inline-block border border-indigo-200/60 dark:border-indigo-900/60">
+              <div class="text-xs font-bold custom-accent-text bg-indigo-50 px-3 py-1 rounded-full inline-block border border-indigo-200">
                 ${formatDateDisplay(p.start)} — ${formatDateDisplay(p.end)} (${p.days} ${unitText})
               </div>
-              <div class="text-[11px] font-semibold text-amber-600 dark:text-amber-400 mt-1 flex items-center justify-start sm:justify-end gap-1">
+              <div class="text-[11px] font-semibold text-amber-600 mt-1 flex items-center justify-start sm:justify-end gap-1">
                 <i class="fa-solid fa-clock-rotate-left text-[10px]"></i>
                 <span>最晚完成期限 (Late Finish): ${formatDateDisplay(p.lateFinish)}</span>
               </div>
             </div>
           </div>
 
-          <div class="pt-2 border-t border-slate-100 dark:border-zinc-800/80 flex flex-col sm:flex-row sm:items-center gap-2 text-xs">
-            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-100 dark:bg-emerald-950/70 text-emerald-700 dark:text-emerald-300 font-bold shrink-0">
+          <div class="pt-2 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center gap-2 text-xs">
+            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-100 text-emerald-800 font-bold shrink-0">
               <i class="fa-solid fa-box-archive"></i> 主要交付產出 (Deliverable)
             </span>
-            <span class="font-bold bg-slate-100/80 dark:bg-zinc-800/60 px-3 py-1 rounded-lg flex-1 border border-slate-200/50 dark:border-zinc-700/50">
+            <span class="font-bold bg-slate-100 px-3 py-1 rounded-lg flex-1 border border-slate-200 text-slate-800">
               ${p.deliverable}
             </span>
           </div>
@@ -1358,24 +1614,24 @@
     const container = document.getElementById('raciMatrixWrapper');
 
     if (!d.team.length) {
-      container.innerHTML = `<div class="text-xs opacity-60 py-6 text-center">未填寫團隊成員，無法產生 RACI 與工作分配表。</div>`;
+      container.innerHTML = `<div class="text-xs text-slate-500 py-6 text-center">未填寫團隊成員，無法產生 RACI 與工作分配表。</div>`;
       return;
     }
 
     let tableHtml = `
       <table class="w-full text-xs text-left border-collapse mb-8">
         <thead>
-          <tr class="border-b border-slate-200 dark:border-zinc-800 bg-slate-50 dark:bg-zinc-900">
-            <th class="py-3 px-3 font-semibold opacity-70">專案階段 / Phase</th>
-            ${d.team.map(t => `<th class="py-3 px-3 font-semibold text-center">${t.name}<br><span class="text-[10px] opacity-60 font-normal">${t.role}</span></th>`).join('')}
+          <tr class="border-b border-slate-200 bg-slate-50/50">
+            <th class="py-3 px-3 font-semibold text-slate-600">專案階段 / Phase</th>
+            ${d.team.map(t => `<th class="py-3 px-3 font-semibold text-center text-slate-800">${t.name}<br><span class="text-[10px] text-slate-500 font-normal">${t.role}</span></th>`).join('')}
           </tr>
         </thead>
         <tbody>
     `;
 
     d.phases.forEach((p, idx) => {
-      tableHtml += `<tr class="border-b border-slate-100 dark:border-zinc-800/50">`;
-      tableHtml += `<td class="py-3 px-3 font-medium">${p.name}</td>`;
+      tableHtml += `<tr class="border-b border-slate-100">`;
+      tableHtml += `<td class="py-3 px-3 font-medium custom-main-text">${p.name}</td>`;
 
       d.team.forEach((t, tidx) => {
         let raciCode = 'I';
@@ -1386,10 +1642,10 @@
         }
 
         const badges = {
-          'R': '<span class="px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-700 font-bold" title="Responsible 負責執行">R</span>',
-          'A': '<span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-bold" title="Accountable 當責對象">A</span>',
-          'C': '<span class="px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 font-bold" title="Consulted 諮詢對象">C</span>',
-          'I': '<span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 font-bold" title="Informed 知會對象">I</span>'
+          'R': '<span class="px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-800 font-bold" title="Responsible 負責執行">R</span>',
+          'A': '<span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold" title="Accountable 當責對象">A</span>',
+          'C': '<span class="px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 font-bold" title="Consulted 諮詢對象">C</span>',
+          'I': '<span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 font-bold" title="Informed 知會對象">I</span>'
         };
 
         tableHtml += `<td class="py-3 px-3 text-center">${badges[raciCode]}</td>`;
@@ -1401,13 +1657,13 @@
     tableHtml += `</tbody></table>`;
 
     let allocationHtml = `
-      <div class="mt-8 pt-6 border-t border-slate-200 dark:border-zinc-800">
+      <div class="mt-8 pt-6 border-t border-slate-200">
         <div class="mb-4">
-          <h4 class="text-lg font-bold flex items-center gap-2">
+          <h4 class="text-lg font-bold flex items-center gap-2 custom-main-text">
             <i class="fa-solid fa-users-gear custom-accent-text"></i>
             <span>團隊人力與交付工作分配表</span>
           </h4>
-          <p class="text-xs opacity-70">依據人力配置角色，自動彙整各成員負責階段、主要交付產出物與 RACI 當責職責。</p>
+          <p class="text-xs text-slate-600">依據人力配置角色，自動彙整各成員負責階段、主要交付產出物與 RACI 當責職責。</p>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1436,14 +1692,14 @@
       });
 
       allocationHtml += `
-        <div class="p-4 rounded-2xl border border-slate-200 dark:border-zinc-800 bg-white/70 dark:bg-zinc-900/70 space-y-3">
-          <div class="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-zinc-800">
+        <div class="p-4 rounded-2xl border border-slate-200 bg-white custom-card-bg space-y-3">
+          <div class="flex items-center justify-between pb-2 border-b border-slate-100">
             <div class="flex items-center gap-2.5">
               <div class="w-9 h-9 rounded-xl custom-accent-bg text-white font-extrabold flex items-center justify-center text-sm shadow-sm">
                 ${t.name.slice(0, 1)}
               </div>
               <div>
-                <div class="font-bold text-sm">${t.name}</div>
+                <div class="font-bold text-sm custom-main-text">${t.name}</div>
                 <div class="text-[11px] custom-accent-text font-semibold">${t.role}</div>
               </div>
             </div>
@@ -1452,17 +1708,17 @@
             </span>
           </div>
 
-          <div class="space-y-2 text-xs">
+          <div class="space-y-2 text-xs text-slate-700">
             <div>
-              <span class="opacity-60 font-medium">負責 / 參與階段：</span>
+              <span class="text-slate-500 font-medium">負責 / 參與階段：</span>
               <div class="flex flex-wrap gap-1 mt-1">
-                ${assignedPhases.map(ph => `<span class="px-2 py-0.5 rounded-md bg-slate-100 dark:bg-zinc-800 font-medium text-[11px]">${ph}</span>`).join('')}
+                ${assignedPhases.map(ph => `<span class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-800 font-medium text-[11px]">${ph}</span>`).join('')}
               </div>
             </div>
 
             <div>
-              <span class="opacity-60 font-medium">主要負責交付產出 (Deliverables)：</span>
-              <ul class="list-disc list-inside mt-1 space-y-1 font-semibold text-[11px]">
+              <span class="text-slate-500 font-medium">主要負責交付產出 (Deliverables)：</span>
+              <ul class="list-disc list-inside mt-1 space-y-1 font-semibold text-[11px] text-slate-800">
                 ${assignedDeliverables.map(dl => `<li>${dl}</li>`).join('')}
               </ul>
             </div>
@@ -1491,9 +1747,9 @@
     labels.forEach((label, idx) => {
       const itemAmount = d.budget ? Math.round(d.budget * (weights[idx] || 0.1)) : 0;
       html += `
-        <div class="flex items-center justify-between py-2 border-b border-slate-100 dark:border-zinc-800 text-xs">
-          <span class="opacity-70 font-medium">${label} (${(weights[idx] * 100).toFixed(0)}%)</span>
-          <span class="font-bold">${d.budget ? formatCurrency(itemAmount) : '—'}</span>
+        <div class="flex items-center justify-between py-2 border-b border-slate-100 text-xs">
+          <span class="text-slate-600 font-medium">${label} (${(weights[idx] * 100).toFixed(0)}%)</span>
+          <span class="font-bold custom-main-text">${d.budget ? formatCurrency(itemAmount) : '—'}</span>
         </div>
       `;
     });
@@ -1553,18 +1809,18 @@
     ];
 
     container.innerHTML = risks.map(r => `
-      <div class="p-4 rounded-2xl border border-slate-200 dark:border-zinc-800 bg-white/70 dark:bg-zinc-900/70 space-y-2">
+      <div class="p-4 rounded-2xl border border-slate-200 bg-white custom-card-bg space-y-2">
         <div class="flex items-center justify-between">
-          <h4 class="font-bold text-sm flex items-center gap-2">
+          <h4 class="font-bold text-sm flex items-center gap-2 custom-main-text">
             <i class="fa-solid fa-triangle-exclamation text-${r.color}-500"></i>
             <span>${r.title}</span>
           </h4>
-          <span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-${r.color}-100 text-${r.color}-700 dark:bg-${r.color}-950/60 dark:text-${r.color}-300">
+          <span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-${r.color}-100 text-${r.color}-800">
             風險程度：${r.level}
           </span>
         </div>
-        <p class="text-xs opacity-70 leading-relaxed">${r.desc}</p>
-        <div class="pt-2 border-t border-slate-100 dark:border-zinc-800/80 text-xs font-medium flex items-center gap-1.5">
+        <p class="text-xs text-slate-600 leading-relaxed">${r.desc}</p>
+        <div class="pt-2 border-t border-slate-100 text-xs font-medium flex items-center gap-1.5 text-slate-700">
           <i class="fa-solid fa-shield-halved custom-accent-text"></i>
           <span><strong>因應策略：</strong>${r.action}</span>
         </div>
@@ -1630,9 +1886,7 @@
 
     const wb = XLSX.utils.book_new();
 
-    // ==========================================
-    // 工作表一：專案基本資訊 (Project Overview & Summary)
-    // ==========================================
+    // Sheet 1: Basic Info
     const sheet1Data = [
       ['專案規劃報告 — 基本資訊與評估摘要', ''],
       ['', ''],
@@ -1660,9 +1914,7 @@
     const ws1 = XLSX.utils.aoa_to_sheet(sheet1Data);
     XLSX.utils.book_append_sheet(wb, ws1, '專案基本資訊');
 
-    // ==========================================
-    // 工作表二：甘特圖與時程 (Gantt Schedule & Milestones)
-    // ==========================================
+    // Sheet 2: Gantt Schedule
     const sheet2Data = [
       ['項次', '階段里程碑名稱', '預定工期(天)', '起始日期', '截止日期', '最晚完成日 (Late Finish Buffer)', '緩衝天數']
     ];
@@ -1680,9 +1932,7 @@
     const ws2 = XLSX.utils.aoa_to_sheet(sheet2Data);
     XLSX.utils.book_append_sheet(wb, ws2, '甘特圖與時程');
 
-    // ==========================================
-    // 工作表三：時程與交付物 (Timeline Details & Deliverables)
-    // ==========================================
+    // Sheet 3: Deliverables
     const sheet3Data = [
       ['項次', '階段名稱', '階段詳細作業內容說明', '工期', '執行日期區間', '主要交付產出 (Deliverables)']
     ];
@@ -1699,9 +1949,7 @@
     const ws3 = XLSX.utils.aoa_to_sheet(sheet3Data);
     XLSX.utils.book_append_sheet(wb, ws3, '時程與交付物');
 
-    // ==========================================
-    // 工作表四：RACI矩陣與分工 (RACI Matrix & Task Assignment)
-    // ==========================================
+    // Sheet 4: RACI Matrix & Tasks
     const raciHeader = ['階段名稱 / Phase', ...d.team.map(t => `${t.name} (${t.role})`)];
     const sheet4Data = [
       ['RACI 職責轉移矩陣 (A:當責, R:負責, C:諮詢, I:知會)', ...Array(d.team.length).fill('')],
@@ -1760,9 +2008,7 @@
     const ws4 = XLSX.utils.aoa_to_sheet(sheet4Data);
     XLSX.utils.book_append_sheet(wb, ws4, 'RACI矩陣與分工');
 
-    // ==========================================
-    // 工作表五：預算拆解與風險 (Budget & Risk Analysis)
-    // ==========================================
+    // Sheet 5: Budget & Risks
     const sheet5Data = [
       ['預算結構拆解與市場行情說明', ''],
       ['參考行情標準', PUBLIC_REFS[d.typeKey] || PUBLIC_REFS.custom],
@@ -1794,7 +2040,6 @@
     const ws5 = XLSX.utils.aoa_to_sheet(sheet5Data);
     XLSX.utils.book_append_sheet(wb, ws5, '預算拆解與風險');
 
-    // Trigger XLSX file download
     XLSX.writeFile(wb, `${d.name}_完整專案規劃報告.xlsx`);
     showToast('已匯出包含 5 個工作表之完整 Excel 報告！', 'success');
   }
@@ -1946,14 +2191,14 @@
       container.innerHTML = `<div class="text-xs text-slate-400 text-center py-8">專案庫目前沒有任何儲存紀錄。</div>`;
     } else {
       container.innerHTML = list.map((item) => `
-        <div class="flex items-center justify-between p-3.5 rounded-2xl border border-slate-200 dark:border-zinc-800 hover:bg-slate-50 dark:hover:bg-zinc-800/50 transition-all text-xs">
+        <div class="flex items-center justify-between p-3.5 rounded-2xl border border-slate-200 hover:bg-slate-50 transition-all text-xs">
           <div>
-            <div class="font-bold">${item.name}</div>
-            <div class="text-[11px] opacity-60 mt-0.5">儲存時間：${item.date}</div>
+            <div class="font-bold text-slate-900">${item.name}</div>
+            <div class="text-[11px] text-slate-500 mt-0.5">儲存時間：${item.date}</div>
           </div>
           <div class="flex items-center gap-2">
             <button onclick="loadSavedProject(${item.id})" class="px-3 py-1.5 rounded-xl custom-accent-bg text-white font-semibold text-[11px]">載入</button>
-            <button onclick="deleteSavedProject(${item.id})" class="p-1.5 opacity-60 hover:text-rose-500"><i class="fa-solid fa-trash-can"></i></button>
+            <button onclick="deleteSavedProject(${item.id})" class="p-1.5 text-slate-400 hover:text-rose-500"><i class="fa-solid fa-trash-can"></i></button>
           </div>
         </div>
       `).join('');
