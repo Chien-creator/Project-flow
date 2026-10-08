@@ -315,7 +315,7 @@
           <div class="space-y-4 text-xs">
             <div>
               <label class="block font-bold mb-1.5 opacity-80 custom-main-text">專案名稱 / 計畫代號</label>
-              <input type="text" id="projectName" class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 font-semibold focus:ring-2 focus:ring-indigo-500 focus:outline-none text-slate-900" placeholder="請輸入專案完整名稱" value="2026 國際半導體展成果館特裝建置">
+              <input type="text" id="projectName" class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 font-semibold focus:ring-2 focus:ring-indigo-500 focus:outline-none text-slate-900" placeholder="請輸入專案完整名稱" value="">
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -2243,19 +2243,17 @@
     if (key === 'custom_esg') {
       selectProjectTypeCard('custom');
       document.getElementById('customKeywordInput').value = 'ESG 永續報告書輔導';
-      document.getElementById('projectName').value = '2026 ESG永續報告書與溫室氣體盤查輔導專案';
+      document.getElementById('projectName').value = '';
       document.getElementById('budget').value = '1200000';
       triggerSearchAnalysis();
     } else {
       selectProjectTypeCard(key);
+      document.getElementById('projectName').value = '';
       if (key === 'exhibition') {
-        document.getElementById('projectName').value = '2026 國際半導體展成果館特裝建置';
         document.getElementById('budget').value = '800000';
       } else if (key === 'hardware') {
-        document.getElementById('projectName').value = 'AI 邊緣運算嵌入式控制硬體開發';
         document.getElementById('budget').value = '5000000';
       } else if (key === 'event') {
-        document.getElementById('projectName').value = '2026 全球科技新品發表會暨經銷商大會';
         document.getElementById('budget').value = '1200000';
       }
     }
