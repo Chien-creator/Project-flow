@@ -1,5 +1,5 @@
 /* STREAMING_CHUNK:Configuring Network-First PWA Service Worker... */
-const CACHE_NAME = 'project-flow-v4'; // 升級為 v4
+const CACHE_NAME = 'project-flow-v5'; // 升級為 v5
 
 // 1. 安裝：立即強制跳過等待
 self.addEventListener('install', (event) => {
@@ -13,7 +13,7 @@ self.addEventListener('activate', (event) => {
       return Promise.all(
         keys.map((key) => {
           if (key !== CACHE_NAME) {
-            return caches.delete(key); // 清除 v1, v2, v3 等舊快取
+            return caches.delete(key); // 清除 v1, v2, v3, v4 等舊快取
           }
         })
       );
