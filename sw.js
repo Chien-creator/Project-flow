@@ -1,6 +1,6 @@
 // 1. 版本設定：未來更新 index.html 時，只需修改此處的版本號 (例如 'v7', 'v8')
 const CACHE_PREFIX = 'project-flow-';
-const CACHE_VERSION = 'v7';
+const CACHE_VERSION = 'v8';
 const CACHE_NAME = `${CACHE_PREFIX}${CACHE_VERSION}`;
 
 // 2. 安裝階段：立即跳過等待，讓新的 Service Worker 優先準備接管頁面
