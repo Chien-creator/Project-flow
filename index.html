@@ -155,7 +155,7 @@
 
       <!-- Action Tools -->
       <div class="flex items-center gap-2">
-        <!-- Visual Theme Button (NEW) -->
+        <!-- Visual Theme Button -->
         <button onclick="openThemeModal()" class="px-3 py-2 rounded-xl text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors flex items-center gap-1.5 shadow-sm">
           <i class="fa-solid fa-palette custom-accent-text"></i>
           <span>視覺風格</span>
@@ -202,7 +202,7 @@
           </div>
         </div>
 
-        <!-- Export Dropdown in Header (Hidden on Steps 1 & 2, visible on Step 3) -->
+        <!-- Export Dropdown in Header -->
         <div id="headerExportContainer" class="relative hidden">
           <button onclick="toggleDropdown('headerExportMenu')" class="px-3.5 py-2 rounded-xl custom-accent-bg text-white font-bold text-xs shadow-md hover:opacity-95 transition-all flex items-center gap-1.5">
             <i class="fa-solid fa-file-export"></i>
@@ -252,7 +252,7 @@
         <!-- Rendered dynamically via JavaScript -->
       </div>
 
-      <!-- Custom Keyword Search Wrapper (Shows when 'custom' is selected) -->
+      <!-- Custom Keyword Search Wrapper -->
       <div id="customKeywordWrapper" class="hidden rounded-3xl border-2 border-indigo-200 bg-indigo-50/70 p-6 space-y-4 shadow-sm">
         <div class="flex items-center justify-between gap-4">
           <div class="flex items-center gap-2 font-extrabold text-sm custom-accent-text">
@@ -447,6 +447,10 @@
           </div>
 
           <div class="flex items-center gap-2 shrink-0">
+            <button onclick="openEditReportModal()" class="px-4 py-2.5 rounded-2xl border border-indigo-200 bg-indigo-50 text-indigo-700 font-bold text-xs hover:bg-indigo-100 transition-colors flex items-center gap-1.5 shadow-sm">
+              <i class="fa-solid fa-pen-to-square"></i>
+              <span>編輯報告內容</span>
+            </button>
             <button onclick="saveCurrentProject()" class="px-4 py-2.5 rounded-2xl bg-slate-100 text-slate-700 font-bold text-xs hover:bg-slate-200 transition-colors flex items-center gap-1.5">
               <i class="fa-solid fa-bookmark custom-accent-text"></i>
               <span>儲存專案</span>
@@ -468,7 +472,7 @@
         </div>
       </div>
 
-      <!-- View Navigation Tabs (Hidden during print) -->
+      <!-- View Navigation Tabs -->
       <div class="flex items-center gap-2 border-b border-slate-200 pb-2 no-print">
         <button id="tabGanttBtn" onclick="switchView('gantt')" class="px-4 py-2 rounded-xl text-xs font-bold transition-all custom-accent-bg text-white shadow-sm">
           <i class="fa-solid fa-chart-gantt mr-1.5"></i>甘特圖 (Gantt Chart)
@@ -477,7 +481,7 @@
           <i class="fa-solid fa-list-check mr-1.5"></i>時程清單與交付物
         </button>
         <button id="tabRaciBtn" onclick="switchView('raci')" class="px-4 py-2 rounded-xl text-xs font-bold transition-all opacity-60 hover:bg-slate-200 text-slate-700">
-          <i class="fa-solid fa-people-arrows mr-1.5"></i>RACI 矩陣與分工
+          <i class="fa-solid fa-people-arrows mr-1.5"></i>RACI 矩陣與分工 (可點擊切換)
         </button>
       </div>
 
@@ -488,10 +492,16 @@
             <i class="fa-solid fa-chart-gantt custom-accent-text"></i>
             <span>甘特圖 (Gantt Chart)</span>
           </h3>
-          <button onclick="downloadSectionAsImage('viewGantt', '甘特圖')" class="px-3.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-all flex items-center gap-1.5 custom-accent-text shadow-sm hover:scale-105">
-            <i class="fa-solid fa-download"></i>
-            <span>下載圖檔 (PNG)</span>
-          </button>
+          <div class="flex items-center gap-2">
+            <button onclick="openEditReportModal('phases')" class="px-3.5 py-1.5 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm">
+              <i class="fa-solid fa-pen-to-square"></i>
+              <span>編輯階段時程</span>
+            </button>
+            <button onclick="downloadSectionAsImage('viewGantt', '甘特圖')" class="px-3.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-all flex items-center gap-1.5 custom-accent-text shadow-sm hover:scale-105">
+              <i class="fa-solid fa-download"></i>
+              <span>下載圖檔 (PNG)</span>
+            </button>
+          </div>
         </div>
         <h3 class="hidden print:block text-lg font-bold mb-4 custom-accent-text border-b pb-2"><i class="fa-solid fa-chart-gantt mr-2"></i>甘特圖 (Gantt Chart)</h3>
         <div id="ganttChartWrapper">
@@ -544,7 +554,13 @@
               <i class="fa-solid fa-calculator custom-accent-text"></i>
               <span>預算結構拆解與市場行情說明</span>
             </span>
-            <span id="budgetRefNote" class="text-[11px] font-normal text-slate-500">參考市場標準行情</span>
+            <div class="flex items-center gap-2">
+              <button onclick="openEditReportModal('budget')" class="px-2.5 py-1 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-[11px] font-bold transition-all flex items-center gap-1">
+                <i class="fa-solid fa-pen-to-square"></i>
+                <span>編輯預算</span>
+              </button>
+              <span id="budgetRefNote" class="text-[11px] font-normal text-slate-500">參考市場標準行情</span>
+            </div>
           </h3>
           <div id="budgetBreakdown" class="space-y-2">
             <!-- Dynamically populated budget items -->
@@ -556,9 +572,15 @@
 
         <!-- Risk Assessment -->
         <div class="lg:col-span-6 rounded-3xl border border-slate-200/80 custom-card-border bg-white custom-card-bg p-6 shadow-sm space-y-4">
-          <h3 class="font-extrabold text-base custom-main-text flex items-center gap-2 border-b border-slate-100 pb-3">
-            <i class="fa-solid fa-shield-halved text-amber-500"></i>
-            <span>專案風險評估與因應策略</span>
+          <h3 class="font-extrabold text-base custom-main-text flex items-center justify-between border-b border-slate-100 pb-3">
+            <span class="flex items-center gap-2">
+              <i class="fa-solid fa-shield-halved text-amber-500"></i>
+              <span>專案風險評估與因應策略</span>
+            </span>
+            <button onclick="openEditReportModal('risks')" class="px-2.5 py-1 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-[11px] font-bold transition-all flex items-center gap-1">
+              <i class="fa-solid fa-pen-to-square"></i>
+              <span>編輯風險</span>
+            </button>
           </h3>
           <div id="riskGrid" class="space-y-3">
             <!-- Dynamically populated risks -->
@@ -567,6 +589,122 @@
       </div>
     </section>
   </main>
+
+  <!-- Edit Report Content Modal -->
+  <div id="editReportModal" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="max-w-4xl w-full max-h-[90vh] rounded-3xl bg-white custom-card-bg border border-slate-200 custom-card-border p-6 shadow-2xl flex flex-col space-y-4 text-slate-900 custom-main-text">
+      
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between border-b border-slate-200 pb-3 shrink-0">
+        <div>
+          <h3 class="font-extrabold text-lg flex items-center gap-2">
+            <i class="fa-solid fa-pen-to-square custom-accent-text"></i>
+            <span>編輯專案規劃報告內容</span>
+          </h3>
+          <p class="text-xs text-slate-500 mt-0.5">可任意修改里程碑時程、交付物、預算拆解與風險因應策略，系統將自動同步重算全圖表。</p>
+        </div>
+        <button onclick="closeEditReportModal()" class="p-1.5 opacity-60 hover:opacity-100 transition-opacity"><i class="fa-solid fa-xmark text-xl"></i></button>
+      </div>
+
+      <!-- Modal Nav Tabs -->
+      <div class="flex items-center gap-2 border-b border-slate-100 pb-2 shrink-0 overflow-x-auto text-xs font-bold">
+        <button id="editTabBtn_phases" onclick="switchEditReportTab('phases')" class="px-3.5 py-2 rounded-xl custom-accent-bg text-white shadow-sm">
+          <i class="fa-solid fa-list-check mr-1.5"></i>階段時程與交付物
+        </button>
+        <button id="editTabBtn_budget" onclick="switchEditReportTab('budget')" class="px-3.5 py-2 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200">
+          <i class="fa-solid fa-calculator mr-1.5"></i>預算結構拆解
+        </button>
+        <button id="editTabBtn_risks" onclick="switchEditReportTab('risks')" class="px-3.5 py-2 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200">
+          <i class="fa-solid fa-shield-halved mr-1.5"></i>風險評估與因應
+        </button>
+        <button id="editTabBtn_basic" onclick="switchEditReportTab('basic')" class="px-3.5 py-2 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200">
+          <i class="fa-solid fa-sliders mr-1.5"></i>專案基本資訊
+        </button>
+      </div>
+
+      <!-- Tab Content Area -->
+      <div class="flex-1 overflow-y-auto pr-1 space-y-4 text-xs">
+        
+        <!-- Tab 1: Edit Phases -->
+        <div id="editTabContent_phases" class="space-y-4">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-slate-700">階段里程碑清單 (可修改工期天數、名稱與交付物)</span>
+            <button onclick="addEditPhaseRow()" class="px-3 py-1.5 rounded-xl custom-accent-bg text-white font-bold text-xs hover:opacity-90">
+              <i class="fa-solid fa-plus mr-1"></i>新增階段
+            </button>
+          </div>
+          <div id="editPhasesContainer" class="space-y-3">
+            <!-- Dynamically populated phase edit rows -->
+          </div>
+        </div>
+
+        <!-- Tab 2: Edit Budget -->
+        <div id="editTabContent_budget" class="hidden space-y-4">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-slate-700">預算結構拆解清單 (可調整項目名稱與比率)</span>
+            <button onclick="addEditBudgetRow()" class="px-3 py-1.5 rounded-xl custom-accent-bg text-white font-bold text-xs hover:opacity-90">
+              <i class="fa-solid fa-plus mr-1"></i>新增預算項目
+            </button>
+          </div>
+          <div id="editBudgetContainer" class="space-y-3">
+            <!-- Dynamically populated budget edit rows -->
+          </div>
+        </div>
+
+        <!-- Tab 3: Edit Risks -->
+        <div id="editTabContent_risks" class="hidden space-y-4">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-slate-700">專案風險評估清單</span>
+            <button onclick="addEditRiskRow()" class="px-3 py-1.5 rounded-xl custom-accent-bg text-white font-bold text-xs hover:opacity-90">
+              <i class="fa-solid fa-plus mr-1"></i>新增風險項目
+            </button>
+          </div>
+          <div id="editRisksContainer" class="space-y-3">
+            <!-- Dynamically populated risk edit rows -->
+          </div>
+        </div>
+
+        <!-- Tab 4: Edit Basic Project Info -->
+        <div id="editTabContent_basic" class="hidden space-y-4">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block font-bold mb-1 text-slate-700">專案名稱</label>
+              <input type="text" id="editProjectName" class="w-full rounded-xl border border-slate-200 px-3 py-2 font-semibold bg-white text-slate-900">
+            </div>
+            <div>
+              <label class="block font-bold mb-1 text-slate-700">專案總預算 (TWD)</label>
+              <input type="number" id="editProjectBudget" class="w-full rounded-xl border border-slate-200 px-3 py-2 font-semibold bg-white text-slate-900">
+            </div>
+            <div>
+              <label class="block font-bold mb-1 text-slate-700">風險預備金比率</label>
+              <select id="editContingencyRate" class="w-full rounded-xl border border-slate-200 px-3 py-2 font-semibold bg-white text-slate-900">
+                <option value="0.05">5%</option>
+                <option value="0.10">10%</option>
+                <option value="0.15">15%</option>
+                <option value="0.20">20%</option>
+              </select>
+            </div>
+            <div>
+              <label class="block font-bold mb-1 text-slate-700">內部簽核/採購預留天數</label>
+              <input type="number" id="editInternalDays" class="w-full rounded-xl border border-slate-200 px-3 py-2 font-semibold bg-white text-slate-900">
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex items-center justify-between border-t border-slate-200 pt-3 shrink-0">
+        <button onclick="closeEditReportModal()" class="px-4 py-2 rounded-xl text-xs font-bold text-slate-500 hover:text-slate-800 transition-colors">
+          取消
+        </button>
+        <button onclick="saveReportEdits()" class="px-6 py-2.5 rounded-2xl custom-accent-bg text-white font-bold text-xs shadow-md hover:opacity-95 transition-all flex items-center gap-1.5">
+          <i class="fa-solid fa-check"></i>
+          <span>儲存並更新全報告圖表</span>
+        </button>
+      </div>
+    </div>
+  </div>
 
   <!-- Visual Theme Customization Modal -->
   <div id="themeModal" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
@@ -888,6 +1026,7 @@
   let selectedTypeKey = 'exhibition';
   let currentPageNum = 1;
   let currentPlanData = null;
+  let customRaciOverrides = {};
 
   window.addEventListener('DOMContentLoaded', () => {
     loadSavedTheme();
@@ -897,9 +1036,332 @@
     addPersonRow('李執行', '專案組員');
   });
 
-  function openThemeModal() {
-    document.getElementById('themeModal').classList.remove('hidden');
-    updatePickerInputsFromVars();
+  /* Edit Report Modal Management */
+  function openEditReportModal(tabKey = 'phases') {
+    if (!currentPlanData) return;
+    document.getElementById('editReportModal').classList.remove('hidden');
+    switchEditReportTab(tabKey);
+    populateEditModalFields();
+  }
+
+  function closeEditReportModal() {
+    document.getElementById('editReportModal').classList.add('hidden');
+  }
+
+  function switchEditReportTab(tabKey) {
+    ['phases', 'budget', 'risks', 'basic'].forEach(key => {
+      const btn = document.getElementById(`editTabBtn_${key}`);
+      const content = document.getElementById(`editTabContent_${key}`);
+      if (key === tabKey) {
+        if (btn) btn.className = 'px-3.5 py-2 rounded-xl custom-accent-bg text-white shadow-sm';
+        if (content) content.classList.remove('hidden');
+      } else {
+        if (btn) btn.className = 'px-3.5 py-2 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200';
+        if (content) content.classList.add('hidden');
+      }
+    });
+  }
+
+  function populateEditModalFields() {
+    const d = currentPlanData;
+
+    // Basic Info
+    document.getElementById('editProjectName').value = d.name;
+    document.getElementById('editProjectBudget').value = d.budget;
+    document.getElementById('editContingencyRate').value = d.contingencyRate;
+    document.getElementById('editInternalDays').value = d.internalDays;
+
+    // Phases
+    const phasesContainer = document.getElementById('editPhasesContainer');
+    phasesContainer.innerHTML = '';
+    d.phases.forEach((p) => {
+      addEditPhaseRow(p);
+    });
+
+    // Budget
+    const budgetContainer = document.getElementById('editBudgetContainer');
+    budgetContainer.innerHTML = '';
+    const labels = d.customBudgetItems ? d.customBudgetItems.map(x => x.label) : (d.cfg.budgetLabels || ['核心費用 1', '核心費用 2', '核心費用 3', '核心費用 4', '行政/管理', '風險預備金']);
+    const weights = d.customBudgetItems ? d.customBudgetItems.map(x => x.weight) : [0.25, 0.25, 0.20, 0.15, 0.10, 0.05];
+
+    labels.forEach((lbl, idx) => {
+      addEditBudgetRow({ label: lbl, weight: weights[idx] || 0.1 });
+    });
+
+    // Risks
+    const risksContainer = document.getElementById('editRisksContainer');
+    risksContainer.innerHTML = '';
+    const risksList = d.customRisks || [
+      { title: '關鍵路徑延誤風險', level: '高', desc: '前置階段延誤壓縮後期時間。', action: '嚴格控管 Milestone 節點。' },
+      { title: '採購簽核/核銷時間風險', level: d.internalDays > 14 ? '高' : '中', desc: `內部採購流程約需 ${d.internalDays} 天。`, action: '提早發起採購申請。' },
+      { title: '範疇蔓延 (Scope Creep)', level: '中', desc: '中途提出額外需求導致超支。', action: '實施變更管理流程。' },
+      { title: '預算/備用金風險', level: '低', desc: `專案已編列風險預備金。`, action: '預備金專款專用。' }
+    ];
+
+    risksList.forEach(r => {
+      addEditRiskRow(r);
+    });
+  }
+
+  function addEditPhaseRow(phase = {}) {
+    const container = document.getElementById('editPhasesContainer');
+    const div = document.createElement('div');
+    div.className = 'edit-phase-item p-3.5 rounded-2xl border border-slate-200 bg-slate-50 space-y-2';
+
+    div.innerHTML = `
+      <div class="grid grid-cols-1 sm:grid-cols-12 gap-2 items-center">
+        <div class="sm:col-span-6">
+          <input type="text" class="phase-name w-full rounded-xl border border-slate-200 bg-white px-3 py-1.5 font-bold text-slate-900" placeholder="階段名稱" value="${phase.name || ''}">
+        </div>
+        <div class="sm:col-span-4">
+          <div class="flex items-center gap-1">
+            <span class="text-slate-500 text-[11px] font-semibold shrink-0">工期(天):</span>
+            <input type="number" class="phase-days w-full rounded-xl border border-slate-200 bg-white px-3 py-1.5 font-bold text-slate-900" placeholder="天數" value="${phase.days || 10}">
+          </div>
+        </div>
+        <div class="sm:col-span-2 text-right">
+          <button onclick="this.closest('.edit-phase-item').remove()" class="p-1.5 text-slate-400 hover:text-rose-500"><i class="fa-solid fa-trash-can"></i> 刪除</button>
+        </div>
+      </div>
+      <div>
+        <input type="text" class="phase-desc w-full rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-slate-700" placeholder="階段作業詳細說明" value="${phase.desc || ''}">
+      </div>
+      <div>
+        <input type="text" class="phase-deliverable w-full rounded-xl border border-slate-200 bg-white px-3 py-1.5 font-semibold text-slate-800" placeholder="核心交付物 (Deliverables)" value="${phase.deliverable || ''}">
+      </div>
+    `;
+    container.appendChild(div);
+  }
+
+  function addEditBudgetRow(item = {}) {
+    const container = document.getElementById('editBudgetContainer');
+    const div = document.createElement('div');
+    div.className = 'edit-budget-item grid grid-cols-1 sm:grid-cols-12 gap-2 items-center p-3 rounded-2xl border border-slate-200 bg-slate-50';
+
+    div.innerHTML = `
+      <div class="sm:col-span-6">
+        <input type="text" class="budget-label w-full rounded-xl border border-slate-200 bg-white px-3 py-1.5 font-bold text-slate-900" placeholder="預算拆解項目名稱" value="${item.label || ''}">
+      </div>
+      <div class="sm:col-span-4">
+        <div class="flex items-center gap-1">
+          <span class="text-slate-500 text-[11px] font-semibold shrink-0">權重占比(%):</span>
+          <input type="number" class="budget-weight w-full rounded-xl border border-slate-200 bg-white px-3 py-1.5 font-bold text-slate-900" placeholder="比率" value="${Math.round((item.weight || 0.1) * 100)}">
+        </div>
+      </div>
+      <div class="sm:col-span-2 text-right">
+        <button onclick="this.closest('.edit-budget-item').remove()" class="p-1.5 text-slate-400 hover:text-rose-500"><i class="fa-solid fa-trash-can"></i></button>
+      </div>
+    `;
+    container.appendChild(div);
+  }
+
+  function addEditRiskRow(risk = {}) {
+    const container = document.getElementById('editRisksContainer');
+    const div = document.createElement('div');
+    div.className = 'edit-risk-item p-3.5 rounded-2xl border border-slate-200 bg-slate-50 space-y-2';
+
+    div.innerHTML = `
+      <div class="grid grid-cols-1 sm:grid-cols-12 gap-2 items-center">
+        <div class="sm:col-span-7">
+          <input type="text" class="risk-title w-full rounded-xl border border-slate-200 bg-white px-3 py-1.5 font-bold text-slate-900" placeholder="風險名稱" value="${risk.title || ''}">
+        </div>
+        <div class="sm:col-span-3">
+          <select class="risk-level w-full rounded-xl border border-slate-200 bg-white px-3 py-1.5 font-bold text-slate-900">
+            <option value="高" ${risk.level === '高' ? 'selected' : ''}>風險程度：高</option>
+            <option value="中" ${risk.level === '中' ? 'selected' : ''}>風險程度：中</option>
+            <option value="低" ${risk.level === '低' ? 'selected' : ''}>風險程度：低</option>
+          </select>
+        </div>
+        <div class="sm:col-span-2 text-right">
+          <button onclick="this.closest('.edit-risk-item').remove()" class="p-1.5 text-slate-400 hover:text-rose-500"><i class="fa-solid fa-trash-can"></i> 刪除</button>
+        </div>
+      </div>
+      <div>
+        <input type="text" class="risk-desc w-full rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-slate-700" placeholder="風險說明" value="${risk.desc || ''}">
+      </div>
+      <div>
+        <input type="text" class="risk-action w-full rounded-xl border border-slate-200 bg-white px-3 py-1.5 font-semibold text-slate-800" placeholder="因應對策" value="${risk.action || ''}">
+      </div>
+    `;
+    container.appendChild(div);
+  }
+
+  function saveReportEdits() {
+    if (!currentPlanData) return;
+
+    // Update Basic Info
+    currentPlanData.name = document.getElementById('editProjectName').value.trim() || currentPlanData.name;
+    currentPlanData.budget = Number(document.getElementById('editProjectBudget').value || 0);
+    currentPlanData.contingencyRate = Number(document.getElementById('editContingencyRate').value);
+    currentPlanData.internalDays = Number(document.getElementById('editInternalDays').value || 0);
+
+    // Update Phases & Recalculate Timeline
+    const phaseElements = document.querySelectorAll('.edit-phase-item');
+    const newPhases = [];
+    let curCursor = new Date(currentPlanData.startDate);
+
+    phaseElements.forEach((el, idx) => {
+      const pName = el.querySelector('.phase-name').value.trim() || `階段 ${idx + 1}`;
+      const pDays = Math.max(1, parseInt(el.querySelector('.phase-days').value || 5, 10));
+      const pDesc = el.querySelector('.phase-desc').value.trim();
+      const pDeliv = el.querySelector('.phase-deliverable').value.trim();
+
+      const pStart = new Date(curCursor);
+      const pEnd = currentPlanData.workDayMode ? addWorkDays(pStart, pDays) : addDays(pStart, pDays - 1);
+      const bufferDays = Math.max(1, Math.round(pDays * 0.15));
+      const lateFinish = currentPlanData.workDayMode ? addWorkDays(pEnd, bufferDays) : addDays(pEnd, bufferDays);
+
+      newPhases.push({
+        name: pName,
+        desc: pDesc,
+        days: pDays,
+        deliverable: pDeliv,
+        start: pStart,
+        end: pEnd,
+        bufferDays: bufferDays,
+        lateFinish: lateFinish
+      });
+
+      curCursor = currentPlanData.workDayMode ? addWorkDays(pEnd, 2) : addDays(pEnd, 1);
+    });
+
+    if (newPhases.length) {
+      currentPlanData.phases = newPhases;
+      currentPlanData.endDate = newPhases[newPhases.length - 1].end;
+      currentPlanData.totalDays = getDaysDiff(currentPlanData.startDate, currentPlanData.endDate, currentPlanData.workDayMode);
+    }
+
+    // Update Custom Budget Items
+    const budgetElements = document.querySelectorAll('.edit-budget-item');
+    const customBudget = [];
+    budgetElements.forEach(el => {
+      const lbl = el.querySelector('.budget-label').value.trim();
+      const wt = Math.max(0, parseInt(el.querySelector('.budget-weight').value || 10, 10)) / 100;
+      if (lbl) customBudget.push({ label: lbl, weight: wt });
+    });
+    currentPlanData.customBudgetItems = customBudget;
+
+    // Update Custom Risks
+    const riskElements = document.querySelectorAll('.edit-risk-item');
+    const customRisks = [];
+    riskElements.forEach(el => {
+      const title = el.querySelector('.risk-title').value.trim();
+      const level = el.querySelector('.risk-level').value;
+      const desc = el.querySelector('.risk-desc').value.trim();
+      const action = el.querySelector('.risk-action').value.trim();
+      if (title) customRisks.push({ title, level, desc, action });
+    });
+    currentPlanData.customRisks = customRisks;
+
+    renderResults();
+    closeEditReportModal();
+    showToast('已成功儲存自訂編輯內容，全報告視圖已更新！', 'success');
+  }
+
+  function renderBudgetBreakdown() {
+    const d = currentPlanData;
+    const container = document.getElementById('budgetBreakdown');
+    const noteEl = document.getElementById('budgetRefNote');
+    const adviceEl = document.getElementById('budgetAdvice');
+
+    const refNote = PUBLIC_REFS[d.typeKey] || PUBLIC_REFS.custom;
+    noteEl.textContent = refNote;
+
+    const budgetItems = d.customBudgetItems || [
+      { label: d.cfg.budgetLabels?.[0] || '核心費用 1', weight: 0.25 },
+      { label: d.cfg.budgetLabels?.[1] || '核心費用 2', weight: 0.25 },
+      { label: d.cfg.budgetLabels?.[2] || '核心費用 3', weight: 0.20 },
+      { label: d.cfg.budgetLabels?.[3] || '核心費用 4', weight: 0.15 },
+      { label: d.cfg.budgetLabels?.[4] || '行政/管理', weight: 0.10 },
+      { label: d.cfg.budgetLabels?.[5] || '風險預備金', weight: 0.05 }
+    ];
+
+    let html = '';
+    budgetItems.forEach((item) => {
+      const itemAmount = d.budget ? Math.round(d.budget * item.weight) : 0;
+      html += `
+        <div class="flex items-center justify-between py-2 border-b border-slate-100 text-xs">
+          <span class="text-slate-600 font-medium">${item.label} (${(item.weight * 100).toFixed(0)}%)</span>
+          <span class="font-bold custom-main-text">${d.budget ? formatCurrency(itemAmount) : '—'}</span>
+        </div>
+      `;
+    });
+    container.innerHTML = html;
+
+    let advice = [];
+    if (d.budget && d.budget < d.budgetRange[0]) {
+      advice.push('預算低於該專案規模的市場參考區間，建議優先適度縮減非核心功能，避免壓縮測試或品質監測時程。');
+    }
+    if (d.budget && d.budget > d.budgetRange[1]) {
+      advice.push('預算充裕，建議可提高硬體/視覺/互動規格，或增加測試驗證的場次。');
+    }
+    if (d.internalDays > 0) {
+      advice.push(`已納入 ${d.internalDays} 天內部簽核/採購緩衝，請確保權責單位配合 SLA。`);
+    }
+    if (d.hardDeadline) {
+      advice.push('設有硬性截止日：建議在正式截止日前再預留 5–10 天作為最終驗收與缺失改善緩衝。');
+    }
+    advice.push('正式發包前建議向至少 2–3 家合格廠商取得細項分解報價（WBS 拆解式報價）。');
+
+    adviceEl.innerHTML = advice.map(x => `<p class="flex items-start gap-2"><i class="fa-solid fa-circle-check custom-accent-text mt-0.5 shrink-0"></i><span>${x}</span></p>`).join('');
+  }
+
+  function renderRiskMatrix() {
+    const d = currentPlanData;
+    const container = document.getElementById('riskGrid');
+
+    const risks = d.customRisks || [
+      {
+        title: '關鍵路徑延誤風險',
+        level: '高',
+        color: 'rose',
+        desc: '前置階段（如規格定案或採購發包）延誤，將直接壓縮後期製作與測試時間。',
+        action: '嚴格控管 Milestone 節點，設有專責 PM 即時追蹤。'
+      },
+      {
+        title: '採購簽核/核銷時間風險',
+        level: d.internalDays > 14 ? '高' : '中',
+        color: d.internalDays > 14 ? 'rose' : 'amber',
+        desc: `內部採購流程約需 ${d.internalDays} 天，若單據缺漏可能影響對外發包與交期。`,
+        action: '提早發起採購申請，並同步預告法務與會計單位。'
+      },
+      {
+        title: '範疇蔓延 (Scope Creep)',
+        level: '中',
+        color: 'amber',
+        desc: '專案執行中途提出額外需求或修改規格，導致時程與預算超支。',
+        action: '實施嚴格變更管理流程（Change Control），新增需求須評估工期與追加預算。'
+      },
+      {
+        title: '預算/備用金風險',
+        level: '低',
+        color: 'emerald',
+        desc: `專案已編列 ${d.contingencyRate * 100}% 風險預備金 (${formatCurrency(d.budget * d.contingencyRate)})。`,
+        action: '預備金專款專用，須經 PM 與 Sponsor 雙重簽核方可支用。'
+      }
+    ];
+
+    container.innerHTML = risks.map(r => {
+      const color = r.level === '高' ? 'rose' : (r.level === '中' ? 'amber' : 'emerald');
+      return `
+        <div class="p-4 rounded-2xl border border-slate-200 bg-white custom-card-bg space-y-2">
+          <div class="flex items-center justify-between">
+            <h4 class="font-bold text-sm flex items-center gap-2 custom-main-text">
+              <i class="fa-solid fa-triangle-exclamation text-${color}-500"></i>
+              <span>${r.title}</span>
+            </h4>
+            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-${color}-100 text-${color}-800">
+              風險程度：${r.level}
+            </span>
+          </div>
+          <p class="text-xs text-slate-600 leading-relaxed">${r.desc}</p>
+          <div class="pt-2 border-t border-slate-100 text-xs font-medium flex items-center gap-1.5 text-slate-700">
+            <i class="fa-solid fa-shield-halved custom-accent-text"></i>
+            <span><strong>因應策略：</strong>${r.action}</span>
+          </div>
+        </div>
+      `;
+    }).join('');
   }
 
   function closeThemeModal() {
@@ -1408,7 +1870,8 @@
         start: pStart,
         end: pEnd,
         bufferDays: bufferDays,
-        lateFinish: lateFinish
+        lateFinish: lateFinish,
+        progress: 0
       });
 
       curCursor = workDayMode ? addWorkDays(pEnd, 2) : addDays(pEnd, 1);
@@ -1426,6 +1889,8 @@
         budgetStatus = '預算合理 (符合行情)';
       }
     }
+
+    customRaciOverrides = {};
 
     currentPlanData = {
       name, typeKey: selectedTypeKey, cfg, scale, startDate, endDate, totalDays, workDayMode,
@@ -1506,6 +1971,7 @@
   function renderGanttChart() {
     const d = currentPlanData;
     const container = document.getElementById('ganttChartWrapper');
+    if (!container || !d) return;
     
     const maxLateDate = d.phases[d.phases.length - 1].lateFinish;
     const totalMs = maxLateDate - d.startDate;
@@ -1569,6 +2035,7 @@
   function renderTimelineList() {
     const d = currentPlanData;
     const container = document.getElementById('timelineList');
+    if (!container || !d) return;
     const unitText = d.workDayMode ? '工作天' : '天';
 
     container.innerHTML = d.phases.map((p, i) => `
@@ -1609,9 +2076,45 @@
     `).join('');
   }
 
+  function getRaciCode(phaseIdx, teamIdx) {
+    const key = `${phaseIdx}_${teamIdx}`;
+    if (customRaciOverrides[key]) {
+      return customRaciOverrides[key];
+    }
+    const d = currentPlanData;
+    const t = d.team[teamIdx];
+
+    if (teamIdx === 0) return 'A';
+    if (t.role.includes('執行') || t.role.includes('顧問') || t.role.includes('設計') || t.role.includes('工程') || t.role.includes('企劃')) {
+      if (phaseIdx === 2 || phaseIdx === 3 || phaseIdx === 4) return 'R';
+      return 'C';
+    }
+    return 'I';
+  }
+
+  function cycleRaciCode(phaseIdx, teamIdx) {
+    const current = getRaciCode(phaseIdx, teamIdx);
+    const cycleMap = { 'R': 'A', 'A': 'C', 'C': 'I', 'I': 'R' };
+    const next = cycleMap[current] || 'R';
+    customRaciOverrides[`${phaseIdx}_${teamIdx}`] = next;
+    renderRaciMatrix();
+    showToast(`已更改職責角色為：${getRaciTitle(next)}`, 'info');
+  }
+
+  function getRaciTitle(code) {
+    const map = {
+      'R': 'R (Responsible 負責執行)',
+      'A': 'A (Accountable 當責對象)',
+      'C': 'C (Consulted 諮詢對象)',
+      'I': 'I (Informed 知會對象)'
+    };
+    return map[code] || code;
+  }
+
   function renderRaciMatrix() {
     const d = currentPlanData;
     const container = document.getElementById('raciMatrixWrapper');
+    if (!container || !d) return;
 
     if (!d.team.length) {
       container.innerHTML = `<div class="text-xs text-slate-500 py-6 text-center">未填寫團隊成員，無法產生 RACI 與工作分配表。</div>`;
@@ -1619,7 +2122,17 @@
     }
 
     let tableHtml = `
-      <table class="w-full text-xs text-left border-collapse mb-8">
+      <div class="mb-3 text-[11px] text-slate-500 font-semibold flex items-center justify-between">
+        <span>💡 提示：點擊下方表格中的 R / A / C / I 標籤，可直接切換職責！</span>
+        <span class="space-x-2">
+          <span class="px-2 py-0.5 rounded bg-indigo-100 text-indigo-800 font-bold">R: 負責</span>
+          <span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-bold">A: 當責</span>
+          <span class="px-2 py-0.5 rounded bg-amber-100 text-amber-800 font-bold">C: 諮詢</span>
+          <span class="px-2 py-0.5 rounded bg-slate-100 text-slate-600 font-bold">I: 知會</span>
+        </span>
+      </div>
+
+      <table class="w-full text-xs text-left border-collapse mb-8 select-none">
         <thead>
           <tr class="border-b border-slate-200 bg-slate-50/50">
             <th class="py-3 px-3 font-semibold text-slate-600">專案階段 / Phase</th>
@@ -1630,22 +2143,17 @@
     `;
 
     d.phases.forEach((p, idx) => {
-      tableHtml += `<tr class="border-b border-slate-100">`;
+      tableHtml += `<tr class="border-b border-slate-100 hover:bg-slate-50/50">`;
       tableHtml += `<td class="py-3 px-3 font-medium custom-main-text">${p.name}</td>`;
 
       d.team.forEach((t, tidx) => {
-        let raciCode = 'I';
-        if (tidx === 0) raciCode = 'A';
-        else if (t.role.includes('執行') || t.role.includes('顧問') || t.role.includes('設計') || t.role.includes('工程') || t.role.includes('企劃')) {
-          if (idx === 2 || idx === 3 || idx === 4) raciCode = 'R';
-          else raciCode = 'C';
-        }
+        const raciCode = getRaciCode(idx, tidx);
 
         const badges = {
-          'R': '<span class="px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-800 font-bold" title="Responsible 負責執行">R</span>',
-          'A': '<span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold" title="Accountable 當責對象">A</span>',
-          'C': '<span class="px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 font-bold" title="Consulted 諮詢對象">C</span>',
-          'I': '<span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 font-bold" title="Informed 知會對象">I</span>'
+          'R': `<button onclick="cycleRaciCode(${idx}, ${tidx})" class="px-2.5 py-1 rounded-full bg-indigo-100 hover:bg-indigo-200 text-indigo-800 font-extrabold shadow-sm transition-all" title="點擊切換 (Responsible 負責執行)">R</button>`,
+          'A': `<button onclick="cycleRaciCode(${idx}, ${tidx})" class="px-2.5 py-1 rounded-full bg-emerald-100 hover:bg-emerald-200 text-emerald-800 font-extrabold shadow-sm transition-all" title="點擊切換 (Accountable 當責對象)">A</button>`,
+          'C': `<button onclick="cycleRaciCode(${idx}, ${tidx})" class="px-2.5 py-1 rounded-full bg-amber-100 hover:bg-amber-200 text-amber-800 font-extrabold shadow-sm transition-all" title="點擊切換 (Consulted 諮詢對象)">C</button>`,
+          'I': `<button onclick="cycleRaciCode(${idx}, ${tidx})" class="px-2.5 py-1 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 font-extrabold shadow-sm transition-all" title="點擊切換 (Informed 知會對象)">I</button>`
         };
 
         tableHtml += `<td class="py-3 px-3 text-center">${badges[raciCode]}</td>`;
@@ -1663,7 +2171,7 @@
             <i class="fa-solid fa-users-gear custom-accent-text"></i>
             <span>團隊人力與交付工作分配表</span>
           </h4>
-          <p class="text-xs text-slate-600">依據人力配置角色，自動彙整各成員負責階段、主要交付產出物與 RACI 當責職責。</p>
+          <p class="text-xs text-slate-600">依據人力配置角色與 RACI 矩陣，自動彙整各成員負責階段、主要交付產出物與當責職責。</p>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1674,18 +2182,8 @@
       const assignedDeliverables = [];
 
       d.phases.forEach((p, idx) => {
-        let isResponsible = false;
-        if (tidx === 0) isResponsible = true;
-        else if (t.role.includes('設計') && p.name.includes('設計')) isResponsible = true;
-        else if (t.role.includes('工程') && (p.name.includes('測試') || p.name.includes('施工') || p.name.includes('研發'))) isResponsible = true;
-        else if (t.role.includes('企劃') && (p.name.includes('企劃') || p.name.includes('策劃'))) isResponsible = true;
-        else if (t.role.includes('核銷') || t.role.includes('採購')) {
-          if (p.name.includes('採購') || p.name.includes('結案') || p.name.includes('核銷')) isResponsible = true;
-        } else if (idx % d.team.length === tidx % d.team.length) {
-          isResponsible = true;
-        }
-
-        if (isResponsible) {
+        const code = getRaciCode(idx, tidx);
+        if (code === 'R' || code === 'A') {
           assignedPhases.push(p.name);
           assignedDeliverables.push(p.deliverable);
         }
@@ -1710,16 +2208,16 @@
 
           <div class="space-y-2 text-xs text-slate-700">
             <div>
-              <span class="text-slate-500 font-medium">負責 / 參與階段：</span>
+              <span class="text-slate-500 font-medium">負責 / 當責階段：</span>
               <div class="flex flex-wrap gap-1 mt-1">
-                ${assignedPhases.map(ph => `<span class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-800 font-medium text-[11px]">${ph}</span>`).join('')}
+                ${assignedPhases.length ? assignedPhases.map(ph => `<span class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-800 font-medium text-[11px]">${ph}</span>`).join('') : '<span class="text-slate-400 text-[11px]">僅擔任諮詢/知會</span>'}
               </div>
             </div>
 
             <div>
               <span class="text-slate-500 font-medium">主要負責交付產出 (Deliverables)：</span>
               <ul class="list-disc list-inside mt-1 space-y-1 font-semibold text-[11px] text-slate-800">
-                ${assignedDeliverables.map(dl => `<li>${dl}</li>`).join('')}
+                ${assignedDeliverables.length ? assignedDeliverables.map(dl => `<li>${dl}</li>`).join('') : '<li class="text-slate-400 font-normal">無直接主要交付物</li>'}
               </ul>
             </div>
           </div>
@@ -1959,38 +2457,29 @@
     d.phases.forEach((p, idx) => {
       const row = [p.name];
       d.team.forEach((t, tidx) => {
-        let code = 'I (知會)';
-        if (tidx === 0) code = 'A (當責)';
-        else if (t.role.includes('執行') || t.role.includes('顧問') || t.role.includes('設計') || t.role.includes('工程') || t.role.includes('企劃')) {
-          if (idx === 2 || idx === 3 || idx === 4) code = 'R (負責)';
-          else code = 'C (諮詢)';
-        }
-        row.push(code);
+        const code = getRaciCode(idx, tidx);
+        const codeTextMap = {
+          'R': 'R (負責)',
+          'A': 'A (當責)',
+          'C': 'C (諮詢)',
+          'I': 'I (知會)'
+        };
+        row.push(codeTextMap[code] || code);
       });
       sheet4Data.push(row);
     });
 
     sheet4Data.push([]);
     sheet4Data.push(['團隊成員工作與交付物分工明細表', '']);
-    sheet4Data.push(['成員姓名', '角色', '責任定位', '負責 / 參與階段', '負責主要交付物 (Deliverables)']);
+    sheet4Data.push(['成員姓名', '角色', '責任定位', '負責 / 當責階段', '負責主要交付物 (Deliverables)']);
 
     d.team.forEach((t, tidx) => {
       const assignedPhases = [];
       const assignedDeliverables = [];
 
       d.phases.forEach((p, idx) => {
-        let isResponsible = false;
-        if (tidx === 0) isResponsible = true;
-        else if (t.role.includes('設計') && p.name.includes('設計')) isResponsible = true;
-        else if (t.role.includes('工程') && (p.name.includes('測試') || p.name.includes('施工') || p.name.includes('研發'))) isResponsible = true;
-        else if (t.role.includes('企劃') && (p.name.includes('企劃') || p.name.includes('策劃'))) isResponsible = true;
-        else if (t.role.includes('核銷') || t.role.includes('採購')) {
-          if (p.name.includes('採購') || p.name.includes('結案') || p.name.includes('核銷')) isResponsible = true;
-        } else if (idx % d.team.length === tidx % d.team.length) {
-          isResponsible = true;
-        }
-
-        if (isResponsible) {
+        const code = getRaciCode(idx, tidx);
+        if (code === 'R' || code === 'A') {
           assignedPhases.push(p.name);
           assignedDeliverables.push(p.deliverable);
         }
@@ -2104,7 +2593,11 @@
 
   function exportProjectJSON() {
     if (!currentPlanData) return;
-    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(currentPlanData, null, 2));
+    const exportData = {
+      ...currentPlanData,
+      customRaciOverrides
+    };
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportData, null, 2));
     const downloadAnchor = document.createElement('a');
     downloadAnchor.setAttribute("href", dataStr);
     downloadAnchor.setAttribute("download", `${currentPlanData.name}_範例檔.json`);
@@ -2175,7 +2668,10 @@
       id: Date.now(),
       name: currentPlanData.name,
       date: new Date().toLocaleDateString('zh-TW'),
-      data: currentPlanData
+      data: {
+        ...currentPlanData,
+        customRaciOverrides
+      }
     };
     list.unshift(newRecord);
     localStorage.setItem('pf_saved_projects', JSON.stringify(list));
@@ -2216,6 +2712,7 @@
     const found = list.find(x => x.id === id);
     if (found) {
       currentPlanData = found.data;
+      customRaciOverrides = found.data.customRaciOverrides || {};
       currentPlanData.startDate = new Date(currentPlanData.startDate);
       currentPlanData.endDate = new Date(currentPlanData.endDate);
       currentPlanData.phases.forEach(p => {
